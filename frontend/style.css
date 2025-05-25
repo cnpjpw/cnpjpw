@@ -1,0 +1,399 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+
+body {
+    background-color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    justify-content: space-between;
+}
+
+.container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 20px;
+}
+
+.logo {
+    font-size: 48px;
+    font-weight: 700;
+    color: #000000;
+    margin-bottom: 30px;
+    letter-spacing: 1px;
+}
+
+.logo span {
+    color: #00A651;
+}
+
+.search-container {
+    width: 100%;
+    max-width: 600px;
+    margin-bottom: 25px;
+}
+
+.search-tabs {
+    display: flex;
+    margin-bottom: 15px;
+}
+
+.search-tab {
+    padding: 10px 20px;
+    background-color: #f0f0f0;
+    border: 1px solid #ddd;
+    border-bottom: none;
+    border-radius: 5px 5px 0 0;
+    cursor: pointer;
+    font-weight: 500;
+    margin-right: 5px;
+}
+
+.search-tab.active {
+    background-color: #00A651;
+    color: white;
+    border-color: #00A651;
+}
+
+.search-box {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.search-input {
+    width: 100%;
+    padding: 15px 20px;
+    font-size: 16px;
+    border: 2px solid #00A651;
+    border-radius: 30px;
+    outline: none;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.search-input:focus {
+    box-shadow: 0 4px 12px rgba(0, 166, 81, 0.2);
+}
+
+.search-button {
+    position: absolute;
+    right: 5px;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: #00A651;
+    color: white;
+    border: none;
+    border-radius: 25px;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background-color 0.3s ease;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.search-button:hover {
+    background-color: #008a43;
+}
+
+.search-form {
+    display: none;
+}
+
+.search-form.active {
+    display: block;
+}
+
+.date-div {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.busca-input-group {
+    display: flex;
+    align-items: center;
+    background: white;
+    border: 2px solid #00A651;
+    border-radius: 30px;
+    padding: 5px 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.date-label {
+    min-width: 80px;
+    font-size: 14px;
+    color: #555;
+}
+
+.busca-input {
+    flex: 1;
+    border: none;
+    padding: 10px 0;
+    outline: none;
+    font-size: 16px;
+    background-color: white;
+}
+
+/* Resultados e Paginação */
+.results-container {
+    width: 100%;
+    max-width: 800px;
+    margin-top: 20px;
+    display: none;
+}
+
+.results-container.active {
+    display: block;
+}
+
+.results-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.results-count {
+    font-size: 16px;
+    color: #555;
+}
+
+.results-per-page {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.results-per-page select {
+    padding: 5px 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    outline: none;
+}
+
+.results-list {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.results-list th {
+    background-color: #00A651;
+    color: white;
+    text-align: left;
+    padding: 12px 15px;
+}
+
+.results-list tr {
+    border-bottom: 1px solid #ddd;
+    transition: background-color 0.3s ease;
+}
+
+.results-list tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.results-list tr:hover {
+    background-color: #f0f0f0;
+}
+
+.results-list td {
+    padding: 12px 15px;
+}
+
+.data-abertura-td {
+  min-width: 10em;
+}
+
+.cnpj-link {
+    color: #00A651;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.cnpj-link:hover {
+    text-decoration: underline;
+}
+
+.situacao-ativa {
+    color: #00A651;
+    font-weight: 500;
+}
+
+.situacao-outros {
+    color: #e74c3c;
+    font-weight: 500;
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    margin: 20px 0;
+    gap: 5px;
+}
+
+.pagination-button {
+    padding: 8px 15px;
+    border: 1px solid #ddd;
+    background-color: white;
+    color: #555;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.pagination-button:hover {
+    background-color: #f0f0f0;
+}
+
+.pagination-button.active {
+    background-color: #00A651;
+    color: white;
+    border-color: #00A651;
+}
+
+.pagination-button.loading {
+    background-color: #d2ed21;
+    color: white;
+    border-color: #d2ed21;
+}
+
+.pagination-button.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.pagination-ellipsis {
+    display: flex;
+    align-items: center;
+    padding: 0 10px;
+    color: #555;
+}
+
+footer {
+    background-color: #333333;
+    color: #ffffff;
+    text-align: center;
+    padding: 15px;
+    width: 100%;
+}
+
+footer p {
+    margin: 5px 0;
+    font-size: 14px;
+}
+
+footer a {
+    color: #00A651;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+footer a:hover {
+    color: #00cc63;
+    text-decoration: underline;
+}
+
+
+
+/* teste checkbox  - https://moderncss.dev/pure-css-custom-checkbox-style/*/
+
+
+:root {
+  --form-control-color: green;
+  --form-control-disabled: #959495;
+}
+
+*,
+*:before,
+*:after {
+  box-sizing: border-box;
+}
+
+
+.form-control {
+  font-family: system-ui, sans-serif;
+  font-size: 2rem;
+  font-weight: bold;
+  line-height: 1.1;
+  display: grid;
+  grid-template-columns: 1em auto;
+  gap: 0.5em;
+}
+
+.form-control + .form-control {
+  margin-top: 1em;
+}
+
+.form-control--disabled {
+  color: var(--form-control-disabled);
+  cursor: not-allowed;
+}
+
+input[type="checkbox"] {
+  /* Add if not using autoprefixer */
+  -webkit-appearance: none;
+  /* Remove most all native input styles */
+  appearance: none;
+  /* For iOS < 15 */
+  background-color: var(--form-background);
+  /* Not removed via appearance */
+  margin: 0;
+
+  font: inherit;
+  color: currentColor;
+  width: 1.15em;
+  height: 1.15em;
+  border: 0.15em solid currentColor;
+  border-radius: 0.15em;
+  transform: translateY(-0.075em);
+
+  display: inline-grid;
+  place-content: center;
+}
+
+input[type="checkbox"]::before {
+  content: "";
+  width: 0.65em;
+  height: 0.65em;
+  clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+  transform: scale(0);
+  transform-origin: bottom left;
+  transition: 120ms transform ease-in-out;
+  box-shadow: inset 1em 1em var(--form-control-color);
+  /* Windows High Contrast Mode */
+  background-color: CanvasText;
+}
+
+input[type="checkbox"]:checked::before {
+  transform: scale(1);
+}
+
+label {
+  padding-right: 10px;
+
+}
+input[type="checkbox"]:focus {
+  outline: max(2px, 0.15em) solid currentColor;
+  outline-offset: max(2px, 0.15em);
+}
+
+input[type="checkbox"]:disabled {
+  --form-control-color: var(--form-control-disabled);
+
+  color: var(--form-control-disabled);
+  cursor: not-allowed;
+}
