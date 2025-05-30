@@ -20,8 +20,8 @@ CREATE table estabelecimentos (
 	nome_cidade_exterior VARCHAR(55),
 	pais SMALLINT,
 	data_inicio_atividade DATE,
-	cnae_fiscal_principal CHAR(7) REFERENCES cnaes (codigo),
-	cnaes_fiscais_secundarios CHAR(7)[99],
+	cnae_fiscal_principal INTEGER REFERENCES cnaes (codigo),
+	cnaes_fiscais_secundarios INTEGER(7)[99],
 	tipo_logradouro VARCHAR(20),
 	logradouro VARCHAR(60),
 	numero VARCHAR(6),
@@ -90,7 +90,7 @@ CREATE table naturezas_juridicas (
 
 
 CREATE table cnaes (
-	codigo CHAR(7) PRIMARY KEY,
+	codigo INTEGER PRIMARY KEY,
 	descricao VARCHAR(150)
 
 );
