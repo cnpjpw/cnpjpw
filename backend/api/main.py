@@ -11,11 +11,21 @@ from queries import CNPJ_QUERY, FILTROS_QUERY, DATA_ABERTURA_QUERY, RAIZ_QUERY
 
 
 load_dotenv()
-
 app = FastAPI()
 app.add_middleware(GZipMiddleware, minimum_size=1000, compresslevel=5)
 bd_nome = os.getenv('BD_NOME')
 bd_usuario = os.getenv('BD_USUARIO')
+
+
+def get_paginacao_template(total, pagina_atual, limite=25):
+    quant_paginacoes = ceil(total / limite)
+    return {
+        'quantidade_total_resultados': total,
+        'limite_resultados_paginacao': limite,
+        'resultados_paginacao': pagina_atual,
+        'quantidade_paginacoes': quant_paginacoes,
+    }
+
 
 @contextmanager
 def get_conn():
@@ -65,20 +75,15 @@ def get_paginacao_data(data: str, p: int = 1, conn=Depends(get_conn)):
     with get_conn() as conn:
         with conn.cursor() as cursor:
             cursor.execute(DATA_ABERTURA_QUERY, (data, offset))
-            results = cursor.fetchall()
+            resultados = cursor.fetchall()
             cursor.execute(
                      "SELECT COUNT(*) FROM estabelecimentos WHERE (data_inicio_atividade = (%s))", 
                      (data, )
                      )
             total = cursor.fetchone()
-    quant_paginacoes = ceil(total[0] / 25)
-    return {
-            'quantidade_total_resultados':  total[0],
-            'limite_resultados_paginacao': 25,
-            'paginacao_atual': p,
-            'quantidade_paginacoes': quant_paginacoes,
-            'resultados_paginacao': [res[0] for res in results],
-    }
+    total = total[0]
+    resultados = [res[0] for res in resultados]
+    return get_paginacao_template(total, resultados)
 
 
 @app.get("/cnpj_base/{cnpj_base}")
@@ -99,21 +104,16 @@ def get_paginacao_data(cnpj_base: str, p: int = 1, conn=Depends(get_conn)):
     with get_conn() as conn:
         with conn.cursor() as cursor:
             cursor.execute(RAIZ_QUERY, (cnpj_base, offset))
-            results = cursor.fetchall()
+            resultados = cursor.fetchall()
             cursor.execute(
                     "SELECT COUNT(*) FROM estabelecimentos WHERE (cnpj_base = (%s)::bpchar)", 
                      (cnpj_base, )
                      )
             total = cursor.fetchone()
 
-    quant_paginacoes = ceil(total[0] / 25)
-    return {
-            'quantidade_total_resultados':  total[0],
-            'limite_resultados_paginacao': 25,
-            'paginacao_atual': p,
-            'quantidade_paginacoes': quant_paginacoes,
-            'resultados_paginacao': [res[0] for res in results],
-    }
+    total = total[0]
+    resultados = [res[0] for res in resultados]
+    return get_paginacao_template(total, resultados)
 
 
 @app.get("/query/")
