@@ -327,9 +327,7 @@ def get_paginacao_query(
             """
 
     return {
-            #'quantidade_total_resultados':  total[0],
             'limite_resultados_paginacao': 25,
             'paginacao_atual': p,
-            #'quantidade_paginacoes': quant_paginacoes,
             'resultados_paginacao': [res[0] for res in results],
     }
