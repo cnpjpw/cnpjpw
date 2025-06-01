@@ -30,9 +30,7 @@ def get_conn():
     conn = psycopg.connect(dbname=bd_nome, user=bd_usuario)
     try:
         yield conn
-        conn.commit()
     except Exception as e:
-        conn.rollback()
         raise e
     finally:
         conn.close()
