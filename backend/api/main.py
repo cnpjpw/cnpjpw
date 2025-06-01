@@ -6,7 +6,6 @@ from math import ceil
 from time import time
 from fastapi.middleware.gzip import GZipMiddleware
 from dotenv import load_dotenv
-from contextlib import contextmanager
 from queries import CNPJ_QUERY, FILTROS_QUERY, DATA_ABERTURA_QUERY, RAIZ_QUERY
 
 
@@ -27,7 +26,6 @@ def get_paginacao_template(total, pagina_atual, limite=25):
     }
 
 
-@contextmanager
 def get_conn():
     conn = psycopg.connect(dbname=bd_nome, user=bd_usuario)
     try:
