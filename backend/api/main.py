@@ -6,6 +6,7 @@ from math import ceil
 from time import time
 from fastapi.middleware.gzip import GZipMiddleware
 from dotenv import load_dotenv
+from contextlib import contextmanager
 
 load_dotenv()
 
@@ -14,15 +15,25 @@ app.add_middleware(GZipMiddleware, minimum_size=1000, compresslevel=5)
 bd_nome = os.getenv('BD_NOME')
 bd_usuario = os.getenv('BD_USUARIO')
 
+
+@contextmanager
 def get_conn():
-    return psycopg.connect(dbname=bd_nome, user=bd_usuario)
+    conn = psycopg.connect(dbname=bd_nome, user=bd_usuario)
+    try:
+        yield conn
+        conn.commit()
+    except Exception as e:
+        conn.rollback()
+        raise e
+    finally:
+        conn.close()
 
 @app.get("/cnpj/{cnpj}", status_code=200)
 def get_cnpj(cnpj: str, response: Response, conn=Depends(get_conn)):
     cnpj_base = cnpj[:8]
     cnpj_ordem = cnpj[8:12]
     cnpj_dv = cnpj[12:]
-    try:
+    with get_conn() as conn:
         with conn.cursor() as cursor:
             cursor.execute(
             """ 
@@ -101,11 +112,6 @@ def get_cnpj(cnpj: str, response: Response, conn=Depends(get_conn)):
             , (cnpj_base, cnpj_ordem, cnpj_dv)
             )
             res_json = cursor.fetchone()
-            conn.commit()
-    except BaseException:
-        conn.rollback()
-    finally:
-        conn.close()
     if not res_json:
         response.status_code =  status.HTTP_404_NOT_FOUND
         return {'status_code': 404, 'status_code_descricao': 'CNPJ não presente na base de dados!' }
@@ -128,7 +134,7 @@ def get_paginacao_data(data: str, p: int = 1, conn=Depends(get_conn)):
     data = '-'.join(data.split('-')[::-1])
     total = [0]
     results = []
-    try:
+    with get_conn() as conn:
         with conn.cursor() as cursor:
             cursor.execute(
                      """
@@ -155,11 +161,6 @@ def get_paginacao_data(data: str, p: int = 1, conn=Depends(get_conn)):
                      (data, )
                      )
             total = cursor.fetchone()
-        conn.commit()
-    except BaseException:
-        conn.rollback()
-    finally:
-        conn.close()
     quant_paginacoes = ceil(total[0] / 25)
     return {
             'quantidade_total_resultados':  total[0],
@@ -186,7 +187,7 @@ def get_paginacao_data(cnpj_base: str, p: int = 1, conn=Depends(get_conn)):
     offset = (p - 1) * 25
     total = [0]
     results = []
-    try:
+    with get_conn() as conn:
         with conn.cursor() as cursor:
             cursor.execute(
                      """
@@ -213,11 +214,7 @@ def get_paginacao_data(cnpj_base: str, p: int = 1, conn=Depends(get_conn)):
                      (cnpj_base, )
                      )
             total = cursor.fetchone()
-        conn.commit()
-    except BaseException:
-        conn.rollback()
-    finally:
-        conn.close()
+
     quant_paginacoes = ceil(total[0] / 25)
     return {
             'quantidade_total_resultados':  total[0],
@@ -285,7 +282,7 @@ def get_paginacao_query(
             "natureza_juridica": natureza_juridica,
             "cnpj_base": cnpj_base
     }
-    try:
+    with get_conn() as conn:
         with conn.cursor() as cursor:
             cursor.execute(
                      """
@@ -328,12 +325,7 @@ def get_paginacao_query(
                      )
             total = cursor.fetchone()
             """
-        conn.commit()
-    except BaseException as e:
-        conn.rollback()
-        conn.close()
-        raise e
-    #quant_paginacoes = ceil(total[0] / 25)
+
     return {
             #'quantidade_total_resultados':  total[0],
             'limite_resultados_paginacao': 25,
