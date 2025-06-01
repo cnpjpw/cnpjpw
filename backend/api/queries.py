@@ -21,7 +21,6 @@ FROM (
     sc.descricao AS situacao_cadastral_descricao,
     (
     SELECT json_agg(json_build_object(
-        'id', s.socios_id,
         'identificador_entidade', s.identificador,
         'nome', s.nome,
         'cnpj_cpf', s.cnpj_cpf,
