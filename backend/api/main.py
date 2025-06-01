@@ -87,7 +87,7 @@ def get_paginacao_data(data: str, p: int = 1, conn=Depends(get_conn)):
 
 
 @app.get("/cnpj_base/{cnpj_base}")
-def get_paginacao_data(cnpj_base: str, p: int = 1, conn=Depends(get_conn)):
+def get_paginacao_raiz(cnpj_base: str, p: int = 1, conn=Depends(get_conn)):
     """
     Consulta matrizes e filias a partir da base/raiz(8 primeiros caracteres) do CNPJ:
 
