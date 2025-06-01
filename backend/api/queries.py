@@ -133,7 +133,7 @@ WHERE (
     ( (%(capital_social_max)s::numeric IS NULL) OR (e.capital_social <= (%(capital_social_max)s)) ) AND
     ( (%(uf)s::bpchar IS NULL) OR (est.uf = (%(uf)s)) ) AND
     ( (%(municipio)s::integer IS NULL) OR (est.municipio = (%(municipio)s)) ) AND
-    ( (%(cnae_principal)s::bpchar IS NULL) OR (est.cnae_fiscal_principal = (%(cnae_principal)s::bpchar)) ) AND
+    ( (%(cnae_principal)s::integer IS NULL) OR (est.cnae_fiscal_principal = (%(cnae_principal)s::integer)) ) AND
     ( (%(natureza_juridica)s::integer IS NULL) OR (e.natureza_juridica = (%(natureza_juridica)s)) )
 )
 ORDER BY est.cnpj_base, est.cnpj_ordem, est.cnpj_dv LIMIT 25 OFFSET (%(offset)s)
