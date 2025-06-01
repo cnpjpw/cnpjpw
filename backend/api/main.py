@@ -45,10 +45,9 @@ def get_cnpj(cnpj: str, response: Response, conn=Depends(get_conn)):
     cnpj_base = cnpj[:8]
     cnpj_ordem = cnpj[8:12]
     cnpj_dv = cnpj[12:]
-    with get_conn() as conn:
-        with conn.cursor() as cursor:
-            cursor.execute(CNPJ_QUERY, (cnpj_base, cnpj_ordem, cnpj_dv))
-            res_json = cursor.fetchone()
+    with conn.cursor() as cursor:
+        cursor.execute(CNPJ_QUERY, (cnpj_base, cnpj_ordem, cnpj_dv))
+        res_json = cursor.fetchone()
     if not res_json:
         response.status_code =  status.HTTP_404_NOT_FOUND
         return {'status_code': 404, 'status_code_descricao': 'CNPJ não presente na base de dados!' }
@@ -72,15 +71,14 @@ def get_paginacao_data(data: str, p: int = 1, conn=Depends(get_conn)):
     data = '-'.join(data.split('-')[::-1])
     total = [0]
     results = []
-    with get_conn() as conn:
-        with conn.cursor() as cursor:
-            cursor.execute(DATA_ABERTURA_QUERY, (data, offset))
-            resultados = cursor.fetchall()
-            cursor.execute(
-                     "SELECT COUNT(*) FROM estabelecimentos WHERE (data_inicio_atividade = (%s))", 
-                     (data, )
-                     )
-            total = cursor.fetchone()
+    with conn.cursor() as cursor:
+        cursor.execute(DATA_ABERTURA_QUERY, (data, offset))
+        resultados = cursor.fetchall()
+        cursor.execute(
+                 "SELECT COUNT(*) FROM estabelecimentos WHERE (data_inicio_atividade = (%s))", 
+                 (data, )
+                 )
+        total = cursor.fetchone()
     total = total[0]
     resultados = [res[0] for res in resultados]
     return get_paginacao_template(total, resultados)
@@ -101,16 +99,14 @@ def get_paginacao_raiz(cnpj_base: str, p: int = 1, conn=Depends(get_conn)):
     offset = (p - 1) * 25
     total = [0]
     results = []
-    with get_conn() as conn:
-        with conn.cursor() as cursor:
-            cursor.execute(RAIZ_QUERY, (cnpj_base, offset))
-            resultados = cursor.fetchall()
-            cursor.execute(
-                    "SELECT COUNT(*) FROM estabelecimentos WHERE (cnpj_base = (%s)::bpchar)", 
-                     (cnpj_base, )
-                     )
-            total = cursor.fetchone()
-
+    with conn.cursor() as cursor:
+        cursor.execute(RAIZ_QUERY, (cnpj_base, offset))
+        resultados = cursor.fetchall()
+        cursor.execute(
+                "SELECT COUNT(*) FROM estabelecimentos WHERE (cnpj_base = (%s)::bpchar)", 
+                 (cnpj_base, )
+                 )
+        total = cursor.fetchone()
     total = total[0]
     resultados = [res[0] for res in resultados]
     return get_paginacao_template(total, resultados)
@@ -170,10 +166,9 @@ def get_paginacao_query(
             "natureza_juridica": natureza_juridica,
             "cnpj_base": cnpj_base
     }
-    with get_conn() as conn:
-        with conn.cursor() as cursor:
-            cursor.execute(FILTROS_QUERY, parametros_filtro)
-            results = cursor.fetchall()
+    with conn.cursor() as cursor:
+        cursor.execute(FILTROS_QUERY, parametros_filtro)
+        results = cursor.fetchall()
 
     return {
             'limite_resultados_paginacao': 25,
