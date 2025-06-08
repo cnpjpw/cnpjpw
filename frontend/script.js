@@ -1,4 +1,4 @@
-// Variáveis para controle da paginação
+i// Variáveis para controle da paginação
 let currentPage = 1
 let resultsPerPage = 25
 let totalResults = 0
@@ -43,7 +43,7 @@ function switchTab(tab) {
 function searchCNPJ() {
     const cnpjValue = document.getElementById('cnpj-input').value.trim();
     if (cnpjValue) {
-      window.open('https://api.cnpj.pw/cnpj/' + cnpjValue)
+      window.open('https://cnpj.pw/cnpj/?v=' + cnpjValue)
     }
 }
 
@@ -132,7 +132,7 @@ function displayResults(paginacao) {
 	)
         
         row.innerHTML = `
-            <td><a href="https://api.cnpj.pw/cnpj/${cnpj}" target="_blank" class="cnpj-link">${cnpj}</a></td>
+            <td><a href="https://cnpj.pw/cnpj/?v=${cnpj}" target="_blank" class="cnpj-link">${cnpj}</a></td>
             <td>${item.nome_empresarial ?? ""}</td>
             <td>${item.nome_fantasia ?? ""}</td>
             <td class="data-abertura-td">${item.data_inicio_atividade ?? ""}</td>
