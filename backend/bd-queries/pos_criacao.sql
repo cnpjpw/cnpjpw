@@ -24,3 +24,5 @@ ALTER TABLE estabelecimentos ALTER COLUMN data_inicio_atividade SET STATISTICS 2
 VACUUM ANALYZE empresas;
 VACUUM ANALYZE estabelecimentos;
 VACUUM ANALYZE socios;
+
+-- \copy table FROM 'filename' (ENCODING 'latin-1', DELIMITER ';', FORMAT csv, HEADER false)
