@@ -5,6 +5,9 @@ import zipfile
 import os
 import shutil
 import pathlib
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
 def extrair_zips(path):
@@ -76,7 +79,7 @@ def parse_csv_tabela(indices_tipo, nome_arq, path, total_linhas=100_000_000):
 if __name__ == '__main__':
     indices_tipo = TIPOS_INDICES['socios']
     nome_arq = 'Socios.csv'
-    path = os.load_dotenv('PATH_CNPJ_DATA')
+    path = os.getenv('PATH_CNPJ_DATA')
 
     #print(extrair_zips(path))
     #parse_csv_tabela(indices_tipo, nome_arq, path + 'csv/')
