@@ -21,7 +21,7 @@ CREATE table estabelecimentos (
 	pais SMALLINT,
 	data_inicio_atividade DATE,
 	cnae_fiscal_principal INTEGER REFERENCES cnaes (codigo),
-	cnaes_fiscais_secundarios INTEGER(7)[99],
+	cnaes_fiscais_secundarios INTEGER[99],
 	tipo_logradouro VARCHAR(20),
 	logradouro VARCHAR(100),
 	numero VARCHAR(6),
