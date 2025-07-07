@@ -59,7 +59,7 @@ CREATE table socios (
 	cnpj_cpf VARCHAR(14),
 	qualificacao SMALLINT REFERENCES qualificacoes_socios (codigo),
 	data_entrada_sociedade DATE,
-	pais SMALLINT REFERENCES paises (codigo),
+	pais SMALLINT,
 	cpf_representante CHAR(11),
 	nome_representante VARCHAR(150),
 	qualificacao_representante SMALLINT REFERENCES qualificacoes_representantes (codigo),
