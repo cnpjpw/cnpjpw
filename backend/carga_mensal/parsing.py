@@ -11,11 +11,7 @@ load_dotenv()
 
 AUXILIARES = ['Cnaes', 'Motivos', 'Municipios', 'Naturezas', 'Paises', 'Qualificacoes', 'Simples']
 PRINCIPAIS = ['Empresas', 'Estabelecimentos', 'Socios']
-
-
-def criar_pastas(base_path):
-    (base_path / 'tmp').mkdir(parents=True, exist_ok=True)
-    (base_path / 'csv').mkdir(parents=True, exist_ok=True)
+NOMES_ARQUIVOS = AUXILIARES + [f'{p}{i}' for p in PRINCIPAIS for i in range(10)]
 
 
 def extrair_arquivo_zip(zip_path, destino, novo_nome):
@@ -25,25 +21,23 @@ def extrair_arquivo_zip(zip_path, destino, novo_nome):
         os.rename(destino / nome_interno, destino / novo_nome)
 
 
-def extrair_zips(path):
-    base_path = pathlib.Path(path)
-    criar_pastas(base_path)
+def extrair_zips(path_entrada, path_saida):
+    path_entrada = pathlib.Path(path_entrada)
+    path_saida = pathlib.Path(path_saida)
 
-    for nome in AUXILIARES + [f'{p}{i}' for p in PRINCIPAIS for i in range(10)]:
-        zip_file = base_path / f'{nome}.zip'
-        destino = base_path / ('csv' if nome in AUXILIARES else 'tmp')
-        extrair_arquivo_zip(zip_file, destino, f'{nome}.csv')
+    for nome in NOMES_ARQUIVOS:
+        zip_file = path_entrada / f'{nome}.zip'
+        extrair_arquivo_zip(zip_file, path_saida, f'{nome}.csv')
 
-    # Junta arquivos particionados em único CSV
     for p in PRINCIPAIS:
-        destino = base_path / 'csv' / f'{p}.csv'
+        destino = path_saida / f'{p}.csv'
         with open(destino, 'wb') as wfd:
             for i in range(10):
-                parte = base_path / 'tmp' / f'{p}{i}.csv'
-                with open(parte, 'rb') as fd:
+                arquivo_particionado = path_saida / f'{p}{i}.csv'
+                with open(arquivo_particionado, 'rb') as fd:
                     shutil.copyfileobj(fd, wfd)
+            arquivo_particionado.unlink()
 
-    shutil.rmtree(base_path / 'tmp')
 
 
 def limpar_valor(val):
@@ -69,16 +63,15 @@ def formatar_linha(line, indices_tipo, ultimo_id):
         line[i] = line[i].replace(',', '.')
 
     for i in indices_tipo['bool']:
-        line[i] = line[i] == 'S'
+        line[i] = (line[i] == 'S')
 
     line = [limpar_valor(val) for val in line]
     return line, ultimo_id
 
 
-def parse_csv_tabela(indices_tipo, nome_arquivo, path, total_linhas=100_000_000):
-    base_path = pathlib.Path(path)
-    entrada = base_path / nome_arquivo
-    saida = base_path / 'temp.csv'
+def parse_csv_tabela(indices_tipo, nome_arquivo, path_entrada, path_saida, total_linhas=100_000_000):
+    entrada = path_entrada / nome_arquivo
+    saida = path_saida / nome_arquivo
 
     with open(entrada, 'r', encoding='latin-1') as f_in, \
          open(saida, 'w', encoding='latin-1', newline='') as f_out:
@@ -94,10 +87,26 @@ def parse_csv_tabela(indices_tipo, nome_arquivo, path, total_linhas=100_000_000)
 
 
 if __name__ == '__main__':
-    parse_csv_tabela(
-        indices_tipo=TIPOS_INDICES['socios'],
-        nome_arquivo='Socios.csv',
-        path=os.getenv('PATH_CNPJ_DATA'),
-        # total_linhas=26_000_000  # descomente se quiser ajustar
-    )
+
+    path = pathlib.Path(os.getenv('PATH_CNPJ_DATA'))
+    ano_pasta = '06-2025'
+    base_path = path / ano_pasta
+
+    path_zips = (base_path / 'zip')
+    path_csv_bruto = (base_path / 'tmp')
+    path_csv_tratado = (base_path / 'csv')
+
+    path_csv_bruto.mkdir(parents=True, exist_ok=True)
+    path_csv_tratado.mkdir(parents=True, exist_ok=True)
+
+    for nome in (PRINCIPAIS + AUXILIARES):
+        print(nome)
+        parse_csv_tabela(
+            indices_tipo=TIPOS_INDICES.get(nome, TIPOS_INDICES['Outros']),
+            nome_arquivo= nome + '.csv',
+            path_entrada=path_csv_bruto,
+            path_saida=path_csv_tratado,
+        )
+
+
 
