@@ -3,7 +3,6 @@ from psycopg import sql
 from dotenv import load_dotenv
 import os
 
-
 def carregar_csv_banco(nome_tabela, csv_path, conn):
     with open(csv_path, "r", encoding="latin-1") as f:
         with conn.cursor() as cursor:
@@ -16,12 +15,14 @@ def carregar_csv_banco(nome_tabela, csv_path, conn):
             conn.commit()
 
 
-load_dotenv()
-bd_nome = os.getenv('BD_NOME')
-bd_usuario = os.getenv('BD_USUARIO')
+if __name__ == '__main__':
+    load_dotenv()
+    bd_nome = os.getenv('BD_NOME')
+    bd_usuario = os.getenv('BD_USUARIO')
 
-with psycopg.connect(dbname=bd_nome, user=bd_usuario) as conn:
-    csv_tabelas = {'dados_simples_temp': './Simples.csv'}
-    for nome_tabela, csv_path in csv_tabelas.items():
-        carregar_csv_banco(nome_tabela, csv_path, conn)
+    with psycopg.connect(dbname=bd_nome, user=bd_usuario) as conn:
+        csv_tabelas = {'dados_simples_temp': './Simples.csv'}
+        for nome_tabela, csv_path in csv_tabelas.items():
+            carregar_csv_banco(nome_tabela, csv_path, conn)
+
 
