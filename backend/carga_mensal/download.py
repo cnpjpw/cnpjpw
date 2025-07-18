@@ -45,17 +45,10 @@ def download_arquivo(arquivo_nome, link, pasta_dir):
                 file.write(data)
 
 
-def download_cnpj_zips(path_arquivos):
-    pasta = path_arquivos + 'polling/'
-    with open(pasta + "data_pasta.json") as f:
-        data_pasta = json.load(f)
-
-    ANO = data_pasta["ano"]
-    MES = data_pasta["mes"]
+def download_cnpj_zips(ano, mes, path_arquivos):
     LINK_BASE = 'https://arquivos.receitafederal.gov.br/dados/cnpj/dados_abertos_cnpj/'
-    URL_PASTA = LINK_BASE + str(ANO) + '-' + str(MES).zfill(2) + '/'
+    URL_PASTA = LINK_BASE + str(ano) + '-' + str(mes).zfill(2) + '/'
     ULTIMA_MODIFICACAO_TEMPLATE = "%a, %d %b %Y %H:%M:%S %Z"
-
     res = requests.get(URL_PASTA)
     if res.status_code == 404:
         raise Exception('Pasta ainda não foi criada')
@@ -68,14 +61,5 @@ def download_cnpj_zips(path_arquivos):
         raise Exception('Pasta modificacada recentemente')
     for arquivo in arquivos:
         link = URL_PASTA + arquivo
-        download_arquivo(arquivo, link, path_arquivos + str(MES).zfill(2) + '-' + str(ANO) + '/')
-
-    data_pasta['mes'] += 1
-    if data_pasta['mes'] == 13:
-        data_pasta['mes'] = 1
-        data_pasta['ano'] += 1
-
-    with open(pasta + "data_pasta.json", "w") as f:
-        json.dump(data_pasta, f)
-
+        download_arquivo(arquivo, link, path_arquivos)
 
