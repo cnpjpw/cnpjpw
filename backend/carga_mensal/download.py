@@ -39,7 +39,7 @@ def download_arquivo(arquivo_nome, link, pasta_dir):
     total_size = int(res.headers.get("content-length", 0))
     block_size = 1024
     with tqdm(total=total_size, unit="B", unit_scale=True) as progress_bar:
-        with open(pasta_dir + arquivo_nome, "wb") as file:
+        with open(pasta_dir / arquivo_nome, "wb") as file:
             for data in res.iter_content(block_size):
                 progress_bar.update(len(data))
                 file.write(data)
