@@ -21,15 +21,15 @@ def extrair_arquivo_zip(zip_path, destino, novo_nome):
         os.rename(destino / nome_interno, destino / novo_nome)
 
 
-def extrair_zips(path_entrada, path_saida):
+def extrair_zips(path_entrada, path_saida, auxiliares=AUXILIARES, principais=PRINCIPAIS):
     path_entrada = pathlib.Path(path_entrada)
     path_saida = pathlib.Path(path_saida)
 
-    for nome in NOMES_ARQUIVOS:
+    for nome in (auxiliares + [f'{p}{i}' for p in principais for i in range(10)]):
         zip_file = path_entrada / f'{nome}.zip'
         extrair_arquivo_zip(zip_file, path_saida, f'{nome}.csv')
 
-    for p in PRINCIPAIS:
+    for p in principais:
         destino = path_saida / f'{p}.csv'
         with open(destino, 'wb') as wfd:
             for i in range(10):
