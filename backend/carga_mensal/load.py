@@ -7,7 +7,7 @@ def carregar_csv_banco(nome_tabela, csv_path, conn):
     with open(csv_path, "r", encoding="latin-1") as f:
         with conn.cursor() as cursor:
             query = sql.SQL(
-                "COPY {} FROM STDIN WITH (ENCODING 'latin-1', DELIMITER ';', FORMAT csv, HEADER false)"
+                "COPY {} FROM STDIN WITH (ENCODING 'utf-8', DELIMITER ';', FORMAT csv, HEADER false)"
             ).format(sql.Identifier(nome_tabela))
             with cursor.copy(query) as copy:
                 while data := f.read(1024000):
