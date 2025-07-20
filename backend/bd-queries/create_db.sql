@@ -63,7 +63,8 @@ CREATE table socios (
 	cpf_representante CHAR(11),
 	nome_representante VARCHAR(150),
 	qualificacao_representante SMALLINT REFERENCES qualificacoes_representantes (codigo),
-	faixa_etaria SMALLINT REFERENCES faixas_etarias (codigo)
+	faixa_etaria SMALLINT REFERENCES faixas_etarias (codigo),
+	UNIQUE NULLS NOT DISTINCT (cnpj_base, nome, cnpj_cpf)
 );
 
 CREATE table paises (
