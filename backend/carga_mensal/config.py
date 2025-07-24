@@ -33,13 +33,103 @@ TIPOS_INDICES = {
         'numeric': [],
         'bool': [],
         'array': [],
-        'id': []
+        'id': [0]
     }
 }
 
 
 
 AUXILIARES = ['Cnaes', 'Motivos', 'Municipios', 'Naturezas', 'Paises', 'Qualificacoes', 'Simples']
-PRINCIPAIS = ['Empresas', 'Estabelecimentos', 'Socios']
+PRINCIPAIS = ['Empresas', 'Socios', 'Estabelecimentos']
+
+ARQ_TABELA_DIC = {
+        'Cnaes': 'cnaes',
+        'Motivos': 'motivos_situacoes',
+        'Municipios': 'municipios', 
+        'Naturezas': 'naturezas_juridicas',
+        'Paises': 'paises',
+        'Qualificacoes': 'qualificacoes_socios',
+        'Simples': 'dados_simples',
+        'Empresas': 'empresas',
+        'Estabelecimentos': 'estabelecimentos',
+        'Socios': 'socios'
+        }
+
 NOMES_ARQUIVOS = AUXILIARES + [f'{p}{i}' for p in PRINCIPAIS for i in range(10)]
 
+tabela_infos = {
+    'empresas':
+    {'colunas':
+     [
+        'nome_empresarial',
+        'natureza_juridica',
+        'qualificacao_responsavel',
+        'capital_social',
+        'porte_empresa',
+        'ente_federativo'
+
+    ],
+     'pk': ['cnpj_base']
+     },
+    'estabelecimentos':
+    {'colunas': [
+        'identificador',
+        'nome_fantasia',
+        'situacao_cadastral',
+        'data_situacao_cadastral',
+        'motivo_situacao_cadastral',
+        'nome_cidade_exterior',
+        'pais',
+        'data_inicio_atividade',
+        'cnae_fiscal_principal',
+        'cnaes_fiscais_secundarios',
+        'tipo_logradouro',
+        'logradouro',
+        'numero',
+        'complemento',
+        'bairro',
+        'cep',
+        'uf',
+        'municipio',
+        'ddd1',
+        'telefone_1',
+        'ddd2',
+        'telefone_2',
+        'ddd_fax',
+        'fax',
+        'correio_eletronico',
+        'situacao_especial',
+        'data_situacao_especial'
+    ],
+    'pk': [
+        'cnpj_base',
+        'cnpj_ordem',
+        'cnpj_dv'
+        ]
+    },
+    'dados_simples':
+    {
+        'colunas': [
+        'opcao_simples', 
+        'data_opcao_simples', 
+        'data_exclusao_simples',
+        'opcao_mei',
+        'data_opcao_mei',
+        'data_exclusao_mei'
+    ],
+        'pk': ['cnpj_base']
+     },
+    'socios': {
+        'colunas': [
+        'identificador',
+        'qualificacao',
+        'data_entrada_sociedade',
+        'pais',
+        'cpf_representante',
+        'nome_representante',
+        'qualificacao_representante',
+        'faixa_etaria'
+    ],
+    'pk': ['cnpj_base', 'nome', 'cnpj_cpf']
+    }
+}
