@@ -65,7 +65,7 @@ if __name__ == '__main__':
     script_path = pathlib.Path(__file__).parent
 
     path_json_data = script_path / "data_pasta.json"
-    mes, ano = ler_data_json(path_data_json)
+    mes, ano = ler_data_json(path_json_data)
 
     path_dados = path_raiz / f'{str(mes).zfill(2)}-{ano}'
 
