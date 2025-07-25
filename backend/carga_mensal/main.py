@@ -18,7 +18,7 @@ def ler_data_json(path):
     return (data_pasta['mes'], data_pasta['ano'])
 
 
-def acrescentar_mes(path, mes, ano):
+def acrescentar_mes_json(path, mes, ano):
     with open(path, "w") as f:
         data_dic = {
             'mes': (mes % 12) + 1,
@@ -53,8 +53,6 @@ def main(arqs_staging1, arqs_staging2, staging1_csv_tabelas, staging2_csv_tabela
             tabela_infos[nome]['colunas'],
             conn
             )
-
-
 
 
 if __name__ == '__main__':
