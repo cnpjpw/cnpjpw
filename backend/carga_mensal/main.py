@@ -18,7 +18,7 @@ def ler_data_json(path):
     return (data_pasta['mes'], data_pasta['ano'])
 
 
-def acrescentar_mes(path, mes, ano)
+def acrescentar_mes(path, mes, ano):
     with open(path, "w") as f:
         data_dic = {
             'mes': (mes % 12) + 1,
