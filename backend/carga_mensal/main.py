@@ -6,7 +6,7 @@ from parsing import parse_csv_tabela
 from load import *
 import pathlib
 import json
-from config import TIPOS_INDICES, NAO_NUMERADOS, NUMERADOS, ARQ_TABELA_DIC
+from config import TIPOS_INDICES, NAO_NUMERADOS, NUMERADOS, ARQ_TABELA_DIC, tabelas_infos
 import psycopg
 from tqdm import tqdm
 
@@ -33,16 +33,6 @@ def main(principais, auxiliares, path_dados, arq_tabela_dic, conn):
         csv_path = path_dados / f'{nome}.csv'
         carregar_csv_banco(nome_tabela, csv_path, conn)
 
-    for nome in tqdm(auxiliares):
-        nome_tabela = arq_tabela_dic[nome]
-        mover_staging_producao(
-            f'{nome_tabela}_staging2',
-            nome_tabela,
-            ['codigo'],
-            ['descricao'],
-            conn
-        )
-
     for nome in tqdm(principais):
         nome_tabela = f'{arq_tabela_dic[nome]}_staging1'
         csv_path = path_dados / f'{nome}.csv'
@@ -52,13 +42,15 @@ def main(principais, auxiliares, path_dados, arq_tabela_dic, conn):
         nome_tabela = arq_tabela_dic[nome]
         mover_entre_staging(f'{nome_tabela}_staging1', f'{nome_tabela}_staging2', conn)
 
-    for nome in tqdm(principais):
+    for nome in tqdm(auxiliares + principais):
         nome_tabela = arq_tabela_dic[nome]
+        infos_auxiliares = tabelas_infos['auxiliares']
+        tabela_info = tabelas_infos.get(nome, infos_auxiliares)
         mover_staging_producao(
             f'{nome}_staging2',
             nome_tabela,
-            tabela_infos[nome]['pk'],
-            tabela_infos[nome]['colunas'],
+            tabela_info['pk'],
+            tabela_info['colunas'],
             conn
         )
 

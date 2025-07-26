@@ -60,7 +60,7 @@ ARQ_TABELA_DIC = {
         }
 
 
-tabela_infos = {
+tabelas_infos = {
     'empresas':
     {'colunas':
      [
@@ -110,6 +110,7 @@ tabela_infos = {
         'cnpj_dv'
         ]
     },
+
     'dados_simples':
     {
         'colunas': [
@@ -122,6 +123,7 @@ tabela_infos = {
     ],
         'pk': ['cnpj_base']
      },
+
     'socios': {
         'colunas': [
         'identificador',
@@ -134,5 +136,11 @@ tabela_infos = {
         'faixa_etaria'
     ],
     'pk': ['cnpj_base', 'nome', 'cnpj_cpf']
+    },
+
+    'auxiliares': {
+        'colunas': ['descricao'],
+        'pk': ['codigo']
+
     }
 }

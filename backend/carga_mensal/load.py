@@ -2,7 +2,7 @@ import psycopg
 from psycopg import sql
 from dotenv import load_dotenv
 import os
-from config import tabela_infos
+from config import tabelas_infos
 
 
 def carregar_csv_banco(nome_tabela, csv_path, conn):
@@ -66,8 +66,8 @@ if __name__ == '__main__':
         mover_staging_producao(
                 'socios_staging2',
                 'socios',
-                tabela_infos['socios']['pk'],
-                tabela_infos['socios']['colunas'],
+                tabelas_infos['socios']['pk'],
+                tabelas_infos['socios']['colunas'],
                 conn
                 )
 
