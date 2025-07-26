@@ -36,8 +36,8 @@ def main(principais, auxiliares, path_dados, arq_tabela_dic, conn):
     for nome in tqdm(auxiliares):
         nome_tabela = arq_tabela_dic[nome]
         mover_staging_producao(
-            f'{nome}_staging2',
-            nome,
+            f'{nome_tabela}_staging2',
+            nome_tabela,
             ['codigo'],
             ['descricao'],
             conn
@@ -49,14 +49,14 @@ def main(principais, auxiliares, path_dados, arq_tabela_dic, conn):
         carregar_csv_banco(nome_tabela, csv_path, conn)
 
     for nome in tqdm(principais):
-        nome = arq_tabela_dic[nome]
-        mover_entre_staging(f'{nome}_staging1', f'{nome}_staging2', conn)
+        nome_tabela = arq_tabela_dic[nome]
+        mover_entre_staging(f'{nome_tabela}_staging1', f'{nome_tabela}_staging2', conn)
 
     for nome in tqdm(principais):
-        nome = arq_tabela_dic[nome]
+        nome_tabela = arq_tabela_dic[nome]
         mover_staging_producao(
             f'{nome}_staging2',
-            nome,
+            nome_tabela,
             tabela_infos[nome]['pk'],
             tabela_infos[nome]['colunas'],
             conn
