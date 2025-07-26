@@ -27,35 +27,8 @@ def acrescentar_mes_json(path, mes, ano):
         json.dump(data_dic, f)
 
 
-def main(principais, auxiliares, path_dados, arq_tabela_dic, conn):
-    for nome in tqdm(auxiliares):
-        nome_tabela = f'{arq_tabela_dic[nome]}_staging2'
-        csv_path = path_dados / f'{nome}.csv'
-        carregar_csv_banco(nome_tabela, csv_path, conn)
-
-    for nome in tqdm(principais):
-        nome_tabela = f'{arq_tabela_dic[nome]}_staging1'
-        csv_path = path_dados / f'{nome}.csv'
-        carregar_csv_banco(nome_tabela, csv_path, conn)
-
-    for nome in tqdm(principais):
-        nome_tabela = arq_tabela_dic[nome]
-        mover_entre_staging(f'{nome_tabela}_staging1', f'{nome_tabela}_staging2', conn)
-
-    for nome in tqdm(auxiliares + principais):
-        nome_tabela = arq_tabela_dic[nome]
-        infos_auxiliares = tabelas_infos['auxiliares']
-        tabela_info = tabelas_infos.get(nome, infos_auxiliares)
-        mover_staging_producao(
-            f'{nome}_staging2',
-            nome_tabela,
-            tabela_info['pk'],
-            tabela_info['colunas'],
-            conn
-        )
-
-
-if __name__ == '__main__':
+def main():
+    load_dotenv()
     BD_NOME = os.environ['BD_NOME']
     BD_USUARIO = os.environ['BD_USUARIO']
     PATH_RAIZ = pathlib.Path(os.environ['PATH_CNPJ_DADOS_RAIZ'])
@@ -75,6 +48,37 @@ if __name__ == '__main__':
             path_entrada=path_dados / 'tmp',
             path_saida=path_dados / 'csv',
         )
+
     with psycopg.connect(dbname=BD_NOME, user=BD_USUARIO) as conn:
-        main(PRINCIPAIS, AUXILIARES, path_dados / 'csv', ARQ_TABELA_DIC, conn)
+        for nome in tqdm(auxiliares):
+            nome_tabela = f'{arq_tabela_dic[nome]}_staging2'
+            csv_path = path_dados / f'{nome}.csv'
+            carregar_csv_banco(nome_tabela, csv_path, conn)
+
+        for nome in tqdm(principais):
+            nome_tabela = f'{arq_tabela_dic[nome]}_staging1'
+            csv_path = path_dados / f'{nome}.csv'
+            carregar_csv_banco(nome_tabela, csv_path, conn)
+
+        for nome in tqdm(principais):
+            nome_tabela = arq_tabela_dic[nome]
+            mover_entre_staging(f'{nome_tabela}_staging1', f'{nome_tabela}_staging2', conn)
+
+        for nome in tqdm(auxiliares + principais):
+            nome_tabela = arq_tabela_dic[nome]
+            infos_auxiliares = tabelas_infos['auxiliares']
+            tabela_info = tabelas_infos.get(nome, infos_auxiliares)
+            mover_staging_producao(
+                f'{nome}_staging2',
+                nome_tabela,
+                tabela_info['pk'],
+                tabela_info['colunas'],
+                conn
+            )
+
     acrescentar_mes_json(path_json_data, mes, ano)
+
+
+if __name__ == '__main__':
+    main()
+
