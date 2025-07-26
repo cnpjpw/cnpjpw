@@ -4,14 +4,6 @@ import os
 import shutil
 import pathlib
 from tqdm import tqdm
-from config import TIPOS_INDICES
-from dotenv import load_dotenv
-
-load_dotenv()
-
-AUXILIARES = ['Cnaes', 'Motivos', 'Municipios', 'Naturezas', 'Paises', 'Qualificacoes', 'Simples']
-PRINCIPAIS = ['Empresas', 'Estabelecimentos', 'Socios']
-NOMES_ARQUIVOS = AUXILIARES + [f'{p}{i}' for p in PRINCIPAIS for i in range(10)]
 
 
 def extrair_arquivo_zip(zip_path, destino, novo_nome):
@@ -21,19 +13,20 @@ def extrair_arquivo_zip(zip_path, destino, novo_nome):
         os.rename(destino / nome_interno, destino / novo_nome)
 
 
-def extrair_zips(path_entrada, path_saida, auxiliares=AUXILIARES, principais=PRINCIPAIS):
+def extrair_zips(path_entrada, path_saida, nao_numerados=[], numerados=[]):
     path_entrada = pathlib.Path(path_entrada)
     path_saida = pathlib.Path(path_saida)
+    nomes_arqs = nao_numerados + [f'{f}{i}' for f in numerados for i in range(10)]
 
-    for nome in (auxiliares + [f'{p}{i}' for p in principais for i in range(10)]):
+    for nome in nomes_arqs:
         zip_file = path_entrada / f'{nome}.zip'
         extrair_arquivo_zip(zip_file, path_saida, f'{nome}.csv')
 
-    for p in principais:
-        destino = path_saida / f'{p}.csv'
+    for nome in numerados:
+        destino = path_saida / f'{nome}.csv'
         with open(destino, 'wb') as wfd:
             for i in range(10):
-                arquivo_particionado = path_saida / f'{p}{i}.csv'
+                arquivo_particionado = path_saida / f'{nome}{i}.csv'
                 with open(arquivo_particionado, 'rb') as fd:
                     shutil.copyfileobj(fd, wfd)
             arquivo_particionado.unlink()
@@ -87,6 +80,11 @@ def parse_csv_tabela(indices_tipo, nome_arquivo, path_entrada, path_saida, total
 
 
 if __name__ == '__main__':
+    from config import AUXILIARES, PRINCIPAIS
+    from config import TIPOS_INDICES
+    from dotenv import load_dotenv
+
+    load_dotenv()
 
     path = pathlib.Path(os.getenv('PATH_CNPJ_DATA'))
     ano_pasta = '06-2025'

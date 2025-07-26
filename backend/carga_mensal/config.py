@@ -39,8 +39,12 @@ TIPOS_INDICES = {
 
 
 
-AUXILIARES = ['Cnaes', 'Motivos', 'Municipios', 'Naturezas', 'Paises', 'Qualificacoes', 'Simples']
-PRINCIPAIS = ['Empresas', 'Socios', 'Estabelecimentos']
+AUXILIARES = ['Cnaes', 'Motivos', 'Municipios', 'Naturezas', 'Paises', 'Qualificacoes']
+PRINCIPAIS = ['Empresas', 'Socios', 'Estabelecimentos', 'Simples']
+
+NUMERADOS = ['Empresas', 'Socios', 'Estabelecimentos']
+NAO_NUMERADOS = ['Cnaes', 'Motivos', 'Municipios', 'Naturezas', 'Paises', 'Qualificacoes', 'Simples']
+NOMES_ARQUIVOS = NAO_NUMERADOS + [f'{nome}{i}' for nome in NUMERADOS for i in range(10)]
 
 ARQ_TABELA_DIC = {
         'Cnaes': 'cnaes',
@@ -55,7 +59,6 @@ ARQ_TABELA_DIC = {
         'Socios': 'socios'
         }
 
-NOMES_ARQUIVOS = AUXILIARES + [f'{p}{i}' for p in PRINCIPAIS for i in range(10)]
 
 tabela_infos = {
     'empresas':
