@@ -6,7 +6,7 @@ from math import ceil
 from time import time
 from fastapi.middleware.gzip import GZipMiddleware
 from dotenv import load_dotenv
-from queries import CNPJ_QUERY, FILTROS_QUERY, DATA_ABERTURA_QUERY, RAIZ_QUERY
+from queries import CNPJ_QUERY, FILTROS_QUERY, DATA_ABERTURA_QUERY, RAIZ_QUERY, RAZAO_QUERY
 
 
 load_dotenv()
@@ -101,6 +101,36 @@ def get_paginacao_raiz(cnpj_base: str, p: int = 1, conn=Depends(get_conn)):
         cursor.execute(
                 "SELECT COUNT(*) FROM estabelecimentos WHERE (cnpj_base = (%s)::bpchar)", 
                  (cnpj_base, )
+                 )
+        total = cursor.fetchone()
+    total = total[0]
+    resultados = [res[0] for res in resultados]
+    return get_paginacao_template(total, resultados)
+
+
+@app.get("/razao_social/{razao_social}")
+def get_paginacao_razao_social(razao_social: str, p: int = 1, conn=Depends(get_conn)):
+    """
+    Consulta matrizes e filias a partir do nome empresarial(razão social):
+
+    - **razao_social**: filtro por termo presente na razão social
+    - **p**: A paginação desejada(por padrão, a primeira). A API é paginada
+    de 25 em 25 resultados atualmente.
+    """
+
+    if razao_social:
+        razao_social += '%'
+    if p < 1:
+        p = 1
+    offset = (p - 1) * 25
+    total = [0]
+    results = []
+    with conn.cursor() as cursor:
+        cursor.execute(RAZAO_QUERY, (razao_social, offset))
+        resultados = cursor.fetchall()
+        cursor.execute(
+                "SELECT count(*) from empresas WHERE nome_empresarial LIKE UPPER(%s)",
+                 (razao_social, )
                  )
         total = cursor.fetchone()
     total = total[0]

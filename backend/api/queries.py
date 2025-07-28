@@ -109,6 +109,19 @@ SELECT row_to_json(result) FROM (
 """
 )
 
+RAZAO_QUERY = (
+"""
+SELECT row_to_json(result) FROM (
+    SELECT e.cnpj_base,
+        e.nome_empresarial
+    FROM empresas e
+    WHERE e.nome_empresarial LIKE UPPER(%s)
+    ORDER BY e.cnpj_base ASC LIMIT 25 OFFSET (%s)
+) result;
+"""
+)
+
+
 FILTROS_QUERY = (                     
 """
 SELECT row_to_json(result) FROM (
