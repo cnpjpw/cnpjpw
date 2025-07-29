@@ -16,7 +16,7 @@
                 <div class="search-tab active" id="tab-cnpj">CNPJ Exato</div>
                 <div class="search-tab" id="tab-raiz">Raiz</div>
                 <div class="search-tab" id="tab-data">Data Abertura</div>
-                <div class="search-tab" id="tab-query">Filtros Diversos</div>
+                <div class="search-tab" id="tab-razao">Razão Social</div>
             </div>
             
             <div id="form-cnpj" class="search-form active">
@@ -40,84 +40,13 @@
                     <button class="search-button" onclick="searchByRaiz()">Buscar</button>
                 </div>
             </div>
-           
-            <div id="form-query" class="search-form">
-                <div class="date-div">
-                    <label for="data-abertura-min">Aberto a partir de: </label>
-                    <div class="busca-input-group">
-                        <input type="date" class="busca-input" id="data-abertura-min" name="data-abertura-min" aria-label="Data Abertura">
-                    </div>
-                    <label for="data-abertura-max">Aberto até: </label>
-                    <div class="busca-input-group">
-                        <input type="date" class="busca-input" id="data-abertura-max" name="data-abertura-max" aria-label="Data Abertura">
-                    </div>
-                    <label for="razao-social">Razão Social: </label>
-                    <div class="busca-input-group">
-                        <input type="text" class="busca-input" name="razao-social" id="razao-social" placeholder="Razão Social" aria-label="Razão Social">
-                    </div>
-                    <label for="cnpj-base">Número Inscrição(primeiros 8 dígitos CNPJ): </label>
-                    <div class="busca-input-group">
-                        <input type="text" class="busca-input" name="cnpj-base" id="cnpj-base" placeholder="Número Inscricão(primeiros 8 caracteres CNPJ)" aria-label="Número Inscrição(primeiros 8 caracteres)">
-                    </div>
-                    <label for="situacao-cadastral">Situação Cadastral: </label>
-                    <div class="busca-input-group">
-                        <select name="situacao-cadastral" id="situacao-cadastral" class="busca-input">
-                          <option value="" selected>QUALQUER</option>
-                          <option value="2">ATIVA</option>
-                          <option value="5">ATIVA IRREGULAR</option>
-                          <option value="8">BAIXADA</option>
-                          <option value="4">INAPTA</option>
-                          <option value="3">SUSPENSA</option>
-                          <option value="1">NULA</option>
-                        </select>
-                    </div>
-                    <label for="capital-social-min">Capital Social Mínimo: </label>
-                    <div class="busca-input-group">
-                        <input type="number" class="busca-input" name="capital-social-min" id="capital-social-min" min="0" step="any" placeholder="Capital Social Mínimo" aria-label="Capital Social Mínimo">
-                    </div>
-                    <label for="capital-social-max">Capital Social Máximo: </label>
-                    <div class="busca-input-group">
-                        <input type="number" class="busca-input" name="capital-social-max" id="capital-social-max" min="0" step="any" placeholder="Capital Social Máximo" aria-label="Capital Social Máximo">
-                    </div>
-                    <label for="uf">Estado/Unidade Federativa: </label>
-                    <div class="busca-input-group">
-                        <input type="text" class="busca-input" id="uf" name="uf" placeholder="Estado(UF)" aria-label="Estado/Unidade Federativa">
-                    </div>
-                    <label for="municipio">Município: </label>
-                    <div class="busca-input-group">
-                        <input type="text" class="busca-input" name="municipio" id="municipio" placeholder="Município" aria-label="Municipio">
-                    </div>
-                    <label for="cnae-principal">Cnae Principal: </label>
-                    <div class="busca-input-group">
-                        <input type="text" class="busca-input" id="cnae" name="cnae-principal" placeholder="CNAE - Atividade Principal" aria-label="Cnae">
-                    </div>
-                    <label for="natureza-juridica">Natureza Jurídica: </label>
-                    <div class="busca-input-group">
-                        <input type="text" class="busca-input" name="natureza-juridica" id="natureza-juridica" placeholder="Natureza Jurídica" aria-label="Número Inscrição(primeiros 8 caracteres)">
-                    </div>
-                    <!--
-                    <div>
-                      <input type="checkbox" role="switch" class="" name="somente-mei" value="false" true-value="true" false-value="false">
-                      <label for="somente-mei">Somente MEI </label>
-                      <input type="checkbox" role="switch" class="" name="excluir-mei" value="false" true-value="true" false-value="false">
-                      <label for="excluir-mei">Excluir MEI </label>
-                      <input type="checkbox" role="switch" class="" name="somente-matriz" value="false" true-value="true" false-value="false">
-                      <label for="somente-matriz">Somente Matriz </label>
-                      <input type="checkbox" role="switch" class="" name="somente-filiais" value="false" true-value="true" false-value="false">
-                      <label for="somente-filiais">Somente Filiais </label>
-                    </div>
-                    <div>
-                      <input type="checkbox" role="switch" class="" name="somente-telefone" value="false" true-value="true" false-value="false">
-                      <label for="somente-telefone">Somente com Telefone </label>
-                      <input type="checkbox" role="switch" class="" name="somente-email" value="false" true-value="true" false-value="false">
-                      <label for="somente-email">Somente com Email</label>
-                    </div>
-                -->
-                </div>
-                <div class="search-box" style="margin-top: 15px;">
-                    <button class="search-button" style="position: static; transform: none; width: 100%;" onclick="searchByQuery()">Buscar</button>
+	    <div id="form-razao" class="search-form">
+                <div class="search-box">
+                    <input type="text" class="search-input" id="razao-input" placeholder="Razão Social" aria-label="Digite Termo Presente na Razão Social">
+                    <button class="search-button" onclick="searchByRazao()">Buscar</button>
                 </div>
             </div>
+
         </div>
 
         <!-- Resultados da Busca -->

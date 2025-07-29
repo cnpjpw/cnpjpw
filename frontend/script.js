@@ -1,4 +1,4 @@
-i// Variáveis para controle da paginação
+// Variáveis para controle da paginação
 let currentPage = 1
 let resultsPerPage = 25
 let totalResults = 0
@@ -10,12 +10,12 @@ let queryParams = '';
 let cnpjTab = document.querySelector('#tab-cnpj')
 let dateTab = document.querySelector('#tab-data')
 let raizTab = document.querySelector('#tab-raiz')
-let queryTab = document.querySelector('#tab-query')
+let queryTab = document.querySelector('#tab-razao')
 
 cnpjTab.addEventListener('click', (e) => switchTab('cnpj'))
 dateTab.addEventListener('click', (e) => switchTab('data'))
 raizTab.addEventListener('click', (e) => switchTab('raiz'))
-queryTab.addEventListener('click', (e) => switchTab('query'))
+queryTab.addEventListener('click', (e) => switchTab('razao'))
 
 async function getPaginacao(path, queryParametros, pagina) {
   res = await fetch('https://api.cnpj.pw/' + path + '?p=' + pagina + queryParametros)
@@ -62,6 +62,7 @@ async function searchByDate() {
     }
 }
 
+
 async function searchByRaiz() {
     cnpjBase = document.getElementById('raiz-input').value;
     currentPage = 1
@@ -75,6 +76,22 @@ async function searchByRaiz() {
         return
     }
 }
+
+
+async function searchByRazao() {
+    razao = document.getElementById('razao-input').value;
+    currentPage = 1
+    
+    if (razao) {
+        pathAPI = 'razao_social/' + razao 
+        queryParams = ''
+        paginacao = await getPaginacao(pathAPI, queryParams, 1)
+        displayResults(paginacao)
+        document.getElementById('results-container').classList.add('active')
+        return
+    }
+}
+
 
 
 async function searchByQuery() {
@@ -127,8 +144,8 @@ function displayResults(paginacao) {
         const row = document.createElement('tr');
 	const cnpj = (
 		item.cnpj_base +
-		item.cnpj_ordem +
-		item.cnpj_dv
+		(item.cnpj_ordem || '') +
+		(item.cnpj_dv || '')
 	)
         
         row.innerHTML = `
