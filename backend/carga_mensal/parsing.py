@@ -29,7 +29,7 @@ def extrair_zips(path_entrada, path_saida, nao_numerados=[], numerados=[]):
                 arquivo_particionado = path_saida / f'{nome}{i}.csv'
                 with open(arquivo_particionado, 'rb') as fd:
                     shutil.copyfileobj(fd, wfd)
-            arquivo_particionado.unlink()
+                arquivo_particionado.unlink()
 
 
 

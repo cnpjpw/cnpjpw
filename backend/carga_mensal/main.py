@@ -61,12 +61,16 @@ def main():
 
     logger.info("Iniciando Tratamento Inicial dos CSV's da Receita")
     for nome in (NAO_NUMERADOS + NUMERADOS):
+        nome_arquivo = nome + '.csv'
+        path_entrada = path_dados / 'tmp'
+        path_saida = path_dados / 'csv'
         parse_csv_tabela(
             indices_tipo=TIPOS_INDICES.get(nome, TIPOS_INDICES['Outros']),
-            nome_arquivo= nome + '.csv',
-            path_entrada=path_dados / 'tmp',
-            path_saida=path_dados / 'csv',
+            nome_arquivo=nome_arquivo,
+            path_entrada=path_entrada,
+            path_saida=path_saida,
         )
+        (path_entrada / nome_arquivo).unlink()
 
     logger.info('Iniciando Rotinas de Carga em BD')
     with psycopg.connect(dbname=BD_NOME, user=BD_USUARIO) as conn:
@@ -75,12 +79,14 @@ def main():
             nome_tabela = f'{ARQ_TABELA_DIC[nome]}_staging2'
             csv_path = path_dados / 'csv' / f'{nome}.csv'
             carregar_csv_banco(nome_tabela, csv_path, conn)
+            csv_path.unlink()
 
         logger.info('Carregando Dados Principais nas Tabelas de Staging1')
         for nome in tqdm(PRINCIPAIS):
             nome_tabela = f'{ARQ_TABELA_DIC[nome]}_staging1'
             csv_path = path_dados / 'csv' / f'{nome}.csv'
             carregar_csv_banco(nome_tabela, csv_path, conn)
+            csv_path.unlink()
 
         logger.info('Carregando Dados Principais nas Tabelas de Staging2')
         for nome in tqdm(PRINCIPAIS):
