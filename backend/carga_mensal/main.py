@@ -49,6 +49,11 @@ def main():
     mes, ano = ler_data_json(path_json_data)
     path_dados = PATH_RAIZ / f'{str(mes).zfill(2)}-{ano}'
 
+    logger.info('Criando diretórios(se não existirem)')
+    (path_dados / 'zip').mkdir(parents=True, exist_ok=True)
+    (path_dados / 'tmp').mkdir(parents=True, exist_ok=True)
+    (path_dados / 'csv').mkdir(parents=True, exist_ok=True)
+
     logger.info('Iniciando Download dos Zips da Receita')
     download_cnpj_zips(ano, mes, path_dados / "zip")
     logger.info('Iniciando Extração dos Zips da Receita')
