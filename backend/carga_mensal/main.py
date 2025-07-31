@@ -6,7 +6,7 @@ from parsing import parse_csv_tabela
 from load import *
 import pathlib
 import json
-from config import TIPOS_INDICES, NAO_NUMERADOS, NUMERADOS, ARQ_TABELA_DIC, tabelas_infos
+from config import *
 import psycopg
 from tqdm import tqdm
 import logging
@@ -66,29 +66,29 @@ def main():
     logger.info('Iniciando Rotinas de Carga em BD')
     with psycopg.connect(dbname=BD_NOME, user=BD_USUARIO) as conn:
         logger.info('Carregando Dados Auxiliares nas Tabelas de Staging(direto para o staging2)')
-        for nome in tqdm(auxiliares):
-            nome_tabela = f'{arq_tabela_dic[nome]}_staging2'
-            csv_path = path_dados / f'{nome}.csv'
+        for nome in tqdm(AUXILIARES):
+            nome_tabela = f'{ARQ_TABELA_DIC[nome]}_staging2'
+            csv_path = path_dados / 'csv' / f'{nome}.csv'
             carregar_csv_banco(nome_tabela, csv_path, conn)
 
         logger.info('Carregando Dados Principais nas Tabelas de Staging1')
-        for nome in tqdm(principais):
-            nome_tabela = f'{arq_tabela_dic[nome]}_staging1'
-            csv_path = path_dados / f'{nome}.csv'
+        for nome in tqdm(PRINCIPAIS):
+            nome_tabela = f'{ARQ_TABELA_DIC[nome]}_staging1'
+            csv_path = path_dados / 'csv' / f'{nome}.csv'
             carregar_csv_banco(nome_tabela, csv_path, conn)
 
         logger.info('Carregando Dados Principais nas Tabelas de Staging2')
-        for nome in tqdm(principais):
-            nome_tabela = arq_tabela_dic[nome]
+        for nome in tqdm(PRINCIPAIS):
+            nome_tabela = ARQ_TABELA_DIC[nome]
             mover_entre_staging(f'{nome_tabela}_staging1', f'{nome_tabela}_staging2', conn)
 
         logger.info('Carregando Dados para Tabelas de Produção')
-        for nome in tqdm(auxiliares + principais):
-            nome_tabela = arq_tabela_dic[nome]
+        for nome in tqdm(AUXILIARES + PRINCIPAIS):
+            nome_tabela = ARQ_TABELA_DIC[nome]
             infos_auxiliares = tabelas_infos['auxiliares']
-            tabela_info = tabelas_infos.get(nome, infos_auxiliares)
+            tabela_info = tabelas_infos.get(nome_tabela, infos_auxiliares)
             mover_staging_producao(
-                f'{nome}_staging2',
+                f'{nome_tabela}_staging2',
                 nome_tabela,
                 tabela_info['pk'],
                 tabela_info['colunas'],
