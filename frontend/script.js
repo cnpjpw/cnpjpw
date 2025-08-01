@@ -1,7 +1,6 @@
 // Variáveis para controle da paginação
 let currentPage = 1
 let resultsPerPage = 25
-let totalResults = 0
 let dataAbertura;
 let path = '';
 let queryParams = '';
@@ -123,20 +122,11 @@ async function searchByQuery() {
 function displayResults(paginacao) {
     const resultsBody = document.getElementById('results-body');
     resultsBody.innerHTML = '';
-    totalResults = paginacao['quantidade_total_resultados'];
     quantResultsPage = paginacao['resultados_paginacao'].length
     const startIndex = (currentPage - 1) * resultsPerPage;
-    const endIndex = Math.min(startIndex + resultsPerPage, totalResults);
    
-    if (totalResults != null) {
-        document.getElementById('showing-results').textContent = 
-            totalResults > 0 ? `${startIndex + 1}-${endIndex}` : '0-0';
-        document.getElementById('total-results').textContent = totalResults;
-    }
-    else {
-        document.getElementById('showing-results').textContent = 'listagem'
-        document.getElementById('total-results').textContent = '';
-    }
+    document.getElementById('showing-results').textContent = 'listagem'
+    document.getElementById('total-results').textContent = '';
     
     // Adiciona os dados à tabela
     for (let i = 0; i < quantResultsPage; i++) {
@@ -168,7 +158,6 @@ function updatePagination() {
     pagination.innerHTML = '';
     
     // Calcula o número total de páginas
-    const totalPages = Math.ceil(totalResults / resultsPerPage);
     
     // Botão "Anterior"
     const prevButton = document.createElement('button');
@@ -187,90 +176,14 @@ function updatePagination() {
     });
     pagination.appendChild(prevButton);
     
-    // Lógica de exibição dos números de página
-    // Mostra sempre as primeiras páginas, a página atual e as últimas páginas
-    const pagesToShow = [];
-    
-    if (totalPages <= 7) {
-        // Se houver 7 ou menos páginas, mostra todas
-        for (let i = 1; i <= totalPages; i++) {
-            pagesToShow.push(i);
-        }
-    } else {
-        // Sempre mostra as páginas 1 e 2
-        pagesToShow.push(1, 2);
-        
-        // Lógica para páginas do meio
-        if (currentPage <= 4) {
-            // Estamos nas primeiras páginas
-            pagesToShow.push(3, 4, 5);
-        } else if (currentPage >= totalPages - 3) {
-            // Estamos nas últimas páginas
-            pagesToShow.push(totalPages - 4, totalPages - 3, totalPages - 2);
-        } else {
-            // Estamos no meio
-            pagesToShow.push(currentPage - 1, currentPage, currentPage + 1);
-        }
-        
-        // Sempre mostra as duas últimas páginas
-        if (totalPages) {
-            pagesToShow.push(totalPages - 1, totalPages);
-        }
-        
-        // Adiciona ellipsis onde necessário
-        const uniquePages = [...new Set(pagesToShow)].sort((a, b) => a - b);
-        
-        // Resultado final com ellipsis
-        const result = [];
-        for (let i = 0; i < uniquePages.length; i++) {
-            if (i > 0 && uniquePages[i] > uniquePages[i - 1] + 1) {
-                result.push('...');
-            }
-            result.push(uniquePages[i]);
-        }
-        
-        pagesToShow.length = 0;
-        pagesToShow.push(...result);
-    }
-    
-    // Adiciona botões de página
-    for (const page of pagesToShow) {
-        if (page === '...') {
-            const ellipsis = document.createElement('span');
-            ellipsis.className = 'pagination-ellipsis';
-            ellipsis.textContent = '...';
-            pagination.appendChild(ellipsis);
-        } else {
-            const pageButton = document.createElement('button');
-            pageButton.className = `pagination-button ${currentPage === page ? 'active' : ''}`;
-            pageButton.textContent = page;
-            pageButton.addEventListener('click', () => {
-                currentPage = page
-                pageButton.className = `pagination-button ${currentPage === page ? 'loading' : ''}`;
-                window.scroll({
-                  top: heightSearchForm + 200,
-                  behavior: "smooth"
-                });
-                  getPaginacao(pathAPI, queryParams, currentPage).then(
-                  (paginacao) => displayResults(paginacao)
-                )
-            });
-            pagination.appendChild(pageButton);
-        }
-    }
-
-    
     // Botão "Próxima"
     const nextButton = document.createElement('button');
-    nextButton.className = `pagination-button ${currentPage === totalPages ? 'disabled' : ''}`;
+    nextButton.className = 'pagination-button';
     nextButton.textContent = 'Próxima';
-    nextButton.disabled = currentPage === totalPages || totalPages === 0;
     nextButton.addEventListener('click', () => {
-        if (currentPage < totalPages || isNaN(totalPages)) {
-            currentPage++;
-            getPaginacao(pathAPI, queryParams, currentPage)
-            .then(paginacao => displayResults(paginacao));
-        }
+        currentPage++;
+        getPaginacao(pathAPI, queryParams, currentPage)
+        .then(paginacao => displayResults(paginacao));
     });
     pagination.appendChild(nextButton);
     heightSearchForm = document.querySelector('.search-form.active').offsetHeight
