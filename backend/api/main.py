@@ -6,7 +6,7 @@ from math import ceil
 from time import time
 from fastapi.middleware.gzip import GZipMiddleware
 from dotenv import load_dotenv
-from queries import CNPJ_QUERY, FILTROS_QUERY, DATA_ABERTURA_QUERY, RAIZ_QUERY, RAZAO_QUERY
+from queries import CNPJ_QUERY, FILTROS_QUERY, DATA_ABERTURA_QUERY, RAIZ_QUERY, RAZAO_QUERY, RAZAO_QUERY2
 
 
 load_dotenv()
@@ -113,6 +113,28 @@ def get_paginacao_razao_social(razao_social: str, p: int = 1, conn=Depends(get_c
     with conn.cursor() as cursor:
         cursor.execute(RAZAO_QUERY, (razao_social, offset))
         resultados = cursor.fetchall()
+    resultados = [res[0] for res in resultados]
+    return get_paginacao_template(resultados)
+
+
+@app.get("/razao_social2/{razao_social}")
+def get_paginacao_razao_social(razao_social: str, cursor: Optional[str] = None, conn=Depends(get_conn)):
+    """
+    Consulta matrizes e filias a partir do nome empresarial(razão social):
+
+    - **razao_social**: filtro por termo presente na razão social
+    - **cursor**: se especificado, serão exibidos apenas resultados após o cnpj_base passado ao paramêtro 'cursor'.
+
+    exibindo de 25 em 25 resultados atualmente.
+    """
+
+    if razao_social:
+        razao_social += '%'
+    results = []
+    parametros = { 'razao_social': razao_social, 'cursor': cursor }
+    with conn.cursor() as c:
+        c.execute(RAZAO_QUERY2, parametros)
+        resultados = c.fetchall()
     resultados = [res[0] for res in resultados]
     return get_paginacao_template(resultados)
 
