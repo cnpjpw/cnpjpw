@@ -16,13 +16,10 @@ bd_nome = os.getenv('BD_NOME')
 bd_usuario = os.getenv('BD_USUARIO')
 
 
-def get_paginacao_template(total, pagina_atual, limite=25):
-    quant_paginacoes = ceil(total / limite)
+def get_paginacao_template(pagina_atual, limite=25):
     return {
-        'quantidade_total_resultados': total,
         'limite_resultados_paginacao': limite,
         'resultados_paginacao': pagina_atual,
-        'quantidade_paginacoes': quant_paginacoes,
     }
 
 
@@ -57,7 +54,7 @@ def get_paginacao_data(data: str, p: int = 1, conn=Depends(get_conn)):
     Consulta CNPJ's abertos em uma certa data:
 
     - **data**: data de abertura desejada no formado DD-MM-AAAA
-    - **p**: A paginação desejada(por padrão, a primeira). A API é paginada 
+    - **p**: A paginação desejada(por padrão, a primeira). A API é paginada
     de 25 em 25 resultados atualmente.
     """
 
@@ -70,14 +67,8 @@ def get_paginacao_data(data: str, p: int = 1, conn=Depends(get_conn)):
     with conn.cursor() as cursor:
         cursor.execute(DATA_ABERTURA_QUERY, (data, offset))
         resultados = cursor.fetchall()
-        cursor.execute(
-                 "SELECT COUNT(*) FROM estabelecimentos WHERE (data_inicio_atividade = (%s))", 
-                 (data, )
-                 )
-        total = cursor.fetchone()
-    total = total[0]
     resultados = [res[0] for res in resultados]
-    return get_paginacao_template(total, resultados)
+    return get_paginacao_template(resultados)
 
 
 @app.get("/cnpj_base/{cnpj_base}")
@@ -86,7 +77,7 @@ def get_paginacao_raiz(cnpj_base: str, p: int = 1, conn=Depends(get_conn)):
     Consulta matrizes e filias a partir da base/raiz(8 primeiros caracteres) do CNPJ:
 
     - **cnpj_base**: 8 primeiros caracteres do número de inscrição do CNPJ.
-    - **p**: A paginação desejada(por padrão, a primeira). A API é paginada 
+    - **p**: A paginação desejada(por padrão, a primeira). A API é paginada
     de 25 em 25 resultados atualmente.
     """
 
@@ -98,14 +89,8 @@ def get_paginacao_raiz(cnpj_base: str, p: int = 1, conn=Depends(get_conn)):
     with conn.cursor() as cursor:
         cursor.execute(RAIZ_QUERY, (cnpj_base, offset))
         resultados = cursor.fetchall()
-        cursor.execute(
-                "SELECT COUNT(*) FROM estabelecimentos WHERE (cnpj_base = (%s)::bpchar)", 
-                 (cnpj_base, )
-                 )
-        total = cursor.fetchone()
-    total = total[0]
     resultados = [res[0] for res in resultados]
-    return get_paginacao_template(total, resultados)
+    return get_paginacao_template(resultados)
 
 
 @app.get("/razao_social/{razao_social}")
@@ -128,14 +113,8 @@ def get_paginacao_razao_social(razao_social: str, p: int = 1, conn=Depends(get_c
     with conn.cursor() as cursor:
         cursor.execute(RAZAO_QUERY, (razao_social, offset))
         resultados = cursor.fetchall()
-        cursor.execute(
-                "SELECT count(*) from empresas WHERE nome_empresarial LIKE UPPER(%s)",
-                 (razao_social, )
-                 )
-        total = cursor.fetchone()
-    total = total[0]
     resultados = [res[0] for res in resultados]
-    return get_paginacao_template(total, resultados)
+    return get_paginacao_template(resultados)
 
 
 @app.get("/query/")
@@ -168,7 +147,7 @@ def get_paginacao_query(
     - **municipio**: filtro por estabelecimentos desse município.
     - **cnae_principal**: filtro por estabelecimentos com esse cnae principal.
     - **natureza_juridica**: filtro por estabelecimentos com essa natureza juridica.
-    - **p**: A paginação desejada(por padrão, a primeira). A API é paginada 
+    - **p**: A paginação desejada(por padrão, a primeira). A API é paginada
     de 25 em 25 resultados atualmente.
     """
 
