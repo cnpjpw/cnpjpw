@@ -22,13 +22,6 @@ async function getPaginacao(path, queryParametros, pagina) {
   return paginacaoJson;
 }
 
-
-async function getPaginacaoQuery(paramsQuery, pagina) {
-  res = await fetch('https://api.cnpj.pw/query/?' + 'p=' + pagina + paramsQuery)
-  paginacaoJson = await res.json()
-  return paginacaoJson;
-  }
-
 function switchTab(tab) {
     document.querySelectorAll('.search-tab').forEach(el => el.classList.remove('active'));
     document.querySelectorAll('.search-form').forEach(el => el.classList.remove('active'));
