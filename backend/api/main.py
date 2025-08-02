@@ -6,7 +6,7 @@ from math import ceil
 from time import time
 from fastapi.middleware.gzip import GZipMiddleware
 from dotenv import load_dotenv
-from queries import CNPJ_QUERY, FILTROS_QUERY, DATA_ABERTURA_QUERY, RAIZ_QUERY, RAZAO_QUERY, RAZAO_QUERY2
+from queries import CNPJ_QUERY, FILTROS_QUERY, DATA_ABERTURA_QUERY, RAIZ_QUERY, RAZAO_QUERY, RAZAO_QUERY2, RAIZ_QUERY2
 
 
 load_dotenv()
@@ -137,6 +137,28 @@ def get_paginacao_razao_social(razao_social: str, cursor: Optional[str] = None, 
         resultados = c.fetchall()
     resultados = [res[0] for res in resultados]
     return get_paginacao_template(resultados)
+
+@app.get("/cnpj_base2/{cnpj_base}")
+def get_paginacao_raiz2(cnpj_base: str, cursor: Optional[str] = None, conn=Depends(get_conn)):
+    """
+    Consulta matrizes e filias a partir da base/raiz(8 primeiros caracteres) do CNPJ:
+
+    - **cnpj_base**: 8 primeiros caracteres do número de inscrição do CNPJ.
+    - **p**: A paginação desejada(por padrão, a primeira). A API é paginada
+    - **cursor**: se especificado, serão exibidos apenas resultados após o cnpj_ordem passado ao paramêtro 'cursor'.
+
+    exibindo de 25 em 25 resultados atualmente.
+    """
+
+    total = [0]
+    results = []
+    parametros = { 'cnpj_base': cnpj_base, 'cursor': cursor }
+    with conn.cursor() as cursor:
+        cursor.execute(RAIZ_QUERY2, parametros)
+        resultados = cursor.fetchall()
+    resultados = [res[0] for res in resultados]
+    return get_paginacao_template(resultados)
+
 
 
 @app.get("/query/")

@@ -136,6 +136,27 @@ SELECT row_to_json(result) FROM (
 """
 )
 
+RAIZ_QUERY2 = (
+"""
+SELECT row_to_json(result) FROM (
+    SELECT est.cnpj_base,
+        est.cnpj_ordem,
+        est.cnpj_dv,
+        est.nome_fantasia,
+        est.data_inicio_atividade,
+        sc.descricao AS situacao_cadastral,
+        e.nome_empresarial
+    FROM estabelecimentos est
+    LEFT JOIN empresas e ON est.cnpj_base = e.cnpj_base
+    LEFT JOIN situacoes_cadastrais sc ON est.situacao_cadastral = sc.codigo
+    WHERE (
+        est.cnpj_base = (%(cnpj_base)s) AND
+        ( ((%(cursor)s)::bpchar IS NULL) OR (est.cnpj_ordem > (%(cursor)s)::bpchar) )
+    )
+    ORDER BY est.cnpj_ordem ASC LIMIT 25
+) result;
+"""
+)
 
 FILTROS_QUERY = (                     
 """
@@ -169,3 +190,5 @@ ORDER BY est.cnpj_base, est.cnpj_ordem, est.cnpj_dv LIMIT 25 OFFSET (%(offset)s)
 
 """
 )
+
+
