@@ -1,9 +1,8 @@
 // Variáveis para controle da paginação
-let currentPage = 1
 let resultsPerPage = 25
 let dataAbertura;
 let path = '';
-let queryParams = '';
+let cursor = '';
 
 
 let cnpjTab = document.querySelector('#tab-cnpj')
@@ -16,8 +15,9 @@ dateTab.addEventListener('click', (e) => switchTab('data'))
 raizTab.addEventListener('click', (e) => switchTab('raiz'))
 queryTab.addEventListener('click', (e) => switchTab('razao'))
 
-async function getPaginacao(path, queryParametros, pagina) {
-  res = await fetch('https://api.cnpj.pw/' + path + '?p=' + pagina + queryParametros)
+async function getPaginacao(path, cursor) {
+  cursorParametro = cursor ? '?cursor=' + cursor : ''
+  res = await fetch('https://api.cnpj.pw/' + path + cursorParametro)
   paginacaoJson = await res.json()
   return paginacaoJson;
 }
@@ -42,13 +42,12 @@ function searchCNPJ() {
 async function searchByDate() {
     dataAbertura = document.getElementById('data-abertura-tab-input').value;
     dataAbertura = dataAbertura.split('-').reverse().join('-')
-    currentPage = 1
+    cursor = 1
     
     if (dataAbertura) {
-        pathAPI = 'data/' + dataAbertura
-        queryParams = ''
+        pathAPI = 'data2/' + dataAbertura
 
-        paginacao = await getPaginacao(pathAPI, queryParams, currentPage)
+        paginacao = await getPaginacao(pathAPI, '')
         displayResults(paginacao)
         document.getElementById('results-container').classList.add('active')
     }
@@ -57,12 +56,11 @@ async function searchByDate() {
 
 async function searchByRaiz() {
     cnpjBase = document.getElementById('raiz-input').value;
-    currentPage = 1
+    cursor = 1
     
     if (cnpjBase) {
-        pathAPI = 'cnpj_base/' + cnpjBase 
-        queryParams = ''
-        paginacao = await getPaginacao(pathAPI, queryParams, 1)
+        pathAPI = 'cnpj_base2/' + cnpjBase 
+        paginacao = await getPaginacao(pathAPI, '')
         displayResults(paginacao)
         document.getElementById('results-container').classList.add('active')
         return
@@ -72,12 +70,12 @@ async function searchByRaiz() {
 
 async function searchByRazao() {
     razao = document.getElementById('razao-input').value;
-    currentPage = 1
+    cursor = 1
+    tipoPaginacao = 2;
     
     if (razao) {
-        pathAPI = 'razao_social/' + razao 
-        queryParams = ''
-        paginacao = await getPaginacao(pathAPI, queryParams, 1)
+        pathAPI = 'razao_social2/' + razao 
+        paginacao = await getPaginacao(pathAPI, '')
         displayResults(paginacao)
         document.getElementById('results-container').classList.add('active')
         return
@@ -85,38 +83,10 @@ async function searchByRazao() {
 }
 
 
-
-async function searchByQuery() {
-    params = {
-    data_abertura_min : document.getElementById('data-abertura-min').value,
-    data_abertura_max : document.getElementById('data-abertura-max').value,
-    razao_social : document.getElementById('razao-social').value,
-    cnpj_base : document.getElementById('cnpj-base').value,
-    situacao_cadastral : document.getElementById('situacao-cadastral').value,
-    capital_social_min : document.getElementById('capital-social-min').value,
-    capital_social_max : document.getElementById('capital-social-max').value,
-    uf : document.getElementById('uf').value,
-    municipio : document.getElementById('municipio').value,
-    cnae_principal : document.getElementById('cnae').value,
-    natureza_juridica : document.getElementById('natureza-juridica').value
-    }
-
-    currentPage = 1
-
-    let paramsArr = Object.entries(params)
-    queryParams = ''
-    paramsArr.forEach(e => queryParams += e[1] != '' ? `&${e[0]}=${e[1]}` : '')
-    pathAPI = 'query/'
-    getPaginacao(pathAPI, queryParams, 1)
-    .then(paginacao => displayResults(paginacao))
-    .then(document.getElementById('results-container').classList.add('active'))
-}
-
 function displayResults(paginacao) {
     const resultsBody = document.getElementById('results-body');
     resultsBody.innerHTML = '';
     quantResultsPage = paginacao['resultados_paginacao'].length
-    const startIndex = (currentPage - 1) * resultsPerPage;
    
     document.getElementById('showing-results').textContent = 'listagem'
     document.getElementById('total-results').textContent = '';
@@ -143,41 +113,39 @@ function displayResults(paginacao) {
     }
     
     // Atualiza a paginação
-    updatePagination();
+    updatePagination(paginacao);
 }
 
-function updatePagination() {
+function updatePagination(paginacao) {
     const pagination = document.getElementById('pagination');
     pagination.innerHTML = '';
     
-    // Calcula o número total de páginas
-    
-    // Botão "Anterior"
-    const prevButton = document.createElement('button');
-    prevButton.className = `pagination-button ${currentPage === 1 ? 'disabled' : ''}`;
-    prevButton.textContent = 'Anterior';
-    prevButton.disabled = currentPage === 1;
-    prevButton.addEventListener('click', () => {
-        if (currentPage > 1) {
-            currentPage--;
-            getPaginacao(pathAPI, queryParams, currentPage)
-            .then((paginacao) => {
-              displayResults(paginacao)
-              }
-            );
-        }
-    });
-    pagination.appendChild(prevButton);
-    
-    // Botão "Próxima"
     const nextButton = document.createElement('button');
     nextButton.className = 'pagination-button';
     nextButton.textContent = 'Próxima';
     nextButton.addEventListener('click', () => {
-        currentPage++;
-        getPaginacao(pathAPI, queryParams, currentPage)
-        .then(paginacao => displayResults(paginacao));
+        tam = paginacao['resultados_paginacao'].length
+        ultimo_res = paginacao['resultados_paginacao'][tam - 1]
+        cnpj_base = ultimo_res['cnpj_base']
+        cnpj_ordem = ultimo_res['cnpj_ordem']
+        cnpj_dv = ultimo_res['cnpj_dv']
+
+        if (pathAPI.startsWith('razao_social2')) {
+          cursor = cnpj_base
+        }
+
+        if (pathAPI.startsWith('cnpj_base2')) {
+          cursor = cnpj_ordem
+        }
+
+        if (pathAPI.startsWith('data2')) {
+          cursor = cnpj_base + cnpj_ordem + cnpj_dv
+        }
+
+        getPaginacao(pathAPI, cursor)
+        .then(pag => displayResults(pag));
     });
+
     pagination.appendChild(nextButton);
     heightSearchForm = document.querySelector('.search-form.active').offsetHeight
     window.scroll({
