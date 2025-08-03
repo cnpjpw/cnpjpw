@@ -1,12 +1,12 @@
 from fastapi import Depends, FastAPI, Response, status, Query, Body
-from typing import Optional
+from typing import Optional, Annotated
 import psycopg
 import os
 from math import ceil
 from time import time
 from fastapi.middleware.gzip import GZipMiddleware
 from dotenv import load_dotenv
-from queries import CNPJ_QUERY, FILTROS_QUERY, DATA_ABERTURA_QUERY, RAIZ_QUERY, RAZAO_QUERY, RAZAO_QUERY2, RAIZ_QUERY2
+from queries import CNPJ_QUERY, FILTROS_QUERY, DATA_ABERTURA_QUERY, RAIZ_QUERY, RAZAO_QUERY, RAZAO_QUERY2, RAIZ_QUERY2, DATA_ABERTURA_QUERY2
 
 
 load_dotenv()
@@ -159,6 +159,39 @@ def get_paginacao_raiz2(cnpj_base: str, cursor: Optional[str] = None, conn=Depen
     resultados = [res[0] for res in resultados]
     return get_paginacao_template(resultados)
 
+
+@app.get("/data2/{data}")
+def get_paginacao_data2(data: str, cursor: Annotated[Optional[str], Query(max_length=14, min_length=14)] = None, conn=Depends(get_conn)):
+    """
+    Consulta CNPJ's abertos em uma certa data:
+
+    - **data**: data de abertura desejada no formado DD-MM-AAAA
+    - **cursor**: se especificado, serão exibidos apenas resultados após o cnpj passado ao paramêtro 'cursor'.
+
+    exibindo de 25 em 25 resultados atualmente.
+    """
+
+    data = '-'.join(data.split('-')[::-1])
+
+    parametros = {
+            'data_inicio_atividade' : data,
+            'cnpj_base': None,
+            'cnpj_ordem': None,
+            'cnpj_dv': None
+            }
+
+    if cursor:
+        parametros['cnpj_base'] = cursor[:8]
+        parametros['cnpj_ordem'] = cursor[8:12]
+        parametros['cnpj_dv'] = cursor[12:]
+
+    total = [0]
+    results = []
+    with conn.cursor() as cursor:
+        cursor.execute(DATA_ABERTURA_QUERY2, parametros)
+        resultados = cursor.fetchall()
+    resultados = [res[0] for res in resultados]
+    return get_paginacao_template(resultados)
 
 
 @app.get("/query/")

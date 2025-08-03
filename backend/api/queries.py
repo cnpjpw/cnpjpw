@@ -158,6 +158,37 @@ SELECT row_to_json(result) FROM (
 """
 )
 
+
+DATA_ABERTURA_QUERY2 = (
+"""
+SELECT row_to_json(result) FROM (
+    SELECT
+        est.cnpj_base,
+        est.cnpj_ordem,
+        est.cnpj_dv,
+        est.nome_fantasia,
+        est.data_inicio_atividade,
+        sc.descricao AS situacao_cadastral,
+        e.nome_empresarial
+    FROM estabelecimentos est
+    LEFT JOIN empresas e ON est.cnpj_base = e.cnpj_base
+    LEFT JOIN situacoes_cadastrais sc ON est.situacao_cadastral = sc.codigo
+    WHERE (
+        data_inicio_atividade = (%(data_inicio_atividade)s)::date AND
+        (
+        ((%(cnpj_base)s)::bpchar IS NULL) OR
+        ((%(cnpj_ordem)s)::bpchar IS NULL) OR
+        ((%(cnpj_dv)s)::bpchar IS NULL) OR
+        ((est.cnpj_base, est.cnpj_ordem, est.cnpj_dv) > ( (%(cnpj_base)s), (%(cnpj_ordem)s), (%(cnpj_dv)s) ))
+        )
+
+    )
+    ORDER BY est.cnpj_base, est.cnpj_ordem, est.cnpj_dv ASC LIMIT 25
+) result;
+"""
+)
+
+
 FILTROS_QUERY = (                     
 """
 SELECT row_to_json(result) FROM (
