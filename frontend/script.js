@@ -35,7 +35,7 @@ function switchTab(tab) {
 function searchCNPJ() {
     const cnpjValue = document.getElementById('cnpj-input').value.trim();
     if (cnpjValue) {
-      window.open('https://cnpj.pw/cnpj/?v=' + cnpjValue)
+      window.open('https://api.cnpj.pw/cnpj/' + cnpjValue)
     }
 }
 
@@ -100,7 +100,7 @@ function displayResults(paginacao) {
 		(item.cnpj_ordem || '') +
 		(item.cnpj_dv || '')
 	)
-  linkCnpj = item.cnpj_ordem ? 'https://cnpj.pw/cnpj/?v=' : 'https://api.cnpj.pw/cnpj_base/'
+  linkCnpj = item.cnpj_ordem ? 'https://api.cnpj.pw/cnpj/' : 'https://api.cnpj.pw/cnpj_base/'
         
         row.innerHTML = `
             <td><a href="${linkCnpj}${cnpj}" target="_blank" class="cnpj-link">${cnpj}</a></td>
