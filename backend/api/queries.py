@@ -1,5 +1,5 @@
 CNPJ_QUERY = (
-""" 
+"""
 SELECT row_to_json(result)
 FROM (
     SELECT
@@ -75,7 +75,8 @@ FROM (
 DATA_ABERTURA_QUERY = (
 """
 SELECT row_to_json(result) FROM (
-    SELECT est.cnpj_base,
+    SELECT
+        est.cnpj_base,
         est.cnpj_ordem,
         est.cnpj_dv,
         est.nome_fantasia,
@@ -139,9 +140,11 @@ SELECT row_to_json(result) FROM (
 RAIZ_QUERY2 = (
 """
 SELECT row_to_json(result) FROM (
-    SELECT est.cnpj_base,
+    SELECT
+        est.cnpj_base,
         est.cnpj_ordem,
         est.cnpj_dv,
+        est.cnpj_base || est.cnpj_ordem || est.cnpj_dv AS cnpj,
         est.nome_fantasia,
         est.data_inicio_atividade,
         sc.descricao AS situacao_cadastral,
@@ -166,6 +169,7 @@ SELECT row_to_json(result) FROM (
         est.cnpj_base,
         est.cnpj_ordem,
         est.cnpj_dv,
+        est.cnpj_base || est.cnpj_ordem || est.cnpj_dv AS cnpj,
         est.nome_fantasia,
         est.data_inicio_atividade,
         sc.descricao AS situacao_cadastral,
@@ -189,10 +193,10 @@ SELECT row_to_json(result) FROM (
 )
 
 
-FILTROS_QUERY = (                     
+FILTROS_QUERY = (
 """
 SELECT row_to_json(result) FROM (
-SELECT 
+SELECT
     est.cnpj_base,
     est.cnpj_ordem,
     est.cnpj_dv
@@ -221,5 +225,4 @@ ORDER BY est.cnpj_base, est.cnpj_ordem, est.cnpj_dv LIMIT 25 OFFSET (%(offset)s)
 
 """
 )
-
 
