@@ -100,7 +100,7 @@ function displayResults(paginacao) {
 		(item.cnpj_ordem || '') +
 		(item.cnpj_dv || '')
 	)
-  linkCnpj = item.cnpj_ordem ? 'https://api.cnpj.pw/cnpj/' : 'https://api.cnpj.pw/cnpj_base/'
+  linkCnpj = item.cnpj_ordem ? 'https://api.cnpj.pw/cnpj/' : 'https://api.cnpj.pw/cnpj_base2/'
         
         row.innerHTML = `
             <td><a href="${linkCnpj}${cnpj}" target="_blank" class="cnpj-link">${cnpj}</a></td>
