@@ -6,7 +6,7 @@ from math import ceil
 from time import time
 from fastapi.middleware.gzip import GZipMiddleware
 from dotenv import load_dotenv
-from queries import CNPJ_QUERY, FILTROS_QUERY, DATA_ABERTURA_QUERY, RAIZ_QUERY, RAZAO_QUERY, RAZAO_QUERY2, RAIZ_QUERY2, DATA_ABERTURA_QUERY2
+from queries import CNPJ_QUERY, RAZAO_QUERY, RAIZ_QUERY, DATA_ABERTURA_QUERY
 
 
 load_dotenv()
@@ -48,76 +48,7 @@ def get_cnpj(cnpj: str, response: Response, conn=Depends(get_conn)):
     return res_json[0]
 
 
-@app.get("/data/{data}")
-def get_paginacao_data(data: str, p: int = 1, conn=Depends(get_conn)):
-    """
-    Consulta CNPJ's abertos em uma certa data:
-
-    - **data**: data de abertura desejada no formado DD-MM-AAAA
-    - **p**: A paginação desejada(por padrão, a primeira). A API é paginada
-    de 25 em 25 resultados atualmente.
-    """
-
-    if p < 1:
-        p = 1
-    offset = (p - 1) * 25
-    data = '-'.join(data.split('-')[::-1])
-    total = [0]
-    results = []
-    with conn.cursor() as cursor:
-        cursor.execute(DATA_ABERTURA_QUERY, (data, offset))
-        resultados = cursor.fetchall()
-    resultados = [res[0] for res in resultados]
-    return get_paginacao_template(resultados)
-
-
-@app.get("/cnpj_base/{cnpj_base}")
-def get_paginacao_raiz(cnpj_base: str, p: int = 1, conn=Depends(get_conn)):
-    """
-    Consulta matrizes e filias a partir da base/raiz(8 primeiros caracteres) do CNPJ:
-
-    - **cnpj_base**: 8 primeiros caracteres do número de inscrição do CNPJ.
-    - **p**: A paginação desejada(por padrão, a primeira). A API é paginada
-    de 25 em 25 resultados atualmente.
-    """
-
-    if p < 1:
-        p = 1
-    offset = (p - 1) * 25
-    total = [0]
-    results = []
-    with conn.cursor() as cursor:
-        cursor.execute(RAIZ_QUERY, (cnpj_base, offset))
-        resultados = cursor.fetchall()
-    resultados = [res[0] for res in resultados]
-    return get_paginacao_template(resultados)
-
-
 @app.get("/razao_social/{razao_social}")
-def get_paginacao_razao_social(razao_social: str, p: int = 1, conn=Depends(get_conn)):
-    """
-    Consulta matrizes e filias a partir do nome empresarial(razão social):
-
-    - **razao_social**: filtro por termo presente na razão social
-    - **p**: A paginação desejada(por padrão, a primeira). A API é paginada
-    de 25 em 25 resultados atualmente.
-    """
-
-    if razao_social:
-        razao_social += '%'
-    if p < 1:
-        p = 1
-    offset = (p - 1) * 25
-    total = [0]
-    results = []
-    with conn.cursor() as cursor:
-        cursor.execute(RAZAO_QUERY, (razao_social, offset))
-        resultados = cursor.fetchall()
-    resultados = [res[0] for res in resultados]
-    return get_paginacao_template(resultados)
-
-
-@app.get("/razao_social2/{razao_social}")
 def get_paginacao_razao_social(razao_social: str, cursor: Optional[str] = None, conn=Depends(get_conn)):
     """
     Consulta matrizes e filias a partir do nome empresarial(razão social):
@@ -133,13 +64,14 @@ def get_paginacao_razao_social(razao_social: str, cursor: Optional[str] = None, 
     results = []
     parametros = { 'razao_social': razao_social, 'cursor': cursor }
     with conn.cursor() as c:
-        c.execute(RAZAO_QUERY2, parametros)
+        c.execute(RAZAO_QUERY, parametros)
         resultados = c.fetchall()
     resultados = [res[0] for res in resultados]
     return get_paginacao_template(resultados)
 
-@app.get("/cnpj_base2/{cnpj_base}")
-def get_paginacao_raiz2(cnpj_base: str, cursor: Optional[str] = None, conn=Depends(get_conn)):
+
+@app.get("/cnpj_base/{cnpj_base}")
+def get_paginacao_raiz(cnpj_base: str, cursor: Optional[str] = None, conn=Depends(get_conn)):
     """
     Consulta matrizes e filias a partir da base/raiz(8 primeiros caracteres) do CNPJ:
 
@@ -154,14 +86,14 @@ def get_paginacao_raiz2(cnpj_base: str, cursor: Optional[str] = None, conn=Depen
     results = []
     parametros = { 'cnpj_base': cnpj_base, 'cursor': cursor }
     with conn.cursor() as cursor:
-        cursor.execute(RAIZ_QUERY2, parametros)
+        cursor.execute(RAIZ_QUERY, parametros)
         resultados = cursor.fetchall()
     resultados = [res[0] for res in resultados]
     return get_paginacao_template(resultados)
 
 
-@app.get("/data2/{data}")
-def get_paginacao_data2(data: str, cursor: Annotated[Optional[str], Query(max_length=14, min_length=14)] = None, conn=Depends(get_conn)):
+@app.get("/data/{data}")
+def get_paginacao_data(data: str, cursor: Annotated[Optional[str], Query(min_length=14, max_length=14)] = None, conn=Depends(get_conn)):
     """
     Consulta CNPJ's abertos em uma certa data:
 
@@ -188,72 +120,9 @@ def get_paginacao_data2(data: str, cursor: Annotated[Optional[str], Query(max_le
     total = [0]
     results = []
     with conn.cursor() as cursor:
-        cursor.execute(DATA_ABERTURA_QUERY2, parametros)
+        cursor.execute(DATA_ABERTURA_QUERY, parametros)
         resultados = cursor.fetchall()
     resultados = [res[0] for res in resultados]
     return get_paginacao_template(resultados)
 
 
-@app.get("/query/")
-def get_paginacao_query(
-            data_abertura_min: Optional[str] = None,
-            data_abertura_max: Optional[str] = None,
-            razao_social: Optional[str] = None,
-            situacao_cadastral: Optional[int] = None,
-            capital_social_min: Optional[float] = None,
-            capital_social_max: Optional[float] = None,
-            uf: Optional[str] = None,
-            municipio: Optional[int] = None,
-            cnae_principal: Optional[str] = None,
-            natureza_juridica: Optional[str] = None,
-            cnpj_base: Optional[str] = None,
-            p: int = 1,
-            conn=Depends(get_conn)
-        ):
-    """
-    Consultar CNPJ's abertos a partir de uma série de parâmetros possíveis de serem combinados(0 ou mais deles):
-
-    - **data_abertura_min**: filtro por estabelecimentos abertos a partir dessa data
-    - **data_abertura_max**: filtro por estabelecimentos abertos até essa data
-    - **razao_social**: filtro por termo presente na razão social
-    - **cnpj_base**: filtro por raiz de um cnpj(primeiros 8 caracteres), retornando a matriz e todas filiais com aquela base.
-    - **situacao_cadastral**: filtro por código de situação cadastral
-    - **capital_social_min**: filtro por estabelecimentos com pelo menos esse capital social.
-    - **capital_social_max**: filtro por estabelecimentos com até esse capital social.
-    - **uf**: filtro por estabelecimentos desse estado.
-    - **municipio**: filtro por estabelecimentos desse município.
-    - **cnae_principal**: filtro por estabelecimentos com esse cnae principal.
-    - **natureza_juridica**: filtro por estabelecimentos com essa natureza juridica.
-    - **p**: A paginação desejada(por padrão, a primeira). A API é paginada
-    de 25 em 25 resultados atualmente.
-    """
-
-    if p < 1:
-        p = 1
-    offset = (p - 1) * 25
-
-    if razao_social:
-        razao_social = razao_social + '%'
-    parametros_filtro = {
-            "offset": offset,
-            "data_abertura_min": data_abertura_min,
-            "data_abertura_max": data_abertura_max,
-            "razao_social": razao_social,
-            "situacao_cadastral": situacao_cadastral,
-            "capital_social_min": capital_social_min,
-            "capital_social_max": capital_social_max,
-            "uf": uf,
-            "municipio": municipio,
-            "cnae_principal": cnae_principal,
-            "natureza_juridica": natureza_juridica,
-            "cnpj_base": cnpj_base
-    }
-    with conn.cursor() as cursor:
-        cursor.execute(FILTROS_QUERY, parametros_filtro)
-        results = cursor.fetchall()
-
-    return {
-            'limite_resultados_paginacao': 25,
-            'paginacao_atual': p,
-            'resultados_paginacao': [res[0] for res in results],
-    }

@@ -45,7 +45,7 @@ async function searchByDate() {
     cursor = 1
     
     if (dataAbertura) {
-        pathAPI = 'data2/' + dataAbertura
+        pathAPI = 'data/' + dataAbertura
 
         paginacao = await getPaginacao(pathAPI, '')
         displayResults(paginacao)
@@ -59,7 +59,7 @@ async function searchByRaiz() {
     cursor = 1
     
     if (cnpjBase) {
-        pathAPI = 'cnpj_base2/' + cnpjBase 
+        pathAPI = 'cnpj_base/' + cnpjBase
         paginacao = await getPaginacao(pathAPI, '')
         displayResults(paginacao)
         document.getElementById('results-container').classList.add('active')
@@ -71,10 +71,9 @@ async function searchByRaiz() {
 async function searchByRazao() {
     razao = document.getElementById('razao-input').value;
     cursor = 1
-    tipoPaginacao = 2;
     
     if (razao) {
-        pathAPI = 'razao_social2/' + razao 
+        pathAPI = 'razao_social/' + razao
         paginacao = await getPaginacao(pathAPI, '')
         displayResults(paginacao)
         document.getElementById('results-container').classList.add('active')
@@ -130,15 +129,15 @@ function updatePagination(paginacao) {
         cnpj_ordem = ultimo_res['cnpj_ordem']
         cnpj_dv = ultimo_res['cnpj_dv']
 
-        if (pathAPI.startsWith('razao_social2')) {
+        if (pathAPI.startsWith('razao_social')) {
           cursor = cnpj_base
         }
 
-        if (pathAPI.startsWith('cnpj_base2')) {
+        if (pathAPI.startsWith('cnpj_base')) {
           cursor = cnpj_ordem
         }
 
-        if (pathAPI.startsWith('data2')) {
+        if (pathAPI.startsWith('data')) {
           cursor = cnpj_base + cnpj_ordem + cnpj_dv
         }
 
@@ -153,4 +152,3 @@ function updatePagination(paginacao) {
       behavior: "smooth"
     });
 }
-

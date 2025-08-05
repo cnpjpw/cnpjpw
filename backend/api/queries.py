@@ -72,57 +72,8 @@ FROM (
 
 """
 )
-DATA_ABERTURA_QUERY = (
-"""
-SELECT row_to_json(result) FROM (
-    SELECT
-        est.cnpj_base,
-        est.cnpj_ordem,
-        est.cnpj_dv,
-        est.nome_fantasia,
-        est.data_inicio_atividade,
-        sc.descricao AS situacao_cadastral,
-        e.nome_empresarial
-    FROM estabelecimentos est
-    LEFT JOIN empresas e ON est.cnpj_base = e.cnpj_base
-    LEFT JOIN situacoes_cadastrais sc ON est.situacao_cadastral = sc.codigo
-    WHERE data_inicio_atividade = (%s)::date
-    ORDER BY est.cnpj_base, est.cnpj_ordem, est.cnpj_dv ASC LIMIT 25 OFFSET (%s)
-) result;
-"""
-)
-RAIZ_QUERY = (
-"""
-SELECT row_to_json(result) FROM (
-    SELECT est.cnpj_base,
-        est.cnpj_ordem,
-        est.cnpj_dv,
-        est.nome_fantasia,
-        est.data_inicio_atividade,
-        sc.descricao AS situacao_cadastral,
-        e.nome_empresarial
-    FROM estabelecimentos est
-    LEFT JOIN empresas e ON est.cnpj_base = e.cnpj_base
-    LEFT JOIN situacoes_cadastrais sc ON est.situacao_cadastral = sc.codigo
-    WHERE est.cnpj_base = (%s)
-    ORDER BY (est.cnpj_base, est.cnpj_ordem, est.cnpj_dv) ASC LIMIT 25 OFFSET (%s)
-) result;
-"""
-)
 
 RAZAO_QUERY = (
-"""
-SELECT row_to_json(result) FROM (
-    SELECT e.cnpj_base,
-        e.nome_empresarial
-    FROM empresas e
-    WHERE e.nome_empresarial LIKE UPPER(%s)
-    ORDER BY e.cnpj_base ASC LIMIT 25 OFFSET (%s)
-) result;
-"""
-)
-
-RAZAO_QUERY2 = (
 """
 SELECT row_to_json(result) FROM (
     SELECT e.cnpj_base,
@@ -137,7 +88,7 @@ SELECT row_to_json(result) FROM (
 """
 )
 
-RAIZ_QUERY2 = (
+RAIZ_QUERY = (
 """
 SELECT row_to_json(result) FROM (
     SELECT
@@ -161,8 +112,7 @@ SELECT row_to_json(result) FROM (
 """
 )
 
-
-DATA_ABERTURA_QUERY2 = (
+DATA_ABERTURA_QUERY = (
 """
 SELECT row_to_json(result) FROM (
     SELECT
@@ -189,40 +139,6 @@ SELECT row_to_json(result) FROM (
     )
     ORDER BY est.cnpj_base, est.cnpj_ordem, est.cnpj_dv ASC LIMIT 25
 ) result;
-"""
-)
-
-
-FILTROS_QUERY = (
-"""
-SELECT row_to_json(result) FROM (
-SELECT
-    est.cnpj_base,
-    est.cnpj_ordem,
-    est.cnpj_dv
-    -- est.nome_fantasia,
-    -- est.data_inicio_atividade,
-    -- sc.descricao AS situacao_cadastral,
-    -- e.nome_empresarial
-FROM estabelecimentos est
-LEFT JOIN empresas e ON est.cnpj_base = e.cnpj_base
--- LEFT JOIN situacoes_cadastrais sc ON est.situacao_cadastral = sc.codigo
-WHERE (
-    ( (%(data_abertura_min)s::date IS NULL) OR (est.data_inicio_atividade >= (%(data_abertura_min)s)::date) ) AND
-    ( (%(data_abertura_max)s::date IS NULL) OR (est.data_inicio_atividade <= (%(data_abertura_max)s)::date) ) AND
-    ( (%(razao_social)s::text IS NULL) OR (e.nome_empresarial LIKE UPPER(%(razao_social)s)) ) AND
-    ( (%(cnpj_base)s::bpchar IS NULL) OR (est.cnpj_base = (%(cnpj_base)s)::bpchar) ) AND
-    ( (%(situacao_cadastral)s::integer IS NULL) OR (est.situacao_cadastral = (%(situacao_cadastral)s)) ) AND
-    ( (%(capital_social_min)s::numeric IS NULL) OR (e.capital_social >= (%(capital_social_min)s)) ) AND
-    ( (%(capital_social_max)s::numeric IS NULL) OR (e.capital_social <= (%(capital_social_max)s)) ) AND
-    ( (%(uf)s::bpchar IS NULL) OR (est.uf = (%(uf)s)) ) AND
-    ( (%(municipio)s::integer IS NULL) OR (est.municipio = (%(municipio)s)) ) AND
-    ( (%(cnae_principal)s::integer IS NULL) OR (est.cnae_fiscal_principal = (%(cnae_principal)s::integer)) ) AND
-    ( (%(natureza_juridica)s::integer IS NULL) OR (e.natureza_juridica = (%(natureza_juridica)s)) )
-)
-ORDER BY est.cnpj_base, est.cnpj_ordem, est.cnpj_dv LIMIT 25 OFFSET (%(offset)s)
-) result;
-
 """
 )
 
