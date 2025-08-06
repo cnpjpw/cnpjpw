@@ -14,7 +14,6 @@ def carregar_csv_banco(nome_tabela, csv_path, conn):
             with cursor.copy(query) as copy:
                 while data := f.read(65536):
                     copy.write(data)
-            conn.commit()
 
 
 def mover_entre_staging(tabela_origem, tabela_destino, conn):
@@ -27,7 +26,6 @@ def mover_entre_staging(tabela_origem, tabela_destino, conn):
         ).format(sql.Identifier(tabela_origem))
         cursor.execute(query_insert)
         cursor.execute(query_truncate)
-        conn.commit()
 
 
 def mover_staging_producao(tabela_origem, tabela_destino, pk, colunas, conn, faz_update=True):
@@ -42,7 +40,7 @@ def mover_staging_producao(tabela_origem, tabela_destino, pk, colunas, conn, faz
         query_insert = sql.SQL(
             "INSERT INTO {} SELECT * FROM {} ON CONFLICT ({}) DO UPDATE SET {}"
         ).format(
-                sql.Identifier(tabela_destino), 
+                sql.Identifier(tabela_destino),
                 sql.Identifier(tabela_origem),
                 sql.SQL(', ').join([sql.Identifier(col) for col in pk]),
                 sql.SQL(', ').join([col for col in colunas_update])
@@ -59,7 +57,6 @@ def mover_staging_producao(tabela_origem, tabela_destino, pk, colunas, conn, faz
         ).format(sql.Identifier(tabela_origem))
         cursor.execute(query_insert)
         cursor.execute(query_truncate)
-        conn.commit()
 
 
 
