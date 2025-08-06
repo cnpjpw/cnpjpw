@@ -59,13 +59,13 @@ def polling_carga_mensal():
         (path_entrada / nome_arquivo).unlink()
     logger.info('Iniciando Rotinas de Carga em BD')
     with psycopg.connect(dbname=BD_NOME, user=BD_USUARIO) as conn:
-        carregar_arquivos_bd(AUXILIARES, PRINCIPAIS, csv_path, ARQ_TABELA_DIC, conn, True)
+        carregar_arquivos_bd(AUXILIARES, PRINCIPAIS, path_dados, ARQ_TABELA_DIC, conn, True)
     logger.info('Modificando Mês de Download dos Dados')
     acrescentar_mes_json(path_json_data, mes, ano)
     logger.info('Carga Mensal Concluida')
 
 
-def carregar_arquivos_bd(auxiliares, principais, csv_path, arq_tabela_dic, conn, faz_update):
+def carregar_arquivos_bd(auxiliares, principais, path_dados, arq_tabela_dic, conn, faz_update):
         logger.info('Carregando Dados Auxiliares nas Tabelas de Staging(direto para o staging2)')
         for nome in tqdm(auxiliares):
             nome_tabela = f'{ARQ_TABELA_DIC[nome]}_staging2'
