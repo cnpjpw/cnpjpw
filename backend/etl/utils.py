@@ -1,3 +1,5 @@
+import json
+
 def ler_data_json(path):
     with open(path, "r") as f:
         data_pasta = json.load(f)
