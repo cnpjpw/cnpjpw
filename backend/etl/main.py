@@ -14,7 +14,7 @@ from utils import ler_data_json
 from utils import acrescentar_mes_json
 
 
-def main():
+def polling_carga_mensal():
     PATH_SCRIPT = pathlib.Path(__file__).parent
 
     logging.basicConfig(
@@ -57,30 +57,36 @@ def main():
             path_saida=path_saida,
         )
         (path_entrada / nome_arquivo).unlink()
-
     logger.info('Iniciando Rotinas de Carga em BD')
     with psycopg.connect(dbname=BD_NOME, user=BD_USUARIO) as conn:
+        carregar_arquivos_bd(AUXILIARES, PRINCIPAIS, csv_path, ARQ_TABELA_DIC, conn, True)
+    logger.info('Modificando Mês de Download dos Dados')
+    acrescentar_mes_json(path_json_data, mes, ano)
+    logger.info('Carga Mensal Concluida')
+
+
+def carregar_arquivos_bd(auxiliares, principais, csv_path, arq_tabela_dic, conn, faz_update):
         logger.info('Carregando Dados Auxiliares nas Tabelas de Staging(direto para o staging2)')
-        for nome in tqdm(AUXILIARES):
+        for nome in tqdm(auxiliares):
             nome_tabela = f'{ARQ_TABELA_DIC[nome]}_staging2'
             csv_path = path_dados / 'csv' / f'{nome}.csv'
             carregar_csv_banco(nome_tabela, csv_path, conn)
             csv_path.unlink()
 
         logger.info('Carregando Dados Principais nas Tabelas de Staging1')
-        for nome in tqdm(PRINCIPAIS):
+        for nome in tqdm(principais):
             nome_tabela = f'{ARQ_TABELA_DIC[nome]}_staging1'
             csv_path = path_dados / 'csv' / f'{nome}.csv'
             carregar_csv_banco(nome_tabela, csv_path, conn)
             csv_path.unlink()
 
         logger.info('Carregando Dados Principais nas Tabelas de Staging2')
-        for nome in tqdm(PRINCIPAIS):
+        for nome in tqdm(principais):
             nome_tabela = ARQ_TABELA_DIC[nome]
             mover_entre_staging(f'{nome_tabela}_staging1', f'{nome_tabela}_staging2', conn)
 
         logger.info('Carregando Dados para Tabelas de Produção')
-        for nome in tqdm(AUXILIARES + PRINCIPAIS):
+        for nome in tqdm(auxiliares + principais):
             nome_tabela = ARQ_TABELA_DIC[nome]
             infos_auxiliares = tabelas_infos['auxiliares']
             tabela_info = tabelas_infos.get(nome_tabela, infos_auxiliares)
@@ -89,14 +95,12 @@ def main():
                 nome_tabela,
                 tabela_info['pk'],
                 tabela_info['colunas'],
-                conn
+                conn,
+                faz_update
             )
 
-    logger.info('Modificando Mês de Download dos Dados')
-    acrescentar_mes_json(path_json_data, mes, ano)
-    logger.info('Carga Mensal Concluida')
 
 
 if __name__ == '__main__':
-    main()
+    polling_carga_mensal()
 
