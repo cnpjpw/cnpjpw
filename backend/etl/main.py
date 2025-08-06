@@ -65,6 +65,28 @@ def polling_carga_mensal():
     logger.info('Carga Mensal Concluida')
 
 
+def polling_carga_diaria():
+    logging.basicConfig(
+        filename=PATH_SCRIPT / 'rotina_diaria.log',
+        level=logging.INFO,
+        format="%(asctime)s [%(levelname)s] %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S",
+    )
+    logger = logging.getLogger(__name__)
+
+    logger.info('Carregando Variáveis de Ambiente e Configurações')
+    load_dotenv()
+    BD_NOME = os.environ['BD_NOME']
+    BD_USUARIO = os.environ['BD_USUARIO']
+
+    path_dados = ''
+
+    logger.info('Iniciando Rotinas de Carga em BD')
+    with psycopg.connect(dbname=BD_NOME, user=BD_USUARIO) as conn:
+        carregar_arquivos_bd([], PRINCIPAIS, path_dados, ARQ_TABELA_DIC, conn, True)
+    logger.info('Carga Mensal Concluida')
+
+
 def carregar_arquivos_bd(auxiliares, principais, path_dados, arq_tabela_dic, conn, faz_update):
         logger.info('Carregando Dados Auxiliares nas Tabelas de Staging(direto para o staging2)')
         for nome in tqdm(auxiliares):
