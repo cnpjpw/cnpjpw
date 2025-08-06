@@ -27,7 +27,7 @@ def tratar_dados_abertos(nomes_csv, tipos_indices, path_dados):
         (path_entrada / nome_arquivo).unlink()
 
 
-def carregar_arquivos_bd(auxiliares, principais, path_dados, arq_tabela_dic, conn, faz_update):
+def carregar_arquivos_bd(auxiliares, principais, path_dados, arq_tabela_dic, conn, faz_update, logger):
         from config import ARQ_TABELA_DIC
         logger.info('Carregando Dados Auxiliares nas Tabelas de Staging(direto para o staging2)')
         for nome in tqdm(auxiliares):
@@ -86,21 +86,20 @@ def polling_carga_mensal(bd_nome, bd_usuario, path_raiz, path_script, logger):
 
     logger.info('Iniciando Rotinas de Carga em BD')
     with psycopg.connect(dbname=bd_nome, user=bd_usuario) as conn:
-        carregar_arquivos_bd(AUXILIARES, PRINCIPAIS, path_dados, ARQ_TABELA_DIC, conn, True)
+        carregar_arquivos_bd(AUXILIARES, PRINCIPAIS, path_dados, ARQ_TABELA_DIC, conn, True, logger)
 
     logger.info('Modificando Mês de Download dos Dados')
     acrescentar_mes_json(path_json_data, mes, ano)
     logger.info('Carga Mensal Concluida')
 
 
-def polling_carga_diaria(bd_nome, bd_usuario, path_raiz, path_script, logging):
+def polling_carga_diaria(bd_nome, bd_usuario, path_raiz, path_script, logger):
     logger.info('Carregando Variáveis e Configurações')
     from config import PRINCIPAIS, ARQ_TABELA_DIC
-    path_dados = path_raiz / 'csv'
     logger.info('Iniciando Rotinas de Carga em BD')
     with psycopg.connect(dbname=bd_nome, user=bd_usuario) as conn:
-        carregar_arquivos_bd([], PRINCIPAIS, path_dados, ARQ_TABELA_DIC, conn, True)
-    logger.info('Carga Mensal Concluida')
+        carregar_arquivos_bd([], PRINCIPAIS, path_raiz, ARQ_TABELA_DIC, conn, False, logger)
+    logger.info('Carga Diária Concluida')
 
 
 if __name__ == '__main__':
@@ -117,4 +116,6 @@ if __name__ == '__main__':
     )
     logger = logging.getLogger(__name__)
     polling_carga_mensal(BD_NOME, BD_USUARIO, PATH_RAIZ, PATH_SCRIPT, logger)
+
+
 
