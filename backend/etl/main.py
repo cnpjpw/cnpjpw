@@ -93,15 +93,6 @@ def polling_carga_mensal(bd_nome, bd_usuario, path_raiz, path_script, logger):
     logger.info('Carga Mensal Concluida')
 
 
-def polling_carga_diaria(bd_nome, bd_usuario, path_raiz, path_script, logger):
-    logger.info('Carregando Variáveis e Configurações')
-    from config import PRINCIPAIS, ARQ_TABELA_DIC
-    logger.info('Iniciando Rotinas de Carga em BD')
-    with psycopg.connect(dbname=bd_nome, user=bd_usuario) as conn:
-        carregar_arquivos_bd([], PRINCIPAIS, path_raiz, ARQ_TABELA_DIC, conn, False, logger)
-    logger.info('Carga Diária Concluida')
-
-
 if __name__ == '__main__':
     load_dotenv()
     BD_NOME = os.environ['BD_NOME']
@@ -116,6 +107,4 @@ if __name__ == '__main__':
     )
     logger = logging.getLogger(__name__)
     polling_carga_mensal(BD_NOME, BD_USUARIO, PATH_RAIZ, PATH_SCRIPT, logger)
-
-
 
