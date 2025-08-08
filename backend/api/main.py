@@ -53,14 +53,11 @@ def get_paginacao_razao_social(razao_social: str, cursor: Optional[str] = None, 
     """
     Consulta matrizes e filias a partir do nome empresarial(razão social):
 
-    - **razao_social**: filtro por termo presente na razão social
+    - **razao_social**: filtro por termo presente no começo(somente no começo por enquanto) da razão social
     - **cursor**: se especificado, serão exibidos apenas resultados após o cnpj_base passado ao paramêtro 'cursor'.
 
     exibindo de 25 em 25 resultados atualmente.
     """
-
-    if razao_social:
-        razao_social += '%'
     results = []
     parametros = { 'razao_social': razao_social, 'cursor': cursor }
     with conn.cursor() as c:
@@ -124,5 +121,49 @@ def get_paginacao_data(data: str, cursor: Annotated[Optional[str], Query(min_len
         resultados = cursor.fetchall()
     resultados = [res[0] for res in resultados]
     return get_paginacao_template(resultados)
+
+@app.get("/count/data/{data}")
+def get_count_data(data: str, conn=Depends(get_conn)):
+    """
+    Retorna a quantidade de CNPJ's abertos em certa data.
+
+    - **data**: data de abertura desejada no formado DD-MM-AAAA
+    """
+    data = '-'.join(data.split('-')[::-1])
+    COUNT_DATA_QUERY = "SELECT count(*) from estabelecimentos WHERE data_inicio_atividade = (%s)::date"
+    with conn.cursor() as cursor:
+        cursor.execute(COUNT_DATA_QUERY, (data, ))
+        total = cursor.fetchone()[0]
+    return {'total': total}
+
+@app.get("/count/cnpj_base/{cnpj_base}")
+def get_count_raiz(cnpj_base: str, conn=Depends(get_conn)):
+    """
+    Consulta total de matrizes e filias a partir da base/raiz(8 primeiros caracteres) do CNPJ:
+    - **cnpj_base**: 8 primeiros caracteres do número de inscrição do CNPJ.
+    """
+    COUNT_RAIZ_QUERY = "SELECT count(*) from estabelecimentos WHERE cnpj_base = (%s)::bpchar"
+    with conn.cursor() as cursor:
+        cursor.execute(COUNT_RAIZ_QUERY, (cnpj_base, ))
+        total = cursor.fetchone()[0]
+    return {'total': total}
+
+
+@app.get("/count/razao_social/{razao_social}")
+def get_paginacao_razao_social(razao_social: str, conn=Depends(get_conn)):
+    """
+    Consulta total de matrizes e filias a partir do nome empresarial(razão social):
+
+    - **razao_social**: filtro por termo presente no começo(somente no começo por enquanto) da razão social
+    - **cursor**: se especificado, serão exibidos apenas resultados após o cnpj_base passado ao paramêtro 'cursor'.
+
+    exibindo de 25 em 25 resultados atualmente.
+    """
+    COUNT_RAZAO_QUERY = "SELECT count(*) from empresas WHERE nome_empresarial LIKE UPPER((%s)::bpchar || '%%')"
+    with conn.cursor() as cursor:
+        cursor.execute(COUNT_RAZAO_QUERY, (razao_social, ))
+        total = cursor.fetchone()[0]
+    return {'total': total}
+
 
 

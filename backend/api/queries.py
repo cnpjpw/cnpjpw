@@ -80,7 +80,7 @@ SELECT row_to_json(result) FROM (
         e.nome_empresarial
     FROM empresas e
     WHERE (
-    e.nome_empresarial LIKE UPPER(%(razao_social)s) AND
+    e.nome_empresarial LIKE UPPER(%(razao_social)s || '%%') AND
     ( ((%(cursor)s)::bpchar IS NULL) OR (e.cnpj_base > (%(cursor)s)::bpchar) )
     )
     ORDER BY e.cnpj_base ASC LIMIT 25
