@@ -55,6 +55,7 @@ async function searchByDate() {
     cursor = 1
     
     if (dataAbertura) {
+        total = 0
         pathAPI = 'data/' + dataAbertura
 
         paginacao = await getPaginacao(pathAPI, '')
@@ -70,6 +71,7 @@ async function searchByRaiz() {
     cursor = 1
     
     if (cnpjBase) {
+        total = 0
         pathAPI = 'cnpj_base/' + cnpjBase
         total = await getCount(pathAPI)
         paginacao = await getPaginacao(pathAPI, '')
@@ -85,23 +87,29 @@ async function searchByRazao() {
     cursor = 1
     
     if (razao) {
+        total = 0
         pathAPI = 'razao_social/' + razao
         paginacao = await getPaginacao(pathAPI, '')
-        total = await getCount(pathAPI)
         displayResults(paginacao)
         document.getElementById('results-container').classList.add('active')
+        total = await getCount(pathAPI)
+        displayCount(total)
         return
     }
 }
 
+function displayCount(total) {
+    document.getElementById('showing-results').textContent = 'listagem'
+    document.getElementById('total-results').textContent = total ? total : '';
+}
+ 
 
 function displayResults(paginacao) {
     const resultsBody = document.getElementById('results-body');
     resultsBody.innerHTML = '';
     quantResultsPage = paginacao['resultados_paginacao'].length
    
-    document.getElementById('showing-results').textContent = 'listagem'
-    document.getElementById('total-results').textContent = total;
+    displayCount(total)
     
     // Adiciona os dados à tabela
     for (let i = 0; i < quantResultsPage; i++) {
