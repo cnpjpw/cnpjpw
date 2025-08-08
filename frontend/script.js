@@ -3,6 +3,7 @@ let resultsPerPage = 25
 let dataAbertura;
 let path = '';
 let cursor = '';
+let total = 0;
 
 
 let cnpjTab = document.querySelector('#tab-cnpj')
@@ -21,6 +22,15 @@ async function getPaginacao(path, cursor) {
   paginacaoJson = await res.json()
   return paginacaoJson;
 }
+
+
+async function getCount(path) {
+  res = await fetch('https://api.cnpj.pw/count/' + path)
+  totalJson = await res.json()
+  return totalJson['total'];
+}
+
+
 
 function switchTab(tab) {
     document.querySelectorAll('.search-tab').forEach(el => el.classList.remove('active'));
@@ -48,6 +58,7 @@ async function searchByDate() {
         pathAPI = 'data/' + dataAbertura
 
         paginacao = await getPaginacao(pathAPI, '')
+        total = await getCount(pathAPI)
         displayResults(paginacao)
         document.getElementById('results-container').classList.add('active')
     }
@@ -60,6 +71,7 @@ async function searchByRaiz() {
     
     if (cnpjBase) {
         pathAPI = 'cnpj_base/' + cnpjBase
+        total = await getCount(pathAPI)
         paginacao = await getPaginacao(pathAPI, '')
         displayResults(paginacao)
         document.getElementById('results-container').classList.add('active')
@@ -75,6 +87,7 @@ async function searchByRazao() {
     if (razao) {
         pathAPI = 'razao_social/' + razao
         paginacao = await getPaginacao(pathAPI, '')
+        total = await getCount(pathAPI)
         displayResults(paginacao)
         document.getElementById('results-container').classList.add('active')
         return
@@ -88,7 +101,7 @@ function displayResults(paginacao) {
     quantResultsPage = paginacao['resultados_paginacao'].length
    
     document.getElementById('showing-results').textContent = 'listagem'
-    document.getElementById('total-results').textContent = '';
+    document.getElementById('total-results').textContent = total;
     
     // Adiciona os dados à tabela
     for (let i = 0; i < quantResultsPage; i++) {
