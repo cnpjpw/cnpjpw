@@ -6,8 +6,7 @@ from math import ceil
 from time import time
 from fastapi.middleware.gzip import GZipMiddleware
 from dotenv import load_dotenv
-from queries import CNPJ_QUERY, RAZAO_QUERY, RAIZ_QUERY, DATA_ABERTURA_QUERY
-
+from queries import CNPJ_QUERY, RAZAO_QUERY, RAIZ_QUERY, DATA_ABERTURA_QUERY, COUNT_DATA_QUERY, COUNT_RAIZ_QUERY, COUNT_RAZAO_QUERY
 
 load_dotenv()
 app = FastAPI()
@@ -130,7 +129,6 @@ def get_count_data(data: str, conn=Depends(get_conn)):
     - **data**: data de abertura desejada no formado DD-MM-AAAA
     """
     data = '-'.join(data.split('-')[::-1])
-    COUNT_DATA_QUERY = "SELECT count(*) from estabelecimentos WHERE data_inicio_atividade = (%s)::date"
     with conn.cursor() as cursor:
         cursor.execute(COUNT_DATA_QUERY, (data, ))
         total = cursor.fetchone()[0]
@@ -142,7 +140,6 @@ def get_count_raiz(cnpj_base: str, conn=Depends(get_conn)):
     Consulta total de matrizes e filias a partir da base/raiz(8 primeiros caracteres) do CNPJ:
     - **cnpj_base**: 8 primeiros caracteres do número de inscrição do CNPJ.
     """
-    COUNT_RAIZ_QUERY = "SELECT count(*) from estabelecimentos WHERE cnpj_base = (%s)::bpchar"
     with conn.cursor() as cursor:
         cursor.execute(COUNT_RAIZ_QUERY, (cnpj_base, ))
         total = cursor.fetchone()[0]
@@ -159,7 +156,6 @@ def get_paginacao_razao_social(razao_social: str, conn=Depends(get_conn)):
 
     exibindo de 25 em 25 resultados atualmente.
     """
-    COUNT_RAZAO_QUERY = "SELECT count(*) from empresas WHERE nome_empresarial LIKE UPPER((%s)::bpchar || '%%')"
     with conn.cursor() as cursor:
         cursor.execute(COUNT_RAZAO_QUERY, (razao_social, ))
         total = cursor.fetchone()[0]
