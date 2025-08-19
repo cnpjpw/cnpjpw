@@ -43,7 +43,8 @@ def pegar_buracos_dia(conn):
     total = int(cnpjs[-1][:8]) - int(cnpjs[0][:8]) + 1
     gerados = gerar_novos_cnpjs(cnpjs[0], total)
     dif_cnpjs = list(set(gerados) - set(cnpjs))
-    return dif_cnpjs
+    percentual = (len(dif_cnpjs) * 100) / total
+    return (dif_cnpjs, round(percentual, 2))
 
 
 def ler_data_json(path):

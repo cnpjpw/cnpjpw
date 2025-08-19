@@ -14,6 +14,8 @@ from main import carregar_arquivos_bd
 import csv
 import psycopg
 from time import sleep
+from utils import pegar_buracos_dia
+
 
 def polling_carga_diaria(bd_nome, bd_usuario, path_raiz, path_script, limite_maximo, logger):
     from config import PRINCIPAIS, ARQ_TABELA_DIC
@@ -23,8 +25,12 @@ def polling_carga_diaria(bd_nome, bd_usuario, path_raiz, path_script, limite_max
     with psycopg.connect(dbname=bd_nome, user=bd_usuario) as conn:
         logger.info('Obtendo CNPJ mais Recente')
         primeiro_cnpj = pegar_ultimo_cnpj_inserido(conn)
+        logger.info('Obtendo CNPJs deixados em raspagens anteriores')
+        buracos, percentual = pegar_buracos_dia(conn)
+    if percentual < 1.5:
+        buracos = []
     logger.info('Baixando Novas Paginas')
-    download_paginas(primeiro_cnpj, limite_maximo, s)
+    download_paginas(primeiro_cnpj, limite_maximo, s, buracos)
     logger.info('Fazendo Parsing das Paginas')
     nomes = os.listdir(path_raiz / 'tmp')
     tratar_paginas(nomes, path_raiz)
@@ -35,11 +41,11 @@ def polling_carga_diaria(bd_nome, bd_usuario, path_raiz, path_script, limite_max
     logger.info('Carga Diária Concluida')
 
 
-def download_paginas(primeiro_cnpj, quantidade_max, s):
+def download_paginas(primeiro_cnpj, quantidade_max, s, buracos=[]):
     cnpjs = gerar_novos_cnpjs(primeiro_cnpj, quantidade_max)
     count = 0
     for cnpj in tqdm(cnpjs):
-        if count == 5:
+        if count == 10:
             break
         try:
             html = get_cnpj_info(cnpj, s)
@@ -52,6 +58,19 @@ def download_paginas(primeiro_cnpj, quantidade_max, s):
             f.write(html)
         count = 0
         sleep(0.25)
+
+    for cnpj in tqdm(buracos):
+        try:
+            html = get_cnpj_info(cnpj, s)
+        except ReadTimeout:
+            continue
+        if html is None:
+            continue
+        with open(PATH_RAIZ / 'tmp' / f'{cnpj}.html', 'w') as f:
+            f.write(html)
+        sleep(0.25)
+
+
 
 
 def tratar_paginas(nomes, path_raiz):
