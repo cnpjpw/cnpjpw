@@ -8,7 +8,6 @@ def pegar_ultimo_cnpj_inserido(conn):
         query_data = (
             "SELECT data_inicio_atividade FROM estabelecimentos ORDER BY data_inicio_atividade DESC LIMIT 1"
         )
-
         data = cursor.execute(query_data).fetchone()[0]
         query_cnpj = (
                 "SELECT cnpj_base AS cnpj " +
@@ -22,7 +21,7 @@ def pegar_ultimo_cnpj_inserido(conn):
 def pegar_primeiro_cnpj_dia(conn):
     with conn.cursor() as cursor:
         query_data = (
-            "SELECT data_inicio_atividade FROM estabelecimentos ORDER BY data_inicio_atividade DESC LIMIT 1"
+            "SELECT data_inicio_atividade - INTERVAL '1 day' FROM estabelecimentos ORDER BY data_inicio_atividade DESC LIMIT 1"
         )
         data = cursor.execute(query_data).fetchone()[0]
         query_primeiro = (
@@ -61,4 +60,5 @@ def acrescentar_mes_json(path, mes, ano):
             'ano': ano + (mes // 12)
         }
         json.dump(data_dic, f)
+
 
