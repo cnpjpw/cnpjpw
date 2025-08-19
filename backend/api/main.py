@@ -6,7 +6,7 @@ from math import ceil
 from time import time
 from fastapi.middleware.gzip import GZipMiddleware
 from dotenv import load_dotenv
-from queries import CNPJ_QUERY, RAZAO_QUERY, RAIZ_QUERY, DATA_ABERTURA_QUERY, COUNT_DATA_QUERY, COUNT_RAIZ_QUERY, COUNT_RAZAO_QUERY
+from queries import CNPJ_QUERY, RAZAO_QUERY, RAIZ_QUERY, DATA_ABERTURA_QUERY, COUNT_DATA_QUERY, COUNT_RAIZ_QUERY, COUNT_RAZAO_QUERY, SOCIOS_QUERY
 import unicodedata
 
 load_dotenv()
@@ -129,6 +129,37 @@ def get_paginacao_data(data: str, cursor: Annotated[Optional[str], Query(min_len
         resultados = cursor.fetchall()
     resultados = [res[0] for res in resultados]
     return get_paginacao_template(resultados)
+
+
+@app.get("/socio/{doc}")
+def get_paginacao_socio(doc: str, cursor: Optional[str] = None, conn=Depends(get_conn)):
+    """
+    Consulta sócios com o documento informado:
+
+    - **doc**: CNPJ se o sócio for PJ e CPF se for PF. Sem pontuação, somente digitos.
+    - **cursor**: se especificado, serão exibidos apenas resultados após o cnpj_base passado ao paramêtro 'cursor'.
+
+    exibindo de 25 em 25 resultados atualmente.
+    """
+
+    if len(doc) != 14 and len(doc) != 11:
+        return get_paginacao_template([])
+
+    if len(doc) == 11:
+        doc = '***' + doc[3:9] + '**'
+
+    parametros = {
+            'doc' : doc,
+            'cursor': cursor,
+            }
+
+    with conn.cursor() as cursor:
+        cursor.execute(SOCIOS_QUERY, parametros)
+        resultados = cursor.fetchall()
+    resultados = [res[0] for res in resultados]
+    return get_paginacao_template(resultados)
+
+
 
 @app.get("/count/data/{data}")
 def get_count_data(data: str, conn=Depends(get_conn)):

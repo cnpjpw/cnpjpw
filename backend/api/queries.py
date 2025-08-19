@@ -142,6 +142,23 @@ SELECT row_to_json(result) FROM (
 """
 )
 
+SOCIOS_QUERY = (
+"""
+SELECT row_to_json(result) FROM (
+    SELECT
+        cnpj_base,
+        nome,
+        cnpj_cpf
+    FROM socios
+    WHERE (
+    cnpj_cpf = (%(doc)s) AND
+    ( ((%(cursor)s)::bpchar IS NULL) OR (cnpj_base > (%(cursor)s)::bpchar) )
+    )
+    ORDER BY cnpj_base ASC LIMIT 25
+) result;
+"""
+)
+
 COUNT_DATA_QUERY = "SELECT count(*) from estabelecimentos WHERE data_inicio_atividade = (%s)::date"
 COUNT_RAIZ_QUERY = "SELECT count(*) from estabelecimentos WHERE cnpj_base = (%s)::bpchar"
 COUNT_RAZAO_QUERY = "SELECT count(*) from empresas WHERE nome_empresarial LIKE ((%s)::bpchar || '%%')"
