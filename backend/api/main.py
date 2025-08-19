@@ -7,6 +7,7 @@ from time import time
 from fastapi.middleware.gzip import GZipMiddleware
 from dotenv import load_dotenv
 from queries import CNPJ_QUERY, RAZAO_QUERY, RAIZ_QUERY, DATA_ABERTURA_QUERY, COUNT_DATA_QUERY, COUNT_RAIZ_QUERY, COUNT_RAZAO_QUERY
+import unicodedata
 
 load_dotenv()
 app = FastAPI()
@@ -21,6 +22,13 @@ def get_paginacao_template(pagina_atual, limite=25):
         'resultados_paginacao': pagina_atual,
     }
 
+def normalizar_razao(razao: str):
+    forma_nfkd = unicodedata.normalize('NFKD', razao)
+    normalizado = ''.join([c for c in forma_nfkd if not unicodedata.combining(c)])
+    razao = normalizado
+    razao = razao.upper()
+    razao = ' '.join(razao.split())
+    return razao
 
 def get_conn():
     conn = psycopg.connect(dbname=bd_nome, user=bd_usuario)
@@ -57,6 +65,7 @@ def get_paginacao_razao_social(razao_social: str, cursor: Optional[str] = None, 
 
     exibindo de 25 em 25 resultados atualmente.
     """
+    razao_social = normalizar_razao(razao_social)
     results = []
     parametros = { 'razao_social': razao_social, 'cursor': cursor }
     with conn.cursor() as c:
@@ -156,10 +165,10 @@ def get_paginacao_razao_social(razao_social: str, conn=Depends(get_conn)):
 
     exibindo de 25 em 25 resultados atualmente.
     """
+    razao_social = normalizar_razao(razao_social)
     with conn.cursor() as cursor:
         cursor.execute(COUNT_RAZAO_QUERY, (razao_social, ))
         total = cursor.fetchone()[0]
     return {'total': total}
-
 
 
