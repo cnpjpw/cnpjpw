@@ -80,7 +80,7 @@ SELECT row_to_json(result) FROM (
         e.nome_empresarial
     FROM empresas e
     WHERE (
-    e.nome_empresarial LIKE UPPER(%(razao_social)s || '%%') AND
+    e.nome_empresarial LIKE (%(razao_social)s || '%%') AND
     ( ((%(cursor)s)::bpchar IS NULL) OR (e.cnpj_base > (%(cursor)s)::bpchar) )
     )
     ORDER BY e.cnpj_base ASC LIMIT 25
@@ -144,5 +144,5 @@ SELECT row_to_json(result) FROM (
 
 COUNT_DATA_QUERY = "SELECT count(*) from estabelecimentos WHERE data_inicio_atividade = (%s)::date"
 COUNT_RAIZ_QUERY = "SELECT count(*) from estabelecimentos WHERE cnpj_base = (%s)::bpchar"
-COUNT_RAZAO_QUERY = "SELECT count(*) from empresas WHERE nome_empresarial LIKE UPPER((%s)::bpchar || '%%')"
+COUNT_RAZAO_QUERY = "SELECT count(*) from empresas WHERE nome_empresarial LIKE ((%s)::bpchar || '%%')"
 
