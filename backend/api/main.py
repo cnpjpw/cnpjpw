@@ -207,14 +207,6 @@ def get_paginacao_filtros_difusos(
 
     BUSCA_DIFUSA_QUERY = get_busca_difusa_query(tem_socios_param, somente_socios)
 
-    cnpj_base = None
-    cnpj_ordem = None
-    cnpj_dv = None
-
-    if (cursor is not None) and (len(cursor) == 14):
-        cnpj_base = cursor[:8]
-        cnpj_ordem = cursor[8:12]
-        cnpj_dv = cursor[12:]
     if razao_social:
         razao_social = normalizar_razao(razao_social)
     if socio_nome:
@@ -239,9 +231,7 @@ def get_paginacao_filtros_difusos(
         'data_abertura_max': data_abertura_max,
         'capital_social_min': capital_social_min,
         'capital_social_max': capital_social_max,
-        'cnpj_base': cnpj_base,
-        'cnpj_ordem': cnpj_ordem,
-        'cnpj_dv': cnpj_dv,
+        'cnpj_base': cursor,
         'situacao_cadastral': situacao_cadastral
         }
 
