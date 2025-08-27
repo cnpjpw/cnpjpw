@@ -1,12 +1,13 @@
 from fastapi import Depends, FastAPI, Response, status, Query, Body
 from typing import Optional, Annotated
 import psycopg
+from psycopg import ClientCursor
 import os
 from math import ceil
 from time import time
 from fastapi.middleware.gzip import GZipMiddleware
 from dotenv import load_dotenv
-from queries import CNPJ_QUERY, RAZAO_QUERY, RAIZ_QUERY, DATA_ABERTURA_QUERY, COUNT_DATA_QUERY, COUNT_RAIZ_QUERY, COUNT_RAZAO_QUERY, SOCIOS_QUERY
+from queries import CNPJ_QUERY, RAZAO_QUERY, RAIZ_QUERY, DATA_ABERTURA_QUERY, COUNT_DATA_QUERY, COUNT_RAIZ_QUERY, COUNT_RAZAO_QUERY, SOCIOS_QUERY, get_busca_difusa_query
 import unicodedata
 
 load_dotenv()
@@ -159,6 +160,102 @@ def get_paginacao_socio(doc: str, cursor: Optional[str] = None, conn=Depends(get
     resultados = [res[0] for res in resultados]
     return get_paginacao_template(resultados)
 
+
+@app.get("/busca_difusa/")
+def get_paginacao_filtros_difusos(
+        razao_social: Optional[str] = None,
+        cnae: Optional[str] = None,
+        natureza_juridica: Optional[int] = None,
+        situacao_cadastral: Optional[int] = None,
+        estado: Optional[str] = None,
+        municipio: Optional[str] = None,
+        data_abertura_min: Optional[str] = None,
+        data_abertura_max: Optional[str] = None,
+        capital_social_min: Optional[float] = None,
+        capital_social_max: Optional[float] = None,
+        socio_doc: Optional[str] = None,
+        socio_nome: Optional[str] = None,
+        cursor: Optional[str] = None,
+        conn=Depends(get_conn)
+        ):
+    """
+    Consulta sócios com o documento informado:
+
+    - **doc**: CNPJ se o sócio for PJ e CPF se for PF. Sem pontuação, somente digitos.
+    - **cursor**: se especificado, serão exibidos apenas resultados após o cnpj_base passado ao paramêtro 'cursor'.
+
+    exibindo de 25 em 25 resultados atualmente.
+    """
+
+    tem_socios_param = False
+    somente_socios = not any(
+        (
+        razao_social,
+        cnae,
+        natureza_juridica,
+        estado,
+        municipio,
+        data_abertura_min,
+        data_abertura_max,
+        capital_social_min,
+        capital_social_max,
+        situacao_cadastral
+        )
+    )
+    if socio_nome or socio_doc:
+        tem_socios_param = True
+
+    BUSCA_DIFUSA_QUERY = get_busca_difusa_query(tem_socios_param, somente_socios)
+
+    cnpj_base = None
+    cnpj_ordem = None
+    cnpj_dv = None
+
+    if (cursor is not None) and (len(cursor) == 14):
+        cnpj_base = cursor[:8]
+        cnpj_ordem = cursor[8:12]
+        cnpj_dv = cursor[12:]
+    if razao_social:
+        razao_social = normalizar_razao(razao_social)
+    if socio_nome:
+        socio_nome = normalizar_razao(socio_nome)
+    if data_abertura_min:
+        data_abertura_min = '-'.join(data_abertura_min.split('-')[::-1])
+    if data_abertura_max:
+        data_abertura_max = '-'.join(data_abertura_max.split('-')[::-1])
+
+    if not (socio_doc is None or (len(socio_doc) in {11, 14})):
+        socio_doc = None
+    if socio_doc is not None and len(socio_doc) == 11:
+        socio_doc = '***' + socio_doc[3:9] + '**'
+
+    parametros = {
+        'cnae': cnae,
+        'natureza_juridica': natureza_juridica,
+        'razao_social': razao_social,
+        'uf': estado,
+        'municipio': municipio,
+        'data_abertura_min': data_abertura_min,
+        'data_abertura_max': data_abertura_max,
+        'capital_social_min': capital_social_min,
+        'capital_social_max': capital_social_max,
+        'cnpj_base': cnpj_base,
+        'cnpj_ordem': cnpj_ordem,
+        'cnpj_dv': cnpj_dv,
+        'situacao_cadastral': situacao_cadastral
+        }
+
+    if socio_doc is not None or socio_nome is not None:
+        parametros['socio_doc'] = socio_doc
+        parametros['socio_nome'] = socio_nome
+
+    with ClientCursor(conn) as cursor:
+    #with conn.cursor() as cursor:
+        cursor.execute(BUSCA_DIFUSA_QUERY, parametros)
+        #return cursor.mogrify(BUSCA_DIFUSA_QUERY, parametros)
+        resultados = cursor.fetchall()
+    resultados = [res[0] for res in resultados]
+    return get_paginacao_template(resultados)
 
 
 @app.get("/count/data/{data}")
