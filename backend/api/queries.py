@@ -148,56 +148,65 @@ def get_busca_difusa_query(tem_socios_param, somente_socios):
         LIMIT_QUERY = 'GROUP BY s.cnpj_base LIMIT 250'
     SOCIOS_SUBQUERY = (
     """
-    (
+    WHERE (
         est.cnpj_base IN (
             SELECT cnpj_base FROM socios s WHERE
             (
             ( ((%(cnpj_base)s)::bpchar IS NULL) OR (s.cnpj_base > %(cnpj_base)s) ) AND
             ( ((%(socio_doc)s)::bpchar IS NULL) OR (s.cnpj_cpf = %(socio_doc)s) ) AND
             ( ((%(socio_nome)s)::bpchar IS NULL) OR (s.nome LIKE (%(socio_nome)s || '%%')) )
-            ) """ + LIMIT_QUERY +
+            ) 
+    """ 
+    + LIMIT_QUERY +
     """
         )
-    ) AND
+    )
     """
     )
     if not tem_socios_param:
         SOCIOS_SUBQUERY = ''
     BUSCA_DIFUSA_QUERY = (
     """
-    SELECT row_to_json(result) FROM (
+    WITH
+    empresas_filtradas AS (
+        SELECT *
+        FROM empresas
+        WHERE
+            (%(razao_social)s IS NULL OR nome_empresarial LIKE %(razao_social)s || '%%')
+            AND (capital_social >= COALESCE(%(capital_social_min)s, 0))
+            AND (capital_social <= COALESCE(%(capital_social_max)s, 999999999999999.99))
+            AND (%(natureza_juridica)s IS NULL OR natureza_juridica = %(natureza_juridica)s)
+    ),
+
+    estabelecimentos_filtrados AS (
+        SELECT *
+        FROM estabelecimentos
+        WHERE
+            (data_inicio_atividade >= COALESCE(%(data_abertura_min)s::date, '1890-01-01'))
+            AND (%(data_abertura_max)s IS NULL OR data_inicio_atividade <= %(data_abertura_max)s::date)
+            AND (%(uf)s IS NULL OR uf = %(uf)s)
+            AND (%(municipio)s IS NULL OR municipio = %(municipio)s)
+            AND (%(cnae)s IS NULL OR cnae_fiscal_principal = %(cnae)s)
+            AND (%(situacao_cadastral)s IS NULL OR situacao_cadastral = %(situacao_cadastral)s)
+            AND (%(cnpj_base)s IS NULL OR (cnpj_base > %(cnpj_base)s))
+    )
+    SELECT row_to_json(result)
+    FROM (
         SELECT
             est.cnpj_base,
             est.cnpj_ordem,
             est.cnpj_dv,
             est.cnpj_base || est.cnpj_ordem || est.cnpj_dv AS cnpj,
-            e.nome_empresarial
-        FROM estabelecimentos est
-        JOIN empresas e ON e.cnpj_base = est.cnpj_base
-        WHERE (
-            ( (%(data_abertura_min)s::date IS NULL) OR (est.data_inicio_atividade >= (%(data_abertura_min)s)::date) ) AND
-            ( (%(data_abertura_max)s::date IS NULL) OR (est.data_inicio_atividade <= (%(data_abertura_max)s)::date) ) AND
-            ( (%(uf)s::bpchar IS NULL) OR (est.uf = (%(uf)s)) ) AND
-            ( (%(municipio)s::integer IS NULL) OR (est.municipio = (%(municipio)s)) ) AND
-            ( (%(cnae)s::integer IS NULL) OR (est.cnae_fiscal_principal = (%(cnae)s::integer)) ) AND
-            ( (%(situacao_cadastral)s::integer IS NULL) OR (est.situacao_cadastral = (%(situacao_cadastral)s)) ) AND
-            ( (%(razao_social)s::bpchar IS NULL) OR (e.nome_empresarial LIKE (%(razao_social)s || '%%')) ) AND
-            ( (%(capital_social_min)s::numeric IS NULL) OR (e.capital_social >= (%(capital_social_min)s)) ) AND
-            ( (%(capital_social_max)s::numeric IS NULL) OR (e.capital_social <= (%(capital_social_max)s)) ) AND
-            ( (%(natureza_juridica)s::integer IS NULL) OR (e.natureza_juridica = (%(natureza_juridica)s)) ) AND
+            emp.nome_empresarial
+        FROM empresas_filtradas emp
+        JOIN estabelecimentos_filtrados est ON emp.cnpj_base = est.cnpj_base
+
     """
     + SOCIOS_SUBQUERY +
     """
-            (
-            ((%(cnpj_base)s)::bpchar IS NULL) OR
-            ((%(cnpj_ordem)s)::bpchar IS NULL) OR
-            ( (%(cnpj_dv)s)::bpchar IS NULL ) OR
-            ( est.cnpj_base > %(cnpj_base)s )
-            )
-        )
-        ORDER BY est.cnpj_base, est.cnpj_ordem, est.cnpj_dv ASC LIMIT 250
+        ORDER BY est.cnpj_base, est.cnpj_ordem, est.cnpj_dv
+        LIMIT 250
     ) result;
-
     """
     )
     return BUSCA_DIFUSA_QUERY
@@ -222,4 +231,5 @@ SELECT row_to_json(result) FROM (
 COUNT_DATA_QUERY = "SELECT count(*) from estabelecimentos WHERE data_inicio_atividade = (%s)::date"
 COUNT_RAIZ_QUERY = "SELECT count(*) from estabelecimentos WHERE cnpj_base = (%s)::bpchar"
 COUNT_RAZAO_QUERY = "SELECT count(*) from empresas WHERE nome_empresarial LIKE ((%s)::bpchar || '%%')"
+
 
