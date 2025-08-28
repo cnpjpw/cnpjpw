@@ -59,9 +59,9 @@ def get_cnpj(cnpj: str, response: Response, conn=Depends(get_conn)):
 @app.get("/razao_social/{razao_social}")
 def get_paginacao_razao_social(razao_social: str, cursor: Optional[str] = None, conn=Depends(get_conn)):
     """
-    Consulta matrizes e filias a partir do nome empresarial(razão social):
+    Consulta estabelecimentos a partir do nome empresarial(razão social):
 
-    - **razao_social**: filtro por termo presente no começo(somente no começo por enquanto) da razão social
+    - **razao_social**: filtro por razão social(atualmente fazendo o match pelo começo da string).
     - **cursor**: se especificado, serão exibidos apenas resultados após o cnpj_base passado ao paramêtro 'cursor'.
 
     exibindo de 25 em 25 resultados atualmente.
@@ -168,7 +168,7 @@ def get_paginacao_filtros_difusos(
         natureza_juridica: Optional[int] = None,
         situacao_cadastral: Optional[int] = None,
         estado: Optional[str] = None,
-        municipio: Optional[str] = None,
+        municipio: Optional[int] = None,
         data_abertura_min: Optional[str] = None,
         data_abertura_max: Optional[str] = None,
         capital_social_min: Optional[float] = None,
@@ -179,13 +179,27 @@ def get_paginacao_filtros_difusos(
         conn=Depends(get_conn)
         ):
     """
-    Consulta sócios com o documento informado:
+    Consulta por filtros diversos:
 
-    - **doc**: CNPJ se o sócio for PJ e CPF se for PF. Sem pontuação, somente digitos.
+    - **razao_social**: filtro por razão social(atualmente fazendo o match pelo começo da string).
+    - **cnae**: filtro por cnae - Sem pontuação, somente os digitos.
+    - **natureza_jurídica**: filtro por natureza jurídica - Sem pontuação, somente os digitos.
+    - **situacao cadastral**: filtro da situacao cadastral. Passe o código numérico correspondente a situacao
+    - **estado**: filtro por unidade federativa. Passe a sigla da UF.
+    - **data_abertura_min**: filtro por data de abertura. Passe a data de abertura mínima no formato DD-MM-AAAA.
+    - **data_abertura_max**: filtro por data de abertura. Passe a data de abertura máxima no formato DD-MM-AAAA.
+    - **capital_social_min**: filtro por capital social. Passe o capital social mínimo como float(com ponto separando a parte decimal, como 1000.50).
+    - **capital_social_min**: filtro por capital social. Passe o capital social máximo como float(com ponto separando a parte decimal, como 1000.50).
+    - **socio_doc**: CNPJ se o sócio for PJ e CPF se for PF. Sem pontuação, somente digitos.
+    - **socio_nome**: Consulta por nome do sócio(atualmente fazendo o match pelo começo da string)
     - **cursor**: se especificado, serão exibidos apenas resultados após o cnpj_base passado ao paramêtro 'cursor'.
 
-    exibindo de 25 em 25 resultados atualmente.
+    exibindo de 250 em 250 resultados atualmente.
     """
+    if (capital_social_min is not None
+        and capital_social_max is not None
+        and capital_social_min > capital_social_max):
+        return get_paginacao_template([])
 
     tem_socios_param = False
     somente_socios = not any(
@@ -251,8 +265,7 @@ def get_paginacao_filtros_difusos(
 @app.get("/count/data/{data}")
 def get_count_data(data: str, conn=Depends(get_conn)):
     """
-    Retorna a quantidade de CNPJ's abertos em certa data.
-
+    Retorna a quantidade de CNPJ's abertos em certa data:
     - **data**: data de abertura desejada no formado DD-MM-AAAA
     """
     data = '-'.join(data.split('-')[::-1])
@@ -277,16 +290,11 @@ def get_count_raiz(cnpj_base: str, conn=Depends(get_conn)):
 def get_paginacao_razao_social(razao_social: str, conn=Depends(get_conn)):
     """
     Consulta total de matrizes e filias a partir do nome empresarial(razão social):
-
     - **razao_social**: filtro por termo presente no começo(somente no começo por enquanto) da razão social
-    - **cursor**: se especificado, serão exibidos apenas resultados após o cnpj_base passado ao paramêtro 'cursor'.
-
-    exibindo de 25 em 25 resultados atualmente.
     """
     razao_social = normalizar_razao(razao_social)
     with conn.cursor() as cursor:
         cursor.execute(COUNT_RAZAO_QUERY, (razao_social, ))
         total = cursor.fetchone()[0]
     return {'total': total}
-
 
