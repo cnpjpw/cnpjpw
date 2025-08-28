@@ -1,5 +1,5 @@
-from fastapi import Depends, FastAPI, Response, status, Query, Body
-from typing import Optional, Annotated
+from fastapi import Depends, FastAPI, Response, status, Query, Body, HTTPException
+from typing import Optional
 import psycopg
 from psycopg import ClientCursor
 import os
@@ -9,6 +9,7 @@ from fastapi.middleware.gzip import GZipMiddleware
 from dotenv import load_dotenv
 from queries import CNPJ_QUERY, RAZAO_QUERY, RAIZ_QUERY, DATA_ABERTURA_QUERY, COUNT_DATA_QUERY, COUNT_RAIZ_QUERY, COUNT_RAZAO_QUERY, SOCIOS_QUERY, get_busca_difusa_query
 import unicodedata
+from datetime import datetime
 
 load_dotenv()
 app = FastAPI()
@@ -50,8 +51,7 @@ def get_cnpj(cnpj: str, response: Response, conn=Depends(get_conn)):
         cursor.execute(CNPJ_QUERY, (cnpj_base, cnpj_ordem, cnpj_dv))
         res_json = cursor.fetchone()
     if not res_json:
-        response.status_code =  status.HTTP_404_NOT_FOUND
-        return {'status_code': 404, 'status_code_descricao': 'CNPJ não presente na base de dados!' }
+        raise HTTPException(status_code=404, detail="CNPJ não encontrado")
 
     return res_json[0]
 
@@ -99,7 +99,7 @@ def get_paginacao_raiz(cnpj_base: str, cursor: Optional[str] = None, conn=Depend
 
 
 @app.get("/data/{data}")
-def get_paginacao_data(data: str, cursor: Annotated[Optional[str], Query(min_length=14, max_length=14)] = None, conn=Depends(get_conn)):
+def get_paginacao_data(data: str, cursor: Optional[str] = None, conn=Depends(get_conn)):
     """
     Consulta CNPJ's abertos em uma certa data:
 
@@ -108,16 +108,18 @@ def get_paginacao_data(data: str, cursor: Annotated[Optional[str], Query(min_len
 
     exibindo de 25 em 25 resultados atualmente.
     """
-
+    try:
+        datetime.strptime(data, '%d-%m-%Y')
+    except ValueError:
+        raise HTTPException(status_code=418, detail="valor de data inválido.")
     data = '-'.join(data.split('-')[::-1])
 
     parametros = {
-            'data_inicio_atividade' : data,
-            'cnpj_base': None,
-            'cnpj_ordem': None,
-            'cnpj_dv': None
-            }
-
+        'data_inicio_atividade' : data,
+        'cnpj_base': None,
+        'cnpj_ordem': None,
+        'cnpj_dv': None
+        }
     if cursor:
         parametros['cnpj_base'] = cursor[:8]
         parametros['cnpj_ordem'] = cursor[8:12]
@@ -164,7 +166,7 @@ def get_paginacao_socio(doc: str, cursor: Optional[str] = None, conn=Depends(get
 @app.get("/busca_difusa/")
 def get_paginacao_filtros_difusos(
         razao_social: Optional[str] = None,
-        cnae: Optional[str] = None,
+        cnae: Optional[int] = None,
         natureza_juridica: Optional[int] = None,
         situacao_cadastral: Optional[int] = None,
         estado: Optional[str] = None,
@@ -226,9 +228,23 @@ def get_paginacao_filtros_difusos(
     if socio_nome:
         socio_nome = normalizar_razao(socio_nome)
     if data_abertura_min:
+        try:
+            datetime.strptime(data_abertura_min, '%d-%m-%Y')
+        except ValueError:
+            raise HTTPException(status_code=418, detail="valor de data inválido.")
         data_abertura_min = '-'.join(data_abertura_min.split('-')[::-1])
     if data_abertura_max:
+        try:
+            datetime.strptime(data_abertura_max, '%d-%m-%Y')
+        except ValueError:
+            raise HTTPException(status_code=418, detail="valor de data inválido.")
         data_abertura_max = '-'.join(data_abertura_max.split('-')[::-1])
+    if (data_abertura_min and data_abertura_max and
+        datetime.strptime(data_abertura_max, '%Y-%m-%d')  < datetime.strptime(data_abertura_min, '%Y-%m-%d')
+        ):
+            return get_paginacao_template([])
+
+
 
     if not (socio_doc is None or (len(socio_doc) in {11, 14})):
         socio_doc = None
