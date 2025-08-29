@@ -35,10 +35,10 @@ async function getCount(path) {
 function switchTab(tab) {
     document.querySelectorAll('.search-tab').forEach(el => el.classList.remove('active'));
     document.querySelectorAll('.search-form').forEach(el => el.classList.remove('active'));
-    
+
     document.getElementById('tab-' + tab).classList.add('active');
     document.getElementById('form-' + tab).classList.add('active');
-    
+
     document.getElementById('results-container').classList.remove('active');
 }
 
@@ -52,8 +52,9 @@ function searchCNPJ() {
 async function searchByDate() {
     dataAbertura = document.getElementById('data-abertura-tab-input').value;
     dataAbertura = dataAbertura.split('-').reverse().join('-')
-    cursor = 1
-    
+    cursor = ''
+    cursorHistory = []
+
     if (dataAbertura) {
         total = 0
         pathAPI = 'data/' + dataAbertura
@@ -68,8 +69,9 @@ async function searchByDate() {
 
 async function searchByRaiz() {
     cnpjBase = document.getElementById('raiz-input').value;
-    cursor = 1
-    
+    cursor = ''
+    cursorHistory = []
+
     if (cnpjBase) {
         total = 0
         pathAPI = 'cnpj_base/' + cnpjBase
@@ -84,8 +86,9 @@ async function searchByRaiz() {
 
 async function searchByRazao() {
     razao = document.getElementById('razao-input').value;
-    cursor = 1
-    
+    cursor = ''
+    cursorHistory = []
+
     if (razao) {
         total = 0
         pathAPI = 'razao_social/' + razao
@@ -102,15 +105,15 @@ function displayCount(total) {
     document.getElementById('showing-results').textContent = 'listagem'
     document.getElementById('total-results').textContent = total ? total : '';
 }
- 
+
 
 function displayResults(paginacao) {
     const resultsBody = document.getElementById('results-body');
     resultsBody.innerHTML = '';
     quantResultsPage = paginacao['resultados_paginacao'].length
-   
+
     displayCount(total)
-    
+
     // Adiciona os dados à tabela
     for (let i = 0; i < quantResultsPage; i++) {
         const item = paginacao['resultados_paginacao'][i];
@@ -121,17 +124,17 @@ function displayResults(paginacao) {
 		(item.cnpj_dv || '')
 	)
   linkCnpj = item.cnpj_ordem ? 'https://api.cnpj.pw/cnpj/' : 'https://api.cnpj.pw/cnpj_base/'
-        
+
         row.innerHTML = `
             <td><a href="${linkCnpj}${cnpj}" target="_blank" class="cnpj-link">${cnpj}</a></td>
             <td>${item.nome_empresarial ?? ""}</td>
             <td>${item.nome_fantasia ?? ""}</td>
             <td class="data-abertura-td">${item.data_inicio_atividade ?? ""}</td>
             <td class="${item.situacao_cadastral == 'ATIVA' ? 'situacao-ativa' : 'situacao-outros'}">${item.situacao_cadastral ?? ""}</td>`;
-        
+
         resultsBody.appendChild(row);
     }
-    
+
     // Atualiza a paginação
     updatePagination(paginacao);
 }
@@ -139,33 +142,55 @@ function displayResults(paginacao) {
 function updatePagination(paginacao) {
     const pagination = document.getElementById('pagination');
     pagination.innerHTML = '';
-    
+
     const nextButton = document.createElement('button');
     nextButton.className = 'pagination-button';
     nextButton.textContent = 'Próxima';
-    nextButton.addEventListener('click', () => {
-        tam = paginacao['resultados_paginacao'].length
-        ultimo_res = paginacao['resultados_paginacao'][tam - 1]
-        cnpj_base = ultimo_res['cnpj_base']
-        cnpj_ordem = ultimo_res['cnpj_ordem']
-        cnpj_dv = ultimo_res['cnpj_dv']
+    if (paginacao['resultados_paginacao'].length < 25) {
+        nextButton.classList.add('disabled')
+    }
+    else {
+      nextButton.addEventListener('click', () => {
+          tam = paginacao['resultados_paginacao'].length
+          ultimo_res = paginacao['resultados_paginacao'][tam - 1]
+          cnpj_base = ultimo_res['cnpj_base']
+          cnpj_ordem = ultimo_res['cnpj_ordem']
+          cnpj_dv = ultimo_res['cnpj_dv']
+          cursorHistory.push(cursor)
 
-        if (pathAPI.startsWith('razao_social')) {
-          cursor = cnpj_base
-        }
+          if (pathAPI.startsWith('razao_social')) {
+            cursor = cnpj_base
+          }
 
-        if (pathAPI.startsWith('cnpj_base')) {
-          cursor = cnpj_ordem
-        }
+          if (pathAPI.startsWith('cnpj_base')) {
+            cursor = cnpj_ordem
+          }
 
-        if (pathAPI.startsWith('data')) {
-          cursor = cnpj_base + cnpj_ordem + cnpj_dv
-        }
+          if (pathAPI.startsWith('data')) {
+            cursor = cnpj_base + cnpj_ordem + cnpj_dv
+          }
 
-        getPaginacao(pathAPI, cursor)
-        .then(pag => displayResults(pag));
-    });
+          getPaginacao(pathAPI, cursor)
+          .then(pag => displayResults(pag));
+      });
+    }
 
+    const prevButton = document.createElement('button');
+    prevButton.className = 'pagination-button';
+    prevButton.textContent = 'Anterior';
+
+    if (cursorHistory.length === 0) {
+        prevButton.classList.add('disabled')
+    }
+    else {
+      prevButton.addEventListener('click', () => {
+          cursor = cursorHistory.pop()
+          getPaginacao(pathAPI, cursor)
+          .then(pag => displayResults(pag));
+      });
+    }
+
+    pagination.appendChild(prevButton);
     pagination.appendChild(nextButton);
     heightSearchForm = document.querySelector('.search-form.active').offsetHeight
     window.scroll({
