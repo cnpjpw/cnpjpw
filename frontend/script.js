@@ -11,10 +11,22 @@ let dateTab = document.querySelector('#tab-data')
 let raizTab = document.querySelector('#tab-raiz')
 let queryTab = document.querySelector('#tab-razao')
 
-cnpjTab.addEventListener('click', (e) => switchTab('cnpj'))
-dateTab.addEventListener('click', (e) => switchTab('data'))
-raizTab.addEventListener('click', (e) => switchTab('raiz'))
-queryTab.addEventListener('click', (e) => switchTab('razao'))
+
+let selectElement = document.querySelector('.search-tabs')
+
+selectElement.addEventListener('change', (e) => {
+    tabName = e.target.selectedOptions[0].getAttribute('tab')
+    switchTab(tabName)
+
+
+})
+
+/*
+cnpjTab.addEventListener('select', (e) => switchTab('cnpj'))
+dateTab.addEventListener('select', (e) => switchTab('data'))
+raizTab.addEventListener('select', (e) => switchTab('raiz'))
+queryTab.addEventListener('select', (e) => switchTab('razao'))
+*/
 
 async function getPaginacao(path, cursor) {
   cursorParametro = cursor ? '?cursor=' + cursor : ''
