@@ -67,7 +67,7 @@ def parse_csv_tabela(indices_tipo, nome_arquivo, path_entrada, path_saida, total
     saida = path_saida / nome_arquivo
 
     with open(entrada, 'r', encoding='latin-1') as f_in, \
-         open(saida, 'w', encoding='latin-1', newline='') as f_out:
+         open(saida, 'w', encoding='UTF-8', newline='') as f_out:
 
         leitor = csv.reader(f_in, delimiter=';')
         escritor = csv.writer(f_out, delimiter=';')
