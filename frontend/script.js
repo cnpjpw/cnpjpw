@@ -4,6 +4,7 @@ let dataAbertura;
 let path = '';
 let cursor = '';
 let total = 0;
+let queryParametros = new URLSearchParams();
 
 
 let cnpjTab = document.querySelector('#tab-cnpj')
@@ -28,9 +29,12 @@ raizTab.addEventListener('select', (e) => switchTab('raiz'))
 queryTab.addEventListener('select', (e) => switchTab('razao'))
 */
 
-async function getPaginacao(path, cursor) {
-  cursorParametro = cursor ? '?cursor=' + cursor : ''
-  res = await fetch('https://api.cnpj.pw/' + path + cursorParametro)
+async function getPaginacao(path, cursor, queryParametros) {
+  queryParametros.delete('cursor')
+  if (cursor) {
+      queryParametros.set('cursor', cursor)
+  }
+  res = await fetch('https://api.cnpj.pw/' + path + '?' +queryParametros.toString())
   paginacaoJson = await res.json()
   return paginacaoJson;
 }
@@ -62,6 +66,7 @@ function searchCNPJ() {
 }
 
 async function searchByDate() {
+    queryParametros = new URLSearchParams();
     dataAbertura = document.getElementById('data-abertura-tab-input').value;
     dataAbertura = dataAbertura.split('-').reverse().join('-')
     cursor = ''
@@ -71,24 +76,68 @@ async function searchByDate() {
         total = 0
         pathAPI = 'data/' + dataAbertura
 
-        paginacao = await getPaginacao(pathAPI, '')
+        paginacao = await getPaginacao(pathAPI, '', queryParametros)
         total = await getCount(pathAPI)
         displayResults(paginacao)
         document.getElementById('results-container').classList.add('active')
     }
 }
 
+async function searchByQuery() {
+    total = 0
+    cursor = ''
+    cursorHistory = []
+
+    params = {
+    data_abertura_min : document.getElementById('data-abertura-min').value,
+    data_abertura_max : document.getElementById('data-abertura-max').value,
+    razao_social : document.getElementById('razao-social').value,
+    situacao_cadastral : document.getElementById('situacao-cadastral').value,
+    capital_social_min : document.getElementById('capital-social-min').value,
+    capital_social_max : document.getElementById('capital-social-max').value,
+    estado : document.getElementById('uf').value,
+    municipio : document.getElementById('municipio').value,
+    cnae : document.getElementById('cnae').value,
+    natureza_juridica : document.getElementById('natureza-juridica').value,
+    socio_doc : document.getElementById('socio-doc').value,
+    socio_nome : document.getElementById('socio-nome').value
+    }
+
+
+    if (params.data_abertura_min) {
+        data = params.data_abertura_min
+        params.data_abertura_min  = data.split('-').reverse().join('-')
+    }
+    if (params.data_abertura_max) {
+        data = params.data_abertura_max
+        params.data_abertura_max  = data.split('-').reverse().join('-')
+    }
+
+    queryParametros = new URLSearchParams()
+    chavesParametros = Object.keys(params)
+    chavesParametros.forEach((chave) => {
+        if (!(params[chave] === null || params[chave] === '')) {
+            queryParametros.set(chave, params[chave])
+        }
+    })
+
+    pathAPI = 'busca_difusa/'
+    getPaginacao(pathAPI, '', queryParametros)
+    .then(paginacao => displayResults(paginacao))
+    .then(document.getElementById('results-container').classList.add('active'))
+}
 
 async function searchByRaiz() {
     cnpjBase = document.getElementById('raiz-input').value;
     cursor = ''
+    queryParametros = new URLSearchParams();
     cursorHistory = []
 
     if (cnpjBase) {
         total = 0
         pathAPI = 'cnpj_base/' + cnpjBase
         total = await getCount(pathAPI)
-        paginacao = await getPaginacao(pathAPI, '')
+        paginacao = await getPaginacao(pathAPI, '', queryParametros)
         displayResults(paginacao)
         document.getElementById('results-container').classList.add('active')
         return
@@ -99,12 +148,13 @@ async function searchByRaiz() {
 async function searchByRazao() {
     razao = document.getElementById('razao-input').value;
     cursor = ''
+    queryParametros = new URLSearchParams();
     cursorHistory = []
 
     if (razao) {
         total = 0
         pathAPI = 'razao_social/' + razao
-        paginacao = await getPaginacao(pathAPI, '')
+        paginacao = await getPaginacao(pathAPI, '', queryParametros)
         displayResults(paginacao)
         document.getElementById('results-container').classList.add('active')
         total = await getCount(pathAPI)
@@ -178,11 +228,15 @@ function updatePagination(paginacao) {
             cursor = cnpj_ordem
           }
 
+          if (pathAPI.startsWith('busca_difusa')) {
+            cursor = cnpj_base
+          }
+
           if (pathAPI.startsWith('data')) {
             cursor = cnpj_base + cnpj_ordem + cnpj_dv
           }
 
-          getPaginacao(pathAPI, cursor)
+          getPaginacao(pathAPI, cursor, queryParametros)
           .then(pag => displayResults(pag));
       });
     }
@@ -197,7 +251,7 @@ function updatePagination(paginacao) {
     else {
       prevButton.addEventListener('click', () => {
           cursor = cursorHistory.pop()
-          getPaginacao(pathAPI, cursor)
+          getPaginacao(pathAPI, cursor, queryParametros)
           .then(pag => displayResults(pag));
       });
     }
