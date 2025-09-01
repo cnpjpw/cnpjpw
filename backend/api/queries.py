@@ -143,43 +143,32 @@ SELECT row_to_json(result) FROM (
 )
 
 def get_busca_difusa_query(tem_socios_param, somente_socios):
-    LIMIT_QUERY = ''
+    SOCIOS_LIMIT = ''
+    SOCIOS_JOIN = ''
     if somente_socios:
-        LIMIT_QUERY = 'GROUP BY s.cnpj_base LIMIT 250'
-    SOCIOS_SUBQUERY = (
-    """
-    WHERE (
-        est.cnpj_base IN (
-            SELECT cnpj_base FROM socios s WHERE
-            (
-            ( ((%(cnpj_base)s)::bpchar IS NULL) OR (s.cnpj_base > %(cnpj_base)s) ) AND
-            ( ((%(socio_doc)s)::bpchar IS NULL) OR (s.cnpj_cpf = %(socio_doc)s) ) AND
-            ( ((%(socio_nome)s)::bpchar IS NULL) OR (s.nome LIKE (%(socio_nome)s || '%%')) )
-            ) 
-    """ 
-    + LIMIT_QUERY +
-    """
-        )
-    )
-    """
-    )
-    if not tem_socios_param:
-        SOCIOS_SUBQUERY = ''
+        SOCIOS_LIMIT = 'LIMIT 250'
+    if tem_socios_param:
+        SOCIOS_JOIN = 'JOIN socios_filtrados s ON e.cnpj_base = s.cnpj_base'
     BUSCA_DIFUSA_QUERY = (
     """
     WITH
     empresas_filtradas AS (
-        SELECT *
-        FROM empresas
+        SELECT
+        cnpj_base,
+        nome_empresarial
+        FROM empresas e
         WHERE
-            (%(razao_social)s IS NULL OR nome_empresarial LIKE %(razao_social)s || '%%')
-            AND (capital_social >= COALESCE(%(capital_social_min)s, 0))
-            AND (capital_social <= COALESCE(%(capital_social_max)s, 999999999999999.99))
-            AND (%(natureza_juridica)s IS NULL OR natureza_juridica = %(natureza_juridica)s)
+            (%(razao_social)s IS NULL OR e.nome_empresarial LIKE %(razao_social)s || '%%')
+            AND (e.capital_social >= COALESCE(%(capital_social_min)s, 0))
+            AND (e.capital_social <= COALESCE(%(capital_social_max)s, 999999999999999.99))
+            AND (%(natureza_juridica)s IS NULL OR e.natureza_juridica = %(natureza_juridica)s)
     ),
 
     estabelecimentos_filtrados AS (
-        SELECT *
+        SELECT
+        cnpj_base,
+        cnpj_ordem,
+        cnpj_dv
         FROM estabelecimentos
         WHERE
             (data_inicio_atividade >= COALESCE(%(data_abertura_min)s::date, '1890-01-01'))
@@ -189,6 +178,21 @@ def get_busca_difusa_query(tem_socios_param, somente_socios):
             AND (%(cnae)s IS NULL OR cnae_fiscal_principal = %(cnae)s)
             AND (%(situacao_cadastral)s IS NULL OR situacao_cadastral = %(situacao_cadastral)s)
             AND (%(cnpj_base)s IS NULL OR (cnpj_base > %(cnpj_base)s))
+    ),
+    socios_filtrados AS (
+        SELECT
+        cnpj_base
+        FROM socios s
+        WHERE
+            ( ((%(cnpj_base)s)::bpchar IS NULL) OR (s.cnpj_base > %(cnpj_base)s) )
+            AND ( ((%(socio_doc)s)::bpchar IS NULL) OR (s.cnpj_cpf = %(socio_doc)s) )
+            AND ( ((%(socio_nome)s)::bpchar IS NULL) OR (s.nome LIKE (%(socio_nome)s || '%%')) )
+            ORDER BY cnpj_base
+            """
+            +
+            SOCIOS_LIMIT
+            +
+            """
     )
     SELECT row_to_json(result)
     FROM (
@@ -197,13 +201,14 @@ def get_busca_difusa_query(tem_socios_param, somente_socios):
             est.cnpj_ordem,
             est.cnpj_dv,
             est.cnpj_base || est.cnpj_ordem || est.cnpj_dv AS cnpj,
-            emp.nome_empresarial
-        FROM empresas_filtradas emp
-        JOIN estabelecimentos_filtrados est ON emp.cnpj_base = est.cnpj_base
-
-    """
-    + SOCIOS_SUBQUERY +
-    """
+            e.nome_empresarial
+        FROM empresas_filtradas e
+        JOIN estabelecimentos_filtrados est ON e.cnpj_base = est.cnpj_base
+        """
+        +
+        SOCIOS_JOIN
+        +
+        """
         ORDER BY est.cnpj_base, est.cnpj_ordem, est.cnpj_dv
         LIMIT 250
     ) result;

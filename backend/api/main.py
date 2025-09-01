@@ -262,13 +262,10 @@ def get_paginacao_filtros_difusos(
         'capital_social_min': capital_social_min,
         'capital_social_max': capital_social_max,
         'cnpj_base': cursor,
-        'situacao_cadastral': situacao_cadastral
+        'situacao_cadastral': situacao_cadastral,
+        'socio_doc': socio_doc,
+        'socio_nome': socio_nome
         }
-
-    if socio_doc is not None or socio_nome is not None:
-        parametros['socio_doc'] = socio_doc
-        parametros['socio_nome'] = socio_nome
-
     with ClientCursor(conn) as cursor:
     #with conn.cursor() as cursor:
         cursor.execute(BUSCA_DIFUSA_QUERY, parametros)
