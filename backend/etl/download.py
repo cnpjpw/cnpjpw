@@ -34,9 +34,7 @@ def get_infos_links(url_pasta, arquivos: list[str], data_template) -> dict:
         if ultima_modificacao < ultima_modificacao_pasta:
             ultima_modificacao_pasta = ultima_modificacao
 
-
-    tamanho_total = round(total / 1_000_000_000, 2)
-    return { 'tamanhos': tamanhos, 'tamanho_total': tamanho_total, 'ultima_modificacao': ultima_modificacao }
+    return { 'tamanhos': tamanhos, 'tamanho_total': total, 'ultima_modificacao': ultima_modificacao }
 
 
 def download_arquivo(arquivo_nome, link, pasta_dir):
@@ -48,7 +46,7 @@ def download_arquivo(arquivo_nome, link, pasta_dir):
                     f.write(chunk)
 
 
-def distribuir_arquivos_particoes(arquivos_tamanhos: dict, num_threads=4):
+def distribuir_arquivos_particoes(arquivos_tamanhos: dict, num_threads):
     arquivos_tamanhos = list(arquivos_tamanhos.items())
     arquivos_ordenados = sorted(arquivos_tamanhos, reverse=True, key=lambda x: x[1])
     cargas = [0] * num_threads
@@ -77,7 +75,7 @@ def download_cnpj_zips(ano, mes, path_arquivos):
         raise Exception('Pasta com menos arquivos que o esperado')
     if infos['ultima_modificacao'] < timedelta(seconds=600):
         raise Exception('Pasta modificacada recentemente')
-    num_threads = 4
+    num_threads = round(infos['tamanho_total'] / max(infos['tamanhos'].values()))
     particoes = distribuir_arquivos_particoes(infos['tamanhos'])
     with ThreadPoolExecutor(max_workers=num_threads) as executor:
         executor.map(download_particao_thread, particoes)
