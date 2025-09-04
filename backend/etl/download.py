@@ -3,6 +3,7 @@ from selectolax.lexbor import LexborHTMLParser
 from datetime import datetime, timedelta
 from tqdm import tqdm
 import json
+from concurrent.futures import ThreadPoolExecutor
 
 
 def parse_arquivos_pasta(html: str) -> list[str]:
@@ -17,12 +18,16 @@ def parse_arquivos_pasta(html: str) -> list[str]:
     return arquivos
 
 
-def get_infos_links(links: list[str], data_template) -> dict:
+def get_infos_links(url_pasta, arquivos: list[str], data_template) -> dict:
     total = 0
     ultima_modificacao_pasta = timedelta(days=30)
-    for link in links:
+    tamanhos = { arquivo: 0 for arquivo in arquivos }
+    for arquivo in arquivos:
+        link = url_pasta + arquivo
         res = requests.get(link, stream=True)
-        total += int(res.headers.get('content-length', 0))
+        tamanho = int(res.headers.get('content-length', 0))
+        total += tamanho
+        tamanhos[arquivo] = tamanho
         ultima_modificacao_header = res.headers.get('last-modified')
         ultima_mod_data = datetime.strptime(ultima_modificacao_header, data_template)
         ultima_modificacao = datetime.now() - ultima_mod_data
@@ -31,21 +36,35 @@ def get_infos_links(links: list[str], data_template) -> dict:
 
 
     tamanho_total = round(total / 1_000_000_000, 2)
-    return { 'tamanho_total': tamanho_total, 'ultima_modificacao': ultima_modificacao }
+    return { 'tamanhos': tamanhos, 'tamanho_total': tamanho_total, 'ultima_modificacao': ultima_modificacao }
 
 
 def download_arquivo(arquivo_nome, link, pasta_dir):
-    res = requests.get(link, stream=True)
-    total_size = int(res.headers.get("content-length", 0))
-    block_size = 1024
-    with tqdm(total=total_size, unit="B", unit_scale=True) as progress_bar:
-        with open(pasta_dir / arquivo_nome, "wb") as file:
-            for data in res.iter_content(block_size):
-                progress_bar.update(len(data))
-                file.write(data)
+    with requests.get(link, stream=True) as r:
+        r.raise_for_status()
+        with open(pasta_dir / arquivo_nome, "wb") as f:
+            for chunk in r.iter_content(chunk_size=8192):
+                if chunk:
+                    f.write(chunk)
+
+
+def distribuir_arquivos_particoes(arquivos_tamanhos: dict, num_threads=4):
+    arquivos_tamanhos = list(arquivos_tamanhos.items())
+    arquivos_ordenados = sorted(arquivos_tamanhos, reverse=True, key=lambda x: x[1])
+    cargas = [0] * num_threads
+    particoes = [[] for _ in range(num_threads)]
+    for arq, tamanho in arquivos_ordenados:
+        idx = cargas.index(min(cargas))
+        particoes[idx].append(arq)
+        cargas[idx] += tamanho
+    return particoes
 
 
 def download_cnpj_zips(ano, mes, path_arquivos):
+    def download_particao_thread(particao):
+        for arquivo in particao:
+            link = URL_PASTA + arquivo
+            download_arquivo(arquivo, link, path_arquivos)
     LINK_BASE = 'https://arquivos.receitafederal.gov.br/dados/cnpj/dados_abertos_cnpj/'
     URL_PASTA = LINK_BASE + str(ano) + '-' + str(mes).zfill(2) + '/'
     ULTIMA_MODIFICACAO_TEMPLATE = "%a, %d %b %Y %H:%M:%S %Z"
@@ -53,13 +72,13 @@ def download_cnpj_zips(ano, mes, path_arquivos):
     if res.status_code == 404:
         raise Exception('Pasta ainda não foi criada')
     arquivos = parse_arquivos_pasta(res.text)
-    links_arquivos = [ URL_PASTA + arquivo for arquivo in arquivos ]
-    infos = get_infos_links(links_arquivos, ULTIMA_MODIFICACAO_TEMPLATE)
-    if infos['tamanho_total'] < 6:
-        raise Exception('Pasta com tamanho menor que o esperado')
-    if infos['ultima_modificacao'] < timedelta(seconds=3600):
+    infos = get_infos_links(URL_PASTA, arquivos, ULTIMA_MODIFICACAO_TEMPLATE)
+    if len(arquivos) < 37:
+        raise Exception('Pasta com menos arquivos que o esperado')
+    if infos['ultima_modificacao'] < timedelta(seconds=600):
         raise Exception('Pasta modificacada recentemente')
-    for arquivo in arquivos:
-        link = URL_PASTA + arquivo
-        download_arquivo(arquivo, link, path_arquivos)
+    num_threads = 4
+    particoes = distribuir_arquivos_particoes(infos['tamanhos'])
+    with ThreadPoolExecutor(max_workers=num_threads) as executor:
+        executor.map(download_particao_thread, particoes)
 
