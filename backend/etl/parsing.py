@@ -10,7 +10,10 @@ def extrair_arquivo_zip(zip_path, destino, novo_nome):
     with zipfile.ZipFile(zip_path, 'r') as archive:
         nome_interno = archive.namelist()[0]
         archive.extract(nome_interno, path=destino)
-        os.rename(destino / nome_interno, destino / novo_nome)
+    with open((destino / novo_nome), 'w', encoding='utf-8') as wfd:
+        with open((destino / nome_interno), 'r', encoding='latin-1') as fd:
+            shutil.copyfileobj(fd, wfd)
+    (destino / nome_interno).unlink()
 
 
 def extrair_zips(path_entrada, path_saida, nao_numerados=[], numerados=[]):
@@ -66,7 +69,7 @@ def parse_csv_tabela(indices_tipo, nome_arquivo, path_entrada, path_saida, total
     entrada = path_entrada / nome_arquivo
     saida = path_saida / nome_arquivo
 
-    with open(entrada, 'r', encoding='latin-1') as f_in, \
+    with open(entrada, 'r', encoding='UTF-8') as f_in, \
          open(saida, 'w', encoding='UTF-8', newline='') as f_out:
 
         leitor = csv.reader(f_in, delimiter=';')
