@@ -31,19 +31,30 @@ def mover_entre_staging(tabela_origem, tabela_destino, conn):
 def mover_staging_producao(tabela_origem, tabela_destino, pk, colunas, conn, faz_update=True):
     #TEM Q REFATORAR
     colunas_update = []
+    where_clausulas = []
     for col in colunas:
         coluna_query = sql.SQL("{0} = EXCLUDED.{0}").format(
                 sql.Identifier(col)
                 )
+        where_clausula = sql.SQL("{} IS DISTINCT FROM EXCLUDED.{}").format(
+                sql.Identifier(tabela_destino, col),
+                sql.Identifier(col)
+                )
+        where_clausulas.append(where_clausula)
         colunas_update.append(coluna_query)
+
     with conn.cursor() as cursor:
         query_insert = sql.SQL(
-            "INSERT INTO {} SELECT * FROM {} ON CONFLICT ({}) DO UPDATE SET {}"
+            """
+            INSERT INTO {} SELECT * FROM {} ON CONFLICT ({}) DO UPDATE SET {}
+            WHERE {}
+            """
         ).format(
                 sql.Identifier(tabela_destino),
                 sql.Identifier(tabela_origem),
                 sql.SQL(', ').join([sql.Identifier(col) for col in pk]),
-                sql.SQL(', ').join([col for col in colunas_update])
+                sql.SQL(', ').join([col for col in colunas_update]),
+                sql.SQL(' OR ').join([col for col in where_clausulas])
                 )
         if not faz_update:
             query_insert = sql.SQL(
