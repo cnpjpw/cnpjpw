@@ -27,40 +27,40 @@ def tratar_dados_abertos(nomes_csv, tipos_indices, path_dados):
         (path_entrada / nome_arquivo).unlink()
 
 
-def carregar_arquivos_bd(auxiliares, principais, path_dados, arq_tabela_dic, conn, faz_update, logger):
-        from config import ARQ_TABELA_DIC
-        logger.info('Carregando Dados Auxiliares nas Tabelas de Staging(direto para o staging2)')
-        for nome in tqdm(auxiliares):
-            nome_tabela = f'{ARQ_TABELA_DIC[nome]}_staging2'
-            csv_path = path_dados / 'csv' / f'{nome}.csv'
-            carregar_csv_banco(nome_tabela, csv_path, conn)
-            csv_path.unlink()
+def carregar_arquivos_bd(auxiliares, principais, path_dados, arq_tabela_dic, conn, faz_update, logger, staging_sufixo='staging'):
+    from config import ARQ_TABELA_DIC
+    logger.info('Carregando Dados Auxiliares nas Tabelas de Staging(direto para o staging2)')
+    for nome in tqdm(auxiliares):
+        nome_tabela = f'{ARQ_TABELA_DIC[nome]}_staging2'
+        csv_path = path_dados / 'csv' / f'{nome}.csv'
+        carregar_csv_banco(nome_tabela, csv_path, conn)
+        csv_path.unlink()
 
-        logger.info('Carregando Dados Principais nas Tabelas de Staging1')
-        for nome in tqdm(principais):
-            nome_tabela = f'{ARQ_TABELA_DIC[nome]}_staging1'
-            csv_path = path_dados / 'csv' / f'{nome}.csv'
-            carregar_csv_banco(nome_tabela, csv_path, conn)
-            csv_path.unlink()
+    logger.info('Carregando Dados Principais nas Tabelas de Staging1')
+    for nome in tqdm(principais):
+        nome_tabela = f'{ARQ_TABELA_DIC[nome]}_{staging_sufixo}1'
+        csv_path = path_dados / 'csv' / f'{nome}.csv'
+        carregar_csv_banco(nome_tabela, csv_path, conn)
+        csv_path.unlink()
 
-        logger.info('Carregando Dados Principais nas Tabelas de Staging2')
-        for nome in tqdm(principais):
-            nome_tabela = ARQ_TABELA_DIC[nome]
-            mover_entre_staging(f'{nome_tabela}_staging1', f'{nome_tabela}_staging2', conn)
+    logger.info('Carregando Dados Principais nas Tabelas de Staging2')
+    for nome in tqdm(principais):
+        nome_tabela = ARQ_TABELA_DIC[nome]
+        mover_entre_staging(f'{nome_tabela}_{staging_sufixo}1', f'{nome_tabela}_{staging_sufixo}2', conn)
 
-        logger.info('Carregando Dados para Tabelas de Produção')
-        for nome in tqdm(auxiliares + principais):
-            nome_tabela = ARQ_TABELA_DIC[nome]
-            infos_auxiliares = tabelas_infos['auxiliares']
-            tabela_info = tabelas_infos.get(nome_tabela, infos_auxiliares)
-            mover_staging_producao(
-                f'{nome_tabela}_staging2',
-                nome_tabela,
-                tabela_info['pk'],
-                tabela_info['colunas'],
-                conn,
-                faz_update
-            )
+    logger.info('Carregando Dados para Tabelas de Produção')
+    for nome in tqdm(auxiliares + principais):
+        nome_tabela = ARQ_TABELA_DIC[nome]
+        infos_auxiliares = tabelas_infos['auxiliares']
+        tabela_info = tabelas_infos.get(nome_tabela, infos_auxiliares)
+        mover_staging_producao(
+            f'{nome_tabela}_{staging_sufixo}2',
+            nome_tabela,
+            tabela_info['pk'],
+            tabela_info['colunas'],
+            conn,
+            faz_update
+        )
 
 
 def polling_carga_mensal(bd_nome, bd_usuario, path_raiz, path_script, logger):
@@ -85,7 +85,7 @@ def polling_carga_mensal(bd_nome, bd_usuario, path_raiz, path_script, logger):
     tratar_dados_abertos(NAO_NUMERADOS + NUMERADOS, TIPOS_INDICES, path_dados)
 
     logger.info('Iniciando Rotinas de Carga em BD')
-    with psycopg.connect(dbname=bd_nome, user=bd_usuario) as conn:
+    with psycopg.connect(dbname=bd_nome, user=bd_usuario, autocommit=True) as conn:
         carregar_arquivos_bd(AUXILIARES, PRINCIPAIS, path_dados, ARQ_TABELA_DIC, conn, True, logger)
 
     logger.info('Modificando Mês de Download dos Dados')
