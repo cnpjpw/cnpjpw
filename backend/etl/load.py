@@ -29,7 +29,6 @@ def mover_entre_staging(tabela_origem, tabela_destino, conn):
 
 
 def mover_staging_producao(tabela_origem, tabela_destino, pk, colunas, conn, faz_update=True):
-    #TEM Q REFATORAR
     colunas_update = []
     where_clausulas = []
     for col in colunas:
@@ -43,31 +42,37 @@ def mover_staging_producao(tabela_origem, tabela_destino, pk, colunas, conn, faz
         where_clausulas.append(where_clausula)
         colunas_update.append(coluna_query)
 
-    with conn.cursor() as cursor:
-        query_insert = sql.SQL(
+    query_insert = sql.SQL(
             """
             INSERT INTO {} SELECT * FROM {} ON CONFLICT ({}) DO UPDATE SET {}
             WHERE {}
             """
+    ).format(
+        sql.Identifier(tabela_destino),
+        sql.Identifier(tabela_origem),
+        sql.SQL(', ').join([sql.Identifier(col) for col in pk]),
+        sql.SQL(', ').join([col for col in colunas_update]),
+        sql.SQL(' OR ').join([col for col in where_clausulas])
+    )
+    if not faz_update:
+        query_insert = sql.SQL(
+            "INSERT INTO {} SELECT * FROM {} ON CONFLICT DO NOTHING"
         ).format(
-                sql.Identifier(tabela_destino),
-                sql.Identifier(tabela_origem),
-                sql.SQL(', ').join([sql.Identifier(col) for col in pk]),
-                sql.SQL(', ').join([col for col in colunas_update]),
-                sql.SQL(' OR ').join([col for col in where_clausulas])
-                )
-        if not faz_update:
-            query_insert = sql.SQL(
-                "INSERT INTO {} SELECT * FROM {} ON CONFLICT DO NOTHING"
-            ).format(
-                sql.Identifier(tabela_destino),
-                sql.Identifier(tabela_origem)
-                )
-        query_truncate = sql.SQL(
-            "TRUNCATE {}"
-        ).format(sql.Identifier(tabela_origem))
-        cursor.execute(query_insert)
-        cursor.execute(query_truncate)
+            sql.Identifier(tabela_destino),
+            sql.Identifier(tabela_origem)
+        )
+    query_truncate = sql.SQL(
+        "TRUNCATE {}"
+    ).format(sql.Identifier(tabela_origem))
+
+    query_lock = sql.SQL("LOCK TABLE {} IN EXCLUSIVE MODE").format(
+            sql.Identifier(tabela_destino)
+            )
+    with conn.transaction():
+        with conn.cursor() as cursor:
+            cursor.execute(query_lock)
+            cursor.execute(query_insert)
+            cursor.execute(query_truncate)
 
 
 def pegar_ultimo_cnpj_inserido(conn):
