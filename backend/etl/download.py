@@ -76,7 +76,7 @@ def download_cnpj_zips(ano, mes, path_arquivos):
     if infos['ultima_modificacao'] < timedelta(seconds=600):
         raise Exception('Pasta modificacada recentemente')
     num_threads = round(infos['tamanho_total'] / max(infos['tamanhos'].values()))
-    particoes = distribuir_arquivos_particoes(infos['tamanhos'])
+    particoes = distribuir_arquivos_particoes(infos['tamanhos'], num_threads)
     with ThreadPoolExecutor(max_workers=num_threads) as executor:
         executor.map(download_particao_thread, particoes)
 
