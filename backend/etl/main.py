@@ -85,7 +85,7 @@ def polling_carga_mensal(bd_nome, bd_usuario, path_raiz, path_script, logger):
     tratar_dados_abertos(NAO_NUMERADOS + NUMERADOS, TIPOS_INDICES, path_dados)
 
     logger.info('Iniciando Rotinas de Carga em BD')
-    with psycopg.connect(dbname=bd_nome, user=bd_usuario, autocommit=True) as conn:
+    with psycopg.connect(dbname=bd_nome, user=bd_usuario) as conn:
         carregar_arquivos_bd(AUXILIARES, PRINCIPAIS, path_dados, ARQ_TABELA_DIC, conn, True, logger)
 
     logger.info('Modificando Mês de Download dos Dados')

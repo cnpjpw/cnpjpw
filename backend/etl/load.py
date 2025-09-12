@@ -65,14 +65,9 @@ def mover_staging_producao(tabela_origem, tabela_destino, pk, colunas, conn, faz
         "TRUNCATE {}"
     ).format(sql.Identifier(tabela_origem))
 
-    query_lock = sql.SQL("LOCK TABLE {} IN EXCLUSIVE MODE").format(
-            sql.Identifier(tabela_destino)
-            )
-    with conn.transaction():
-        with conn.cursor() as cursor:
-            cursor.execute(query_lock)
-            cursor.execute(query_insert)
-            cursor.execute(query_truncate)
+    with conn.cursor() as cursor:
+        cursor.execute(query_insert)
+        cursor.execute(query_truncate)
 
 
 def pegar_ultimo_cnpj_inserido(conn):
