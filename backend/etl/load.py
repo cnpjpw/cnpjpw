@@ -64,10 +64,12 @@ def mover_staging_producao(tabela_origem, tabela_destino, pk, colunas, conn, faz
     query_truncate = sql.SQL(
         "TRUNCATE {}"
     ).format(sql.Identifier(tabela_origem))
-
+    query_delete_socios_duplicados = "DELETE FROM socios s WHERE s.cnpj_cpf IS NULL AND (s.cnpj_base, s.nome) IN (select a.cnpj_base, a.nome from socios a join socios b on a.cnpj_base = b.cnpj_base AND a.nome = b.nome AND a.cnpj_cpf IS NULL AND b.cnpj_cpf IS NOT NULL)"
     with conn.cursor() as cursor:
         cursor.execute(query_insert)
         cursor.execute(query_truncate)
+        if tabela_destino == 'socios' and faz_update:
+            cursor.execute(query_delete_socios_duplicados)
 
 
 def pegar_ultimo_cnpj_inserido(conn):
