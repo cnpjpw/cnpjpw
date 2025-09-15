@@ -30,7 +30,7 @@ def get_infos_links(url_pasta, arquivos: list[str], data_template) -> dict:
         tamanhos[arquivo] = tamanho
         ultima_modificacao_header = res.headers.get('last-modified')
         ultima_mod_data = datetime.strptime(ultima_modificacao_header, data_template)
-        ultima_modificacao = datetime.now() - ultima_mod_data
+        ultima_modificacao = datetime.utcnow() - ultima_mod_data
         if ultima_modificacao < ultima_modificacao_pasta:
             ultima_modificacao_pasta = ultima_modificacao
 
