@@ -86,19 +86,23 @@
                     <div class="busca-input-group">
                         <input type="text" class="busca-input" id="uf" name="uf" placeholder="Estado(UF)" aria-label="Estado/Unidade Federativa">
                     </div>
-                    <label for="municipio">Município(código correspondente): </label>
+                    <label for="municipio">Município(código - somente números): </label>
                     <div class="busca-input-group">
                         <input type="text" list="municipios-list" class="busca-input" name="municipio" id="municipio" placeholder="Município(código)" aria-label="Municipio">
                         <datalist id="municipios-list">
                         </datalist>
                     </div>
-                    <label for="cnae-principal">Cnae Principal: </label>
+                    <label for="cnae-principal">Cnae Principal(código - somente números): </label>
                     <div class="busca-input-group">
-                        <input type="text" class="busca-input" id="cnae" name="cnae-principal" placeholder="CNAE - Atividade Principal" aria-label="Cnae">
+                        <input type="text" class="busca-input" list="cnaes-list" id="cnae" name="cnae-principal" placeholder="CNAE - Atividade Principal" aria-label="Cnae">
+                        <datalist id="cnaes-list">
+                        </datalist>
                     </div>
-                    <label for="natureza-juridica">Natureza Jurídica: </label>
+                    <label for="natureza-juridica">Natureza Jurídica(código - somente números): </label>
                     <div class="busca-input-group">
-                        <input type="text" class="busca-input" name="natureza-juridica" id="natureza-juridica" placeholder="Natureza Jurídica" aria-label="Número Inscrição(primeiros 8 caracteres)">
+                        <input type="text" list="naturezas-list" class="busca-input" name="natureza-juridica" id="natureza-juridica" placeholder="Natureza Jurídica" aria-label="Número Inscrição(primeiros 8 caracteres)">
+                        <datalist id="naturezas-list">
+                        </datalist>
                     </div>
                     <label for="socio-doc">Documento do Sócio(CNPJ ou CPF): </label>
                     <div class="busca-input-group">

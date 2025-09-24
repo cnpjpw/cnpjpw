@@ -245,8 +245,31 @@ SELECT row_to_json(result) FROM (
 """
 )
 
+CNAES_QUERY = (
+"""
+SELECT row_to_json(result) FROM (
+    SELECT
+        descricao,
+        codigo
+    FROM cnaes
+    ORDER BY descricao
+) result;
+"""
+)
+
+NATUREZAS_QUERY = (
+"""
+SELECT row_to_json(result) FROM (
+    SELECT
+        descricao,
+        codigo
+    FROM naturezas_juridicas
+    ORDER BY descricao
+) result;
+"""
+)
+
 COUNT_DATA_QUERY = "SELECT count(*) from estabelecimentos WHERE data_inicio_atividade = (%s)::date"
 COUNT_RAIZ_QUERY = "SELECT count(*) from estabelecimentos WHERE cnpj_base = (%s)::bpchar"
 COUNT_RAZAO_QUERY = "SELECT count(*) from empresas WHERE nome_empresarial LIKE ((%s)::bpchar || '%%')"
-
 

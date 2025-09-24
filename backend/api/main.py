@@ -13,6 +13,8 @@ from queries import (
         RAIZ_QUERY,
         DATA_ABERTURA_QUERY,
         MUNICIPIOS_QUERY,
+        CNAES_QUERY,
+        NATUREZAS_QUERY,
         COUNT_DATA_QUERY,
         COUNT_RAIZ_QUERY,
         COUNT_RAZAO_QUERY,
@@ -34,6 +36,7 @@ def get_paginacao_template(pagina_atual, limite=25):
         'limite_resultados_paginacao': limite,
         'resultados_paginacao': pagina_atual,
     }
+
 
 def normalizar_razao(razao: str):
     forma_nfkd = unicodedata.normalize('NFKD', razao)
@@ -299,6 +302,28 @@ def get_municipios(conn=Depends(get_conn)):
     return get_paginacao_template(resultados)
 
 
+@app.get("/cnaes/")
+def get_cnaes(conn=Depends(get_conn)):
+    """
+    Retorna a descrição e o código de todos os cnaes presentes no banco
+    """
+    with conn.cursor() as cursor:
+        cursor.execute(CNAES_QUERY)
+        resultados = cursor.fetchall()
+    resultados = [res[0] for res in resultados]
+    return get_paginacao_template(resultados)
+
+
+@app.get("/naturezas/")
+def get_cnaes(conn=Depends(get_conn)):
+    """
+    Retorna a descrição e o código de todos as naturezas juridicas presentes no banco
+    """
+    with conn.cursor() as cursor:
+        cursor.execute(NATUREZAS_QUERY)
+        resultados = cursor.fetchall()
+    resultados = [res[0] for res in resultados]
+    return get_paginacao_template(resultados)
 
 
 @app.get("/count/data/{data}")
@@ -312,6 +337,7 @@ def get_count_data(data: str, conn=Depends(get_conn)):
         cursor.execute(COUNT_DATA_QUERY, (data, ))
         total = cursor.fetchone()[0]
     return {'total': total}
+
 
 @app.get("/count/cnpj_base/{cnpj_base}")
 def get_count_raiz(cnpj_base: str, conn=Depends(get_conn)):
@@ -336,4 +362,5 @@ def get_paginacao_razao_social(razao_social: str, conn=Depends(get_conn)):
         cursor.execute(COUNT_RAZAO_QUERY, (razao_social, ))
         total = cursor.fetchone()[0]
     return {'total': total}
+
 
