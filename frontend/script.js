@@ -27,7 +27,7 @@ autoCompleteEndpoints.forEach((endpoint) => {
     fetch(`https://api.cnpj.pw/${endpoint}/`)
     .then(res => res.json())
     .then(json => {
-        resultados = json['resultados_paginacao']
+        resultados = json['resultados']
         resultados.forEach((res) => {
             opcao = document.createElement('option')
             opcao.textContent = res['descricao']

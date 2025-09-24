@@ -216,7 +216,7 @@ def get_paginacao_filtros_difusos(
     if (capital_social_min is not None
         and capital_social_max is not None
         and capital_social_min > capital_social_max):
-        return get_paginacao_template([])
+        return get_paginacao_template([], limite=250)
 
     tem_socios_param = False
     somente_socios = not any(
@@ -257,7 +257,7 @@ def get_paginacao_filtros_difusos(
     if (data_abertura_min and data_abertura_max and
         datetime.strptime(data_abertura_max, '%Y-%m-%d')  < datetime.strptime(data_abertura_min, '%Y-%m-%d')
         ):
-            return get_paginacao_template([])
+            return get_paginacao_template([], limite=250)
 
 
 
@@ -287,7 +287,7 @@ def get_paginacao_filtros_difusos(
         #return cursor.mogrify(BUSCA_DIFUSA_QUERY, parametros)
         resultados = cursor.fetchall()
     resultados = [res[0] for res in resultados]
-    return get_paginacao_template(resultados)
+    return get_paginacao_template(resultados, limite=250)
 
 
 @app.get("/municipios/")
@@ -299,7 +299,7 @@ def get_municipios(conn=Depends(get_conn)):
         cursor.execute(MUNICIPIOS_QUERY)
         resultados = cursor.fetchall()
     resultados = [res[0] for res in resultados]
-    return get_paginacao_template(resultados)
+    return {'resultados': resultados}
 
 
 @app.get("/cnaes/")
@@ -311,7 +311,7 @@ def get_cnaes(conn=Depends(get_conn)):
         cursor.execute(CNAES_QUERY)
         resultados = cursor.fetchall()
     resultados = [res[0] for res in resultados]
-    return get_paginacao_template(resultados)
+    return {'resultados': resultados}
 
 
 @app.get("/naturezas/")
@@ -323,7 +323,7 @@ def get_cnaes(conn=Depends(get_conn)):
         cursor.execute(NATUREZAS_QUERY)
         resultados = cursor.fetchall()
     resultados = [res[0] for res in resultados]
-    return get_paginacao_template(resultados)
+    return {'resultados': resultados}
 
 
 @app.get("/count/data/{data}")
