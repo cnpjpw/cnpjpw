@@ -1,5 +1,4 @@
 // Variáveis para controle da paginação
-let resultsPerPage = 25
 let dataAbertura;
 let path = '';
 let cursor = '';
@@ -227,7 +226,7 @@ function updatePagination(paginacao) {
     const nextButton = document.createElement('button');
     nextButton.className = 'pagination-button';
     nextButton.textContent = 'Próxima';
-    if (paginacao['resultados_paginacao'].length < 25) {
+    if (paginacao['resultados_paginacao'].length < paginacao['limite_resultados_paginacao']) {
         nextButton.classList.add('disabled')
     }
     else {
