@@ -209,13 +209,18 @@ def get_paginacao_filtros_difusos(
     - **capital_social_min**: filtro por capital social. Passe o capital social máximo como float(com ponto separando a parte decimal, como 1000.50).
     - **socio_doc**: CNPJ se o sócio for PJ e CPF se for PF. Sem pontuação, somente digitos.
     - **socio_nome**: Consulta por nome do sócio(atualmente fazendo o match pelo começo da string)
-    - **cursor**: se especificado, serão exibidos apenas resultados após o cnpj_base passado ao paramêtro 'cursor'.
+    - **cursor**: se especificado, serão exibidos apenas resultados após o cnpj passado ao paramêtro 'cursor'.
 
     exibindo de 250 em 250 resultados atualmente.
     """
+
+    #TODO: mensagens de erro personalizadas
     if (capital_social_min is not None
         and capital_social_max is not None
         and capital_social_min > capital_social_max):
+        return get_paginacao_template([], limite=250)
+
+    if cursor is not None and len(cursor) != 14:
         return get_paginacao_template([], limite=250)
 
     tem_socios_param = False
@@ -259,12 +264,19 @@ def get_paginacao_filtros_difusos(
         ):
             return get_paginacao_template([], limite=250)
 
-
-
     if not (socio_doc is None or (len(socio_doc) in {11, 14})):
         socio_doc = None
     if socio_doc is not None and len(socio_doc) == 11:
         socio_doc = '***' + socio_doc[3:9] + '**'
+
+    cnpj_base = None
+    cnpj_ordem = None
+    cnpj_dv = None
+
+    if cursor is not None and len(cursor) == 14:
+        cnpj_base = cursor[:8]
+        cnpj_ordem = cursor[8:12]
+        cnpj_dv = cursor[12:]
 
     parametros = {
         'cnae': cnae,
@@ -276,7 +288,9 @@ def get_paginacao_filtros_difusos(
         'data_abertura_max': data_abertura_max,
         'capital_social_min': capital_social_min,
         'capital_social_max': capital_social_max,
-        'cnpj_base': cursor,
+        'cnpj_base': cnpj_base,
+        'cnpj_ordem': cnpj_ordem,
+        'cnpj_dv': cnpj_dv,
         'situacao_cadastral': situacao_cadastral,
         'socio_doc': socio_doc,
         'socio_nome': socio_nome

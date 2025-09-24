@@ -162,6 +162,7 @@ def get_busca_difusa_query(tem_socios_param, somente_socios):
             AND (%(capital_social_min)s IS NULL OR e.capital_social >= %(capital_social_min)s)
             AND (%(capital_social_max)s IS NULL OR e.capital_social <= %(capital_social_max)s)
             AND (%(natureza_juridica)s IS NULL OR e.natureza_juridica = %(natureza_juridica)s)
+            AND (%(cnpj_base)s IS NULL OR (e.cnpj_base >= %(cnpj_base)s))
     ),
 
     estabelecimentos_filtrados AS (
@@ -177,14 +178,21 @@ def get_busca_difusa_query(tem_socios_param, somente_socios):
             AND (%(municipio)s IS NULL OR municipio = %(municipio)s)
             AND (%(cnae)s IS NULL OR cnae_fiscal_principal = %(cnae)s)
             AND (%(situacao_cadastral)s IS NULL OR situacao_cadastral = %(situacao_cadastral)s)
-            AND (%(cnpj_base)s IS NULL OR (cnpj_base > %(cnpj_base)s))
+            AND (
+                (
+                (%(cnpj_base)s IS NULL) OR
+                (%(cnpj_ordem)s IS NULL) OR
+                (%(cnpj_dv)s IS NULL)
+                ) OR
+                (cnpj_base, cnpj_ordem, cnpj_dv) > (%(cnpj_base)s, %(cnpj_ordem)s, %(cnpj_dv)s)
+            )
     ),
     socios_filtrados AS (
         SELECT
         cnpj_base
         FROM socios s
         WHERE
-            ( ((%(cnpj_base)s)::bpchar IS NULL) OR (s.cnpj_base > %(cnpj_base)s) )
+            ( ((%(cnpj_base)s)::bpchar IS NULL) OR (s.cnpj_base >= %(cnpj_base)s) )
             AND ( ((%(socio_doc)s)::bpchar IS NULL) OR (s.cnpj_cpf = %(socio_doc)s) )
             AND ( ((%(socio_nome)s)::bpchar IS NULL) OR (s.nome LIKE (%(socio_nome)s || '%%')) )
             ORDER BY cnpj_base

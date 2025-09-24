@@ -234,6 +234,7 @@ function updatePagination(paginacao) {
       nextButton.addEventListener('click', () => {
           tam = paginacao['resultados_paginacao'].length
           ultimo_res = paginacao['resultados_paginacao'][tam - 1]
+          cnpj = ultimo_res['cnpj']
           cnpj_base = ultimo_res['cnpj_base']
           cnpj_ordem = ultimo_res['cnpj_ordem']
           cnpj_dv = ultimo_res['cnpj_dv']
@@ -248,11 +249,11 @@ function updatePagination(paginacao) {
           }
 
           if (pathAPI.startsWith('busca_difusa')) {
-            cursor = cnpj_base
+            cursor = cnpj
           }
 
           if (pathAPI.startsWith('data')) {
-            cursor = cnpj_base + cnpj_ordem + cnpj_dv
+            cursor = cnpj
           }
 
           getPaginacao(pathAPI, cursor, queryParametros)
