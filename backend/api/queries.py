@@ -159,8 +159,8 @@ def get_busca_difusa_query(tem_socios_param, somente_socios):
         FROM empresas e
         WHERE
             (%(razao_social)s IS NULL OR e.nome_empresarial LIKE %(razao_social)s || '%%')
-            AND (e.capital_social >= COALESCE(%(capital_social_min)s, 0))
-            AND (e.capital_social <= COALESCE(%(capital_social_max)s, 999999999999999.99))
+            AND (%(capital_social_min)s IS NULL OR e.capital_social >= %(capital_social_min)s)
+            AND (%(capital_social_max)s IS NULL OR e.capital_social <= %(capital_social_max)s)
             AND (%(natureza_juridica)s IS NULL OR e.natureza_juridica = %(natureza_juridica)s)
     ),
 
@@ -171,7 +171,7 @@ def get_busca_difusa_query(tem_socios_param, somente_socios):
         cnpj_dv
         FROM estabelecimentos
         WHERE
-            (data_inicio_atividade >= COALESCE(%(data_abertura_min)s::date, '1890-01-01'))
+            (%(data_abertura_min)s IS NULL OR data_inicio_atividade >= %(data_abertura_min)s::date)
             AND (%(data_abertura_max)s IS NULL OR data_inicio_atividade <= %(data_abertura_max)s::date)
             AND (%(uf)s IS NULL OR uf = %(uf)s)
             AND (%(municipio)s IS NULL OR municipio = %(municipio)s)
@@ -229,6 +229,18 @@ SELECT row_to_json(result) FROM (
     ( ((%(cursor)s)::bpchar IS NULL) OR (cnpj_base > (%(cursor)s)::bpchar) )
     )
     ORDER BY cnpj_base ASC LIMIT 25
+) result;
+"""
+)
+
+MUNICIPIOS_QUERY = (
+"""
+SELECT row_to_json(result) FROM (
+    SELECT
+        descricao,
+        codigo
+    FROM municipios
+    ORDER BY descricao
 ) result;
 """
 )

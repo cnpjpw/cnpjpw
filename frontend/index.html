@@ -86,9 +86,11 @@
                     <div class="busca-input-group">
                         <input type="text" class="busca-input" id="uf" name="uf" placeholder="Estado(UF)" aria-label="Estado/Unidade Federativa">
                     </div>
-                    <label for="municipio">Município: </label>
+                    <label for="municipio">Município(código correspondente): </label>
                     <div class="busca-input-group">
-                        <input type="text" class="busca-input" name="municipio" id="municipio" placeholder="Município" aria-label="Municipio">
+                        <input type="text" list="municipios-list" class="busca-input" name="municipio" id="municipio" placeholder="Município(código)" aria-label="Municipio">
+                        <datalist id="municipios-list">
+                        </datalist>
                     </div>
                     <label for="cnae-principal">Cnae Principal: </label>
                     <div class="busca-input-group">

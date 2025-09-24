@@ -7,7 +7,18 @@ from math import ceil
 from time import time
 from fastapi.middleware.gzip import GZipMiddleware
 from dotenv import load_dotenv
-from queries import CNPJ_QUERY, RAZAO_QUERY, RAIZ_QUERY, DATA_ABERTURA_QUERY, COUNT_DATA_QUERY, COUNT_RAIZ_QUERY, COUNT_RAZAO_QUERY, SOCIOS_QUERY, get_busca_difusa_query
+from queries import (
+        CNPJ_QUERY,
+        RAZAO_QUERY,
+        RAIZ_QUERY,
+        DATA_ABERTURA_QUERY,
+        MUNICIPIOS_QUERY,
+        COUNT_DATA_QUERY,
+        COUNT_RAIZ_QUERY,
+        COUNT_RAZAO_QUERY,
+        SOCIOS_QUERY,
+        get_busca_difusa_query
+        )
 import unicodedata
 from datetime import datetime
 
@@ -186,6 +197,7 @@ def get_paginacao_filtros_difusos(
     - **razao_social**: filtro por razão social(atualmente fazendo o match pelo começo da string).
     - **cnae**: filtro por cnae - Sem pontuação, somente os digitos.
     - **natureza_jurídica**: filtro por natureza jurídica - Sem pontuação, somente os digitos.
+    - **municipio**: filtro por município - Somente o código númerico correspondente ao município(encontra-se em /municipios).
     - **situacao cadastral**: filtro da situacao cadastral. Passe o código numérico correspondente a situacao
     - **estado**: filtro por unidade federativa. Passe a sigla da UF.
     - **data_abertura_min**: filtro por data de abertura. Passe a data de abertura mínima no formato DD-MM-AAAA.
@@ -273,6 +285,20 @@ def get_paginacao_filtros_difusos(
         resultados = cursor.fetchall()
     resultados = [res[0] for res in resultados]
     return get_paginacao_template(resultados)
+
+
+@app.get("/municipios/")
+def get_municipios(conn=Depends(get_conn)):
+    """
+    Retorna o nome e o código de todos os municípios presentes no banco
+    """
+    with conn.cursor() as cursor:
+        cursor.execute(MUNICIPIOS_QUERY)
+        resultados = cursor.fetchall()
+    resultados = [res[0] for res in resultados]
+    return get_paginacao_template(resultados)
+
+
 
 
 @app.get("/count/data/{data}")

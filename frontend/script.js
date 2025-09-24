@@ -14,6 +14,7 @@ let queryTab = document.querySelector('#tab-razao')
 
 
 let selectElement = document.querySelector('.search-tabs')
+let municipiosList = document.querySelector('#municipios-list')
 
 selectElement.addEventListener('change', (e) => {
     tabName = e.target.selectedOptions[0].getAttribute('tab')
@@ -21,6 +22,22 @@ selectElement.addEventListener('change', (e) => {
 
 
 })
+
+fetch('https://api.cnpj.pw/municipios/')
+.then(res => res.json())
+.then(jsonMunicipios => {
+    municipios = jsonMunicipios['resultados_paginacao']
+    municipios.forEach((municipio) => {
+        opcao = document.createElement('option')
+        opcao.textContent = municipio['descricao']
+        opcao.value = municipio['codigo']
+        municipiosList.append(opcao)
+        }
+    )
+})
+
+
+
 
 /*
 cnpjTab.addEventListener('select', (e) => switchTab('cnpj'))
