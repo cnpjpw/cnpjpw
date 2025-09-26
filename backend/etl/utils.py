@@ -47,7 +47,7 @@ def pegar_primeiro_cnpj_dia(conn):
     return primeiro
 
 
-def pegar_buracos_dia(conn):
+def pegar_vagos_dia(conn):
     with conn.cursor() as cursor:
         primeiro = pegar_primeiro_cnpj_dia(conn)
         ultimo = pegar_ultimo_cnpj_inserido(conn)
