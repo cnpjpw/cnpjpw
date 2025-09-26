@@ -3,6 +3,19 @@ import psycopg
 from cnpjpw_scrapers import gerar_novos_cnpjs
 
 
+def pegar_primeiro_blocado(cnpjs, quant_adj=120):
+    distancias = [abs(int(cnpjs[i]) - int(cnpjs[i - 1])) for i in range(1, len(cnpjs))]
+    acc = 0
+    for i in range(len(distancias)):
+        if acc == (quant_adj - 1):
+            return cnpjs[i - acc]
+        if distancias[i] > 3:
+            acc = 0
+            continue
+        acc += 1
+    return None
+
+
 def pegar_ultimo_cnpj_inserido(conn):
     with conn.cursor() as cursor:
         query_data = (
@@ -11,11 +24,11 @@ def pegar_ultimo_cnpj_inserido(conn):
         data = cursor.execute(query_data).fetchone()[0]
         query_cnpj = (
                 "SELECT cnpj_base AS cnpj " +
-                "FROM estabelecimentos where data_inicio_atividade = (%s)::date " +
+                "FROM estabelecimentos where data_inicio_atividade = (%s)::date AND cnpj_ordem='0001' " +
                 "ORDER BY cnpj_base DESC LIMIT 1"
                 )
-        cnpj = cursor.execute(query_cnpj, (data, )).fetchone()[0]
-    return cnpj
+        ultimo = cursor.execute(query_cnpj, (data, )).fetchone()[0]
+    return ultimo
 
 
 def pegar_primeiro_cnpj_dia(conn):
@@ -25,9 +38,12 @@ def pegar_primeiro_cnpj_dia(conn):
         )
         data = cursor.execute(query_data).fetchone()[0]
         query_primeiro = (
-            "SELECT cnpj_base FROM estabelecimentos WHERE data_inicio_atividade = (%s)::date ORDER BY cnpj_base ASC LIMIT 1"
+            "SELECT cnpj_base FROM estabelecimentos WHERE data_inicio_atividade = (%s)::date AND cnpj_ordem='0001' ORDER BY cnpj_base ASC"
         )
-        primeiro = cursor.execute(query_primeiro, (data, )).fetchone()[0]
+        cnpjs = cursor.execute(query_primeiro, (data, )).fetchall()
+        cnpjs = [cnpj[0] for cnpj in cnpjs]
+
+    primeiro = pegar_primeiro_blocado(cnpjs)
     return primeiro
 
 
@@ -61,5 +77,4 @@ def acrescentar_mes_json(path, mes, ano):
             'ano': ano + (mes // 12)
         }
         json.dump(data_dic, f)
-
 
