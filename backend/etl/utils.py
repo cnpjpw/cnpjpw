@@ -70,6 +70,17 @@ def ler_data_json(path):
     return (data_pasta['mes'], data_pasta['ano'])
 
 
+def pegar_matrizes_banco(primeiro, ultimo, conn):
+    with conn.cursor() as cursor:
+        query_cnpjs = (
+            "SELECT cnpj_base || cnpj_ordem || cnpj_dv FROM estabelecimentos WHERE " +
+            "cnpj_base >= (%s)::bpchar AND cnpj_base <= (%s)::bpchar AND cnpj_ordem = '0001' ORDER BY cnpj_base"
+            )
+        res = cursor.execute(query_cnpjs, (primeiro, ultimo)).fetchall()
+    cnpjs = [r[0] for r in res]
+    return cnpjs
+
+
 def acrescentar_mes_json(path, mes, ano):
     with open(path, "w") as f:
         data_dic = {
