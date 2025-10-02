@@ -90,10 +90,10 @@ def polling_carga_mensal(bd_nome, bd_usuario, path_raiz, path_script, logger):
     with psycopg.connect(dbname=bd_nome, user=bd_usuario) as conn:
         carregar_arquivos_bd(AUXILIARES, PRINCIPAIS, path_dados, ARQ_TABELA_DIC, conn, True, logger)
 
-    mes_antigo, ano_antigo = gerar_nova_data(mes, ano, -3)
+    mes_antigo, ano_antigo = gerar_nova_data(mes, ano, -2)
     path_pasta_antiga = path_raiz / f'{str(mes_antigo).zfill(2)}-{ano_antigo}'
     if os.path.exists(path_pasta_antiga):
-        logger.info('Removendo diretório antigo(3 meses atrás)')
+        logger.info('Removendo diretório antigo(2 meses atrás)')
         shutil.rmtree(path_pasta_antiga)
 
     logger.info('Modificando Mês de Download dos Dados')
