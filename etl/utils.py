@@ -3,6 +3,11 @@ import psycopg
 from cnpjpw_scrapers import gerar_novos_cnpjs
 
 
+def gerar_nova_data(mes, ano, passo):
+    r, q = divmod((mes - 1) + passo, 12)
+    return (q + 1, ano + r)
+
+
 def pegar_primeiro_blocado(cnpjs, quant_adj=120):
     distancias = [abs(int(cnpjs[i]) - int(cnpjs[i - 1])) for i in range(1, len(cnpjs))]
     acc = 0

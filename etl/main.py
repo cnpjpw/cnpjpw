@@ -5,12 +5,14 @@ from parsing import extrair_zips
 from parsing import parse_csv_tabela
 from load import *
 import pathlib
+import shutil
 import json
 import psycopg
 from tqdm import tqdm
 import logging
 from utils import ler_data_json
 from utils import acrescentar_mes_json
+from utils import gerar_nova_data
 
 
 def tratar_dados_abertos(nomes_csv, tipos_indices, path_dados):
@@ -87,6 +89,12 @@ def polling_carga_mensal(bd_nome, bd_usuario, path_raiz, path_script, logger):
     logger.info('Iniciando Rotinas de Carga em BD')
     with psycopg.connect(dbname=bd_nome, user=bd_usuario) as conn:
         carregar_arquivos_bd(AUXILIARES, PRINCIPAIS, path_dados, ARQ_TABELA_DIC, conn, True, logger)
+
+    mes_antigo, ano_antigo = gerar_nova_data(mes, ano, -3)
+    path_pasta_antiga = path_raiz / f'{str(mes_antigo).zfill(2)}-{ano_antigo}'
+    if os.path.exists(path_pasta_antiga):
+        logger.info('Removendo diretório antigo(3 meses atrás)')
+        shutil.rmtree(path_pasta_antiga)
 
     logger.info('Modificando Mês de Download dos Dados')
     acrescentar_mes_json(path_json_data, mes, ano)
