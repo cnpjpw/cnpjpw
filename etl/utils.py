@@ -6,39 +6,55 @@ from cnpjpw_scrapers import gerar_novos_cnpjs
 def pegar_primeiro_blocado(cnpjs, quant_adj=120):
     distancias = [abs(int(cnpjs[i]) - int(cnpjs[i - 1])) for i in range(1, len(cnpjs))]
     acc = 0
+    max_index = 0
+    max_acc = 0
     for i in range(len(distancias)):
-        if acc == (quant_adj - 1):
-            return cnpjs[i - acc]
         if distancias[i] > 3:
+            max_acc = acc if acc > max_acc else max_acc
+            max_index = i - 1
             acc = 0
             continue
         acc += 1
-    return None
+        if acc == quant_adj:
+            return cnpjs[(i + 1) - acc]
+    if max_acc == 0:
+        return cnpjs[-1]
+    return cnpjs[(max_index + 1) - max_acc]
 
 
 def pegar_ultimo_cnpj_inserido(conn):
     with conn.cursor() as cursor:
         query_data = (
-            "SELECT data_inicio_atividade FROM estabelecimentos ORDER BY data_inicio_atividade DESC LIMIT 1"
+            "SELECT data_inicio_atividade FROM estabelecimentos " +
+            "ORDER BY data_inicio_atividade DESC LIMIT 1"
         )
         data = cursor.execute(query_data).fetchone()[0]
         query_cnpj = (
-                "SELECT cnpj_base AS cnpj " +
-                "FROM estabelecimentos where data_inicio_atividade = (%s)::date AND cnpj_ordem='0001' " +
-                "ORDER BY cnpj_base DESC LIMIT 1"
+                "SELECT cnpj_base FROM estabelecimentos " +
+                "WHERE data_inicio_atividade = (%s)::date " +
+                "AND cnpj_ordem='0001' " +
+                "ORDER BY cnpj_base DESC"
                 )
-        ultimo = cursor.execute(query_cnpj, (data, )).fetchone()[0]
+        cnpjs = cursor.execute(query_cnpj, (data, )).fetchall()
+        cnpjs = [cnpj[0] for cnpj in cnpjs]
+
+    ultimo = pegar_primeiro_blocado(cnpjs)
     return ultimo
 
 
 def pegar_primeiro_cnpj_dia(conn):
     with conn.cursor() as cursor:
         query_data = (
-            "SELECT data_inicio_atividade - INTERVAL '1 day' FROM estabelecimentos ORDER BY data_inicio_atividade DESC LIMIT 1"
+            "SELECT data_inicio_atividade - INTERVAL '1 day' " +
+            "FROM estabelecimentos " +
+            "ORDER BY data_inicio_atividade DESC LIMIT 1"
         )
         data = cursor.execute(query_data).fetchone()[0]
         query_primeiro = (
-            "SELECT cnpj_base FROM estabelecimentos WHERE data_inicio_atividade = (%s)::date AND cnpj_ordem='0001' ORDER BY cnpj_base ASC"
+            "SELECT cnpj_base FROM estabelecimentos " +
+            "WHERE data_inicio_atividade = (%s)::date " +
+            "AND cnpj_ordem='0001' " +
+            "ORDER BY cnpj_base ASC"
         )
         cnpjs = cursor.execute(query_primeiro, (data, )).fetchall()
         cnpjs = [cnpj[0] for cnpj in cnpjs]
