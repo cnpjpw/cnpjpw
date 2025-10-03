@@ -56,7 +56,11 @@ def get_conn():
         conn.close()
 
 
-@app.get("/cnpj/{cnpj}", status_code=200)
+@app.get("/cnpj/{cnpj}",
+         response_description="Página contendo informações do estabelecimento correspondente ao CNPJ passado",
+         summary="Retorna estabelecimento com CNPJ indicado",
+         status_code=200
+         )
 def get_cnpj(cnpj: str, response: Response, conn=Depends(get_conn)):
     cnpj_base = cnpj[:8]
     cnpj_ordem = cnpj[8:12]
@@ -70,7 +74,11 @@ def get_cnpj(cnpj: str, response: Response, conn=Depends(get_conn)):
     return res_json[0]
 
 
-@app.get("/razao_social/{razao_social}")
+@app.get("/razao_social/{razao_social}",
+         response_description="Página de resultados contendo lista de empresas abertas contendo a razão social indicada",
+         summary="Retorna página com lista de empresas contendo a razão indicada",
+         status_code=200
+         )
 def get_paginacao_razao_social(razao_social: str, cursor: Optional[str] = None, conn=Depends(get_conn)):
     """
     Consulta estabelecimentos a partir do nome empresarial(razão social):
@@ -90,7 +98,11 @@ def get_paginacao_razao_social(razao_social: str, cursor: Optional[str] = None, 
     return get_paginacao_template(resultados)
 
 
-@app.get("/cnpj_base/{cnpj_base}")
+@app.get("/cnpj_base/{cnpj_base}",
+         response_description="Página de resultados contendo lista de estabelecimentos abertos de certa empresa referente ao cnpj_base passado",
+         summary="Retorna página com lista de estabelecimentos da empresa correspondente ao cnpj básico passado",
+         status_code=200
+         )
 def get_paginacao_raiz(cnpj_base: str, cursor: Optional[str] = None, conn=Depends(get_conn)):
     """
     Consulta matrizes e filias a partir da base/raiz(8 primeiros caracteres) do CNPJ:
@@ -112,7 +124,11 @@ def get_paginacao_raiz(cnpj_base: str, cursor: Optional[str] = None, conn=Depend
     return get_paginacao_template(resultados)
 
 
-@app.get("/data/{data}")
+@app.get("/data/{data}",
+         response_description="página de resultados contendo lista de estabelecimentos abertos na data passada",
+         summary="Retorna página com lista de estabelecimentos abertos na data",
+         status_code=200
+         )
 def get_paginacao_data(data: str, cursor: Optional[str] = None, conn=Depends(get_conn)):
     """
     Consulta CNPJ's abertos em uma certa data:
@@ -148,12 +164,20 @@ def get_paginacao_data(data: str, cursor: Optional[str] = None, conn=Depends(get
     return get_paginacao_template(resultados)
 
 
-@app.get("/socio/{doc}")
+@app.get("/socio/{doc}",
+         response_description="página de resultados contendo lista dos socios com documento(CPF/CNPJ) passado",
+         summary="Retorna página com lista de socios que batem com o documento passado",
+         status_code=200
+         )
 def get_paginacao_socio(doc: str, cursor: Optional[str] = None, conn=Depends(get_conn)):
     """
     Consulta sócios com o documento informado:
 
     - **doc**: CNPJ se o sócio for PJ e CPF se for PF. Sem pontuação, somente digitos.
+        OBS: Como só temos acesso ao CPF mascarado(não acontece com o CNPJ) no formato "***000000**" na base de dados, só podemos então
+        levar em consideração os dígitos centrais para o match, então uma busca por 00000000000, por exemplo, na verdade considera 1000 possibilidades:
+                                                        [000-999]000000-xx
+        Mas, de toda forma, se o sócio estiver no banco com o CPF indicado aparecerá na paginação(junto com alguns falso-positivos).
     - **cursor**: se especificado, serão exibidos apenas resultados após o cnpj_base passado ao paramêtro 'cursor'.
 
     exibindo de 25 em 25 resultados atualmente.
@@ -177,7 +201,11 @@ def get_paginacao_socio(doc: str, cursor: Optional[str] = None, conn=Depends(get
     return get_paginacao_template(resultados)
 
 
-@app.get("/busca_difusa/")
+@app.get("/busca_difusa/",
+         response_description="página de resultados contendo lista dos estabelecimentos filtrados",
+         summary="Retorna página com lista de estabelecimentos que batem com os filtros",
+         status_code=200
+         )
 def get_paginacao_filtros_difusos(
         razao_social: Optional[str] = None,
         cnae: Optional[int] = None,
@@ -304,7 +332,11 @@ def get_paginacao_filtros_difusos(
     return get_paginacao_template(resultados, limite=250)
 
 
-@app.get("/municipios/")
+@app.get("/municipios/",
+         response_description="descrição(nome) e código de todos municípios",
+         summary="Retorna todos municípios",
+         status_code=200
+         )
 def get_municipios(conn=Depends(get_conn)):
     """
     Retorna o nome e o código de todos os municípios presentes no banco
@@ -316,7 +348,11 @@ def get_municipios(conn=Depends(get_conn)):
     return {'resultados': resultados}
 
 
-@app.get("/cnaes/")
+@app.get("/cnaes/",
+         response_description="descrição e código de todos cnaes",
+         summary="Retorna todos cnaes",
+         status_code=200
+         )
 def get_cnaes(conn=Depends(get_conn)):
     """
     Retorna a descrição e o código de todos os cnaes presentes no banco
@@ -328,7 +364,11 @@ def get_cnaes(conn=Depends(get_conn)):
     return {'resultados': resultados}
 
 
-@app.get("/naturezas/")
+@app.get("/naturezas/",
+         response_description="descrição e código de todas naturezas jurídicas",
+         summary="Retorna todas naturezas jurídicas",
+         status_code=200
+         )
 def get_cnaes(conn=Depends(get_conn)):
     """
     Retorna a descrição e o código de todos as naturezas juridicas presentes no banco
@@ -340,7 +380,11 @@ def get_cnaes(conn=Depends(get_conn)):
     return {'resultados': resultados}
 
 
-@app.get("/count/data/{data}")
+@app.get("/count/data/{data}",
+         response_description="Quantidade de estabelecimentos abertos em certa data",
+         summary="Retorna quantidade de empresas abertas na data",
+         status_code=200
+         )
 def get_count_data(data: str, conn=Depends(get_conn)):
     """
     Retorna a quantidade de CNPJ's abertos em certa data:
@@ -353,7 +397,11 @@ def get_count_data(data: str, conn=Depends(get_conn)):
     return {'total': total}
 
 
-@app.get("/count/cnpj_base/{cnpj_base}")
+@app.get("/count/cnpj_base/{cnpj_base}",
+         response_description="Quantidade de estabelecimentos de certa empresa",
+         summary="Retorna quantidade de estabelecimentos da empresa",
+         status_code=200
+         )
 def get_count_raiz(cnpj_base: str, conn=Depends(get_conn)):
     """
     Consulta total de matrizes e filias a partir da base/raiz(8 primeiros caracteres) do CNPJ:
@@ -365,8 +413,12 @@ def get_count_raiz(cnpj_base: str, conn=Depends(get_conn)):
     return {'total': total}
 
 
-@app.get("/count/razao_social/{razao_social}")
-def get_paginacao_razao_social(razao_social: str, conn=Depends(get_conn)):
+@app.get("/count/razao_social/{razao_social}",
+         response_description="Quantidade de empresas com certa razão social",
+         summary="Retorna quantidade de empresas contendo a razão social indicada",
+         status_code=200
+         )
+def get_count_razao(razao_social: str, conn=Depends(get_conn)):
     """
     Consulta total de matrizes e filias a partir do nome empresarial(razão social):
     - **razao_social**: filtro por termo presente no começo(somente no começo por enquanto) da razão social
