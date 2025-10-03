@@ -23,12 +23,135 @@ from queries import (
         )
 import unicodedata
 from datetime import datetime
+from pydantic import BaseModel
+from typing import List
 
 load_dotenv()
 app = FastAPI()
 app.add_middleware(GZipMiddleware, minimum_size=1000, compresslevel=5)
 bd_nome = os.getenv('BD_NOME')
 bd_usuario = os.getenv('BD_USUARIO')
+
+
+class Count(BaseModel):
+    total: int
+
+class CnaesFiscaisSecundario(BaseModel):
+    codigo: int
+    descricao: str
+
+
+class Socio(BaseModel):
+    identificador_entidade: int
+    nome: str
+    cnpj_cpf: str
+    qualificacao_descricao: str
+    qualificacao_codigo: int
+    data_entrada_sociedade: str
+    pais: str | None = None
+    cpf_representante: str | None = None
+    nome_representante: str | None = None
+    qualificacao_representante_codigo: int
+    qualificacao_representante_descricao: str
+    faixa_etaria_codigo: int
+    faixa_etaria_descricao: str
+    identificador_entidade_descricao: str
+
+
+class Estabelecimento(BaseModel):
+    cnpj_base: str
+    nome_empresarial: str | None = None
+    natureza_juridica: int
+    qualificacao_responsavel: int
+    capital_social: float
+    porte_empresa: int
+    ente_federativo: str | None = None
+    cnpj_ordem: str
+    cnpj_dv: str
+    identificador: int
+    nome_fantasia: str | None = None
+    situacao_cadastral: int
+    data_situacao_cadastral: str
+    motivo_situacao_cadastral: int
+    nome_cidade_exterior: str | None = None
+    pais: str | None = None
+    data_inicio_atividade: str
+    cnae_fiscal_principal: int
+    cnaes_fiscais_secundarios: List[CnaesFiscaisSecundario]
+    tipo_logradouro: str
+    logradouro: str
+    numero: str
+    complemento: str
+    bairro: str
+    cep: str
+    uf: str
+    municipio: int
+    ddd1: str | None = None
+    telefone_1: str | None = None
+    ddd2: str | None = None
+    telefone_2: str | None = None
+    fax: str | None = None
+    ddd_fax: str | None = None
+    correio_eletronico: str | None = None
+    situacao_especial: str | None = None
+    data_situacao_especial: str | None = None
+    opcao_simples: bool
+    data_opcao_simples: str
+    data_exclusao_simples: str
+    opcao_mei: bool
+    data_opcao_mei: str
+    data_exclusao_mei: str
+    natureza_juridica_desc: str
+    motivo_situacao_desc: str
+    municipio_desc: str
+    pais_desc: str | None = None
+    cnae_fiscal_principal_descricao: str
+    identificador_descricao: str
+    porte_empresa_descricao: str
+    situacao_cadastral_descricao: str
+    socios: List[Socio]
+
+
+class ItemAuxiliar(BaseModel):
+    descricao: str
+    codigo: int
+
+
+class Auxiliares(BaseModel):
+    resultados: List[ItemAuxiliar]
+
+
+class EstabelecimentoPaginacaoItem(BaseModel):
+    cnpj_base: str
+    cnpj_ordem: str
+    cnpj_dv: str
+    cnpj: str
+    nome_empresarial: str | None = None
+
+
+class EmpresaPaginacaoItem(BaseModel):
+    cnpj_base: str
+    nome_empresarial: str | None = None
+
+
+class SocioPaginacaoItem(BaseModel):
+    cnpj_base: str
+    nome: str
+    cnpj_cpf: str
+
+
+class PaginacaoEstabelecimentos(BaseModel):
+    limite_resultados_paginacao: int
+    resultados_paginacao: List[EstabelecimentoPaginacaoItem]
+
+class PaginacaoEmpresas(BaseModel):
+    limite_resultados_paginacao: int
+    resultados_paginacao: List[EmpresaPaginacaoItem]
+
+
+class PaginacaoSocios(BaseModel):
+    limite_resultados_paginacao: int
+    resultados_paginacao: List[SocioPaginacaoItem]
 
 
 def get_paginacao_template(pagina_atual, limite=25):
@@ -59,6 +182,7 @@ def get_conn():
 @app.get("/cnpj/{cnpj}",
          response_description="Página contendo informações do estabelecimento correspondente ao CNPJ passado",
          summary="Retorna estabelecimento com CNPJ indicado",
+         response_model=Estabelecimento,
          status_code=200
          )
 def get_cnpj(cnpj: str, response: Response, conn=Depends(get_conn)):
@@ -77,6 +201,7 @@ def get_cnpj(cnpj: str, response: Response, conn=Depends(get_conn)):
 @app.get("/razao_social/{razao_social}",
          response_description="Página de resultados contendo lista de empresas abertas contendo a razão social indicada",
          summary="Retorna página com lista de empresas contendo a razão indicada",
+         response_model=PaginacaoEmpresas,
          status_code=200
          )
 def get_paginacao_razao_social(razao_social: str, cursor: Optional[str] = None, conn=Depends(get_conn)):
@@ -101,6 +226,7 @@ def get_paginacao_razao_social(razao_social: str, cursor: Optional[str] = None, 
 @app.get("/cnpj_base/{cnpj_base}",
          response_description="Página de resultados contendo lista de estabelecimentos abertos de certa empresa referente ao cnpj_base passado",
          summary="Retorna página com lista de estabelecimentos da empresa correspondente ao cnpj básico passado",
+         response_model=PaginacaoEstabelecimentos,
          status_code=200
          )
 def get_paginacao_raiz(cnpj_base: str, cursor: Optional[str] = None, conn=Depends(get_conn)):
@@ -127,6 +253,7 @@ def get_paginacao_raiz(cnpj_base: str, cursor: Optional[str] = None, conn=Depend
 @app.get("/data/{data}",
          response_description="página de resultados contendo lista de estabelecimentos abertos na data passada",
          summary="Retorna página com lista de estabelecimentos abertos na data",
+         response_model=PaginacaoEstabelecimentos,
          status_code=200
          )
 def get_paginacao_data(data: str, cursor: Optional[str] = None, conn=Depends(get_conn)):
@@ -167,6 +294,7 @@ def get_paginacao_data(data: str, cursor: Optional[str] = None, conn=Depends(get
 @app.get("/socio/{doc}",
          response_description="página de resultados contendo lista dos socios com documento(CPF/CNPJ) passado",
          summary="Retorna página com lista de socios que batem com o documento passado",
+         response_model=PaginacaoSocios,
          status_code=200
          )
 def get_paginacao_socio(doc: str, cursor: Optional[str] = None, conn=Depends(get_conn)):
@@ -204,6 +332,7 @@ def get_paginacao_socio(doc: str, cursor: Optional[str] = None, conn=Depends(get
 @app.get("/busca_difusa/",
          response_description="página de resultados contendo lista dos estabelecimentos filtrados",
          summary="Retorna página com lista de estabelecimentos que batem com os filtros",
+         response_model=PaginacaoEstabelecimentos,
          status_code=200
          )
 def get_paginacao_filtros_difusos(
@@ -335,6 +464,7 @@ def get_paginacao_filtros_difusos(
 @app.get("/municipios/",
          response_description="descrição(nome) e código de todos municípios",
          summary="Retorna todos municípios",
+         response_model=Auxiliares,
          status_code=200
          )
 def get_municipios(conn=Depends(get_conn)):
@@ -351,6 +481,7 @@ def get_municipios(conn=Depends(get_conn)):
 @app.get("/cnaes/",
          response_description="descrição e código de todos cnaes",
          summary="Retorna todos cnaes",
+         response_model=Auxiliares,
          status_code=200
          )
 def get_cnaes(conn=Depends(get_conn)):
@@ -367,6 +498,7 @@ def get_cnaes(conn=Depends(get_conn)):
 @app.get("/naturezas/",
          response_description="descrição e código de todas naturezas jurídicas",
          summary="Retorna todas naturezas jurídicas",
+         response_model=Auxiliares,
          status_code=200
          )
 def get_cnaes(conn=Depends(get_conn)):
@@ -383,6 +515,7 @@ def get_cnaes(conn=Depends(get_conn)):
 @app.get("/count/data/{data}",
          response_description="Quantidade de estabelecimentos abertos em certa data",
          summary="Retorna quantidade de empresas abertas na data",
+         response_model=Count,
          status_code=200
          )
 def get_count_data(data: str, conn=Depends(get_conn)):
@@ -400,6 +533,7 @@ def get_count_data(data: str, conn=Depends(get_conn)):
 @app.get("/count/cnpj_base/{cnpj_base}",
          response_description="Quantidade de estabelecimentos de certa empresa",
          summary="Retorna quantidade de estabelecimentos da empresa",
+         response_model=Count,
          status_code=200
          )
 def get_count_raiz(cnpj_base: str, conn=Depends(get_conn)):
@@ -416,6 +550,7 @@ def get_count_raiz(cnpj_base: str, conn=Depends(get_conn)):
 @app.get("/count/razao_social/{razao_social}",
          response_description="Quantidade de empresas com certa razão social",
          summary="Retorna quantidade de empresas contendo a razão social indicada",
+         response_model=Count,
          status_code=200
          )
 def get_count_razao(razao_social: str, conn=Depends(get_conn)):
