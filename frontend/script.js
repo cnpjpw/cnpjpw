@@ -113,7 +113,7 @@ async function searchByQuery() {
     situacao_cadastral : document.getElementById('situacao-cadastral').value,
     capital_social_min : document.getElementById('capital-social-min').value,
     capital_social_max : document.getElementById('capital-social-max').value,
-    estado : document.getElementById('uf').value,
+    uf: document.getElementById('uf').value,
     municipio : document.getElementById('municipio').value,
     cnae : document.getElementById('cnae').value,
     natureza_juridica : document.getElementById('natureza-juridica').value,

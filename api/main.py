@@ -183,7 +183,7 @@ def get_paginacao_filtros_difusos(
         cnae: Optional[int] = None,
         natureza_juridica: Optional[int] = None,
         situacao_cadastral: Optional[int] = None,
-        estado: Optional[str] = None,
+        uf: Optional[str] = None,
         municipio: Optional[int] = None,
         data_abertura_min: Optional[str] = None,
         data_abertura_max: Optional[str] = None,
@@ -202,7 +202,7 @@ def get_paginacao_filtros_difusos(
     - **natureza_jurídica**: filtro por natureza jurídica - Sem pontuação, somente os digitos.
     - **municipio**: filtro por município - Somente o código númerico correspondente ao município(encontra-se em /municipios).
     - **situacao cadastral**: filtro da situacao cadastral. Passe o código numérico correspondente a situacao
-    - **estado**: filtro por unidade federativa. Passe a sigla da UF.
+    - **uf**: filtro por unidade federativa. Passe a sigla da UF.
     - **data_abertura_min**: filtro por data de abertura. Passe a data de abertura mínima no formato DD-MM-AAAA.
     - **data_abertura_max**: filtro por data de abertura. Passe a data de abertura máxima no formato DD-MM-AAAA.
     - **capital_social_min**: filtro por capital social. Passe o capital social mínimo como float(com ponto separando a parte decimal, como 1000.50).
@@ -229,7 +229,7 @@ def get_paginacao_filtros_difusos(
         razao_social,
         cnae,
         natureza_juridica,
-        estado,
+        uf,
         municipio,
         data_abertura_min,
         data_abertura_max,
@@ -282,7 +282,7 @@ def get_paginacao_filtros_difusos(
         'cnae': cnae,
         'natureza_juridica': natureza_juridica,
         'razao_social': razao_social,
-        'uf': estado,
+        'uf': uf,
         'municipio': municipio,
         'data_abertura_min': data_abertura_min,
         'data_abertura_max': data_abertura_max,
