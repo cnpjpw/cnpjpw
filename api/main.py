@@ -301,10 +301,10 @@ def get_paginacao_socio(doc: str, cursor: Optional[str] = None, conn=Depends(get
     """
     Consulta sócios com o documento informado:
 
-    - **doc**: CNPJ se o sócio for PJ e CPF se for PF. Sem pontuação, somente digitos.
-        OBS: Como só temos acesso ao CPF mascarado(não acontece com o CNPJ) no formato "***000000**" na base de dados, só podemos então
-        levar em consideração os dígitos centrais para o match, então uma busca por 00000000000, por exemplo, na verdade considera 1000 possibilidades:
-                                                        [000-999]000000-xx
+    - **doc**: CNPJ se o sócio for PJ e CPF se for PF. Sem pontuação, somente digitos.\n
+        OBS: Como só temos acesso ao CPF mascarado(não acontece com o CNPJ) no formato "\*\*\*000000\*\*" na base de dados, só podemos então
+        levar em consideração os dígitos centrais para o match, então uma busca por 00000000000, por exemplo, na verdade considera 1000 possibilidades:\n
+                                                        [000-999]000000-xx\n
         Mas, de toda forma, se o sócio estiver no banco com o CPF indicado aparecerá na paginação(junto com alguns falso-positivos).
     - **cursor**: se especificado, serão exibidos apenas resultados após o cnpj_base passado ao paramêtro 'cursor'.
 
