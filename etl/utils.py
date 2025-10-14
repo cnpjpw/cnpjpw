@@ -7,21 +7,19 @@ def gerar_nova_data(mes, ano, passo):
     q, r = divmod((mes - 1) + passo, 12)
     return (r + 1, ano + q)
 
-
-def pegar_primeiro_blocado(cnpjs, quant_adjacencias_min=120, max_dist_adjacencias=3):
+def pegar_primeiro_blocado(cnpjs, quant_adjacencias_min=120, max_dist_adjacentes=3):
     if len(cnpjs) <= quant_adjacencias_min:
         return cnpjs[-1]
 
-    distancias = [abs(int(cnpjs[i]) - int(cnpjs[i - 1])) for i in range(1, len(cnpjs))]
     acc_adjacencias = 0
-    for index_dist, dist in enumerate(distancias):
-        if dist > max_dist_adjacencias:
+    for i in range(1, len(cnpjs)):
+        distancia = abs(int(cnpjs[i]) - int(cnpjs[i - 1]))
+        if distancia > max_dist_adjacentes:
             acc_adjacencias = 0
             continue
         acc_adjacencias += 1
         if acc_adjacencias == quant_adjacencias_min:
-            index_cnpj = index_dist + 1
-            return cnpjs[index_cnpj - acc_adjacencias]
+            return cnpjs[i - acc_adjacencias]
     return cnpjs[-1]
 
 
