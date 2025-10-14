@@ -14,18 +14,14 @@ def pegar_primeiro_blocado(cnpjs, quant_adjacencias_min=120, max_dist_adjacencia
 
     distancias = [abs(int(cnpjs[i]) - int(cnpjs[i - 1])) for i in range(1, len(cnpjs))]
     acc_adjacencias = 0
-    max_index_cnpjs = 0
-    max_acc_adjacencias = 0
-    for i in range(len(distancias)):
-        if acc_adjacencias > max_acc_adjacencias:
-            max_acc_adjacencias = acc_adjacencias
-            max_index_cnpjs = i
-        if distancias[i] > max_dist_adjacencias:
+    for index_dist, dist in enumerate(distancias):
+        if dist > max_dist_adjacencias:
             acc_adjacencias = 0
             continue
         acc_adjacencias += 1
         if acc_adjacencias == quant_adjacencias_min:
-            return cnpjs[(i + 1) - acc_adjacencias]
+            index_cnpj = index_dist + 1
+            return cnpjs[index_cnpj - acc_adjacencias]
     return cnpjs[-1]
 
 
