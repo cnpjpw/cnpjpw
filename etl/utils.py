@@ -4,8 +4,8 @@ from cnpjpw_scrapers import gerar_novos_cnpjs
 
 
 def gerar_nova_data(mes, ano, passo):
-    r, q = divmod((mes - 1) + passo, 12)
-    return (q + 1, ano + r)
+    q, r = divmod((mes - 1) + passo, 12)
+    return (r + 1, ano + q)
 
 
 def pegar_primeiro_blocado(cnpjs, quant_adj=120):
@@ -91,6 +91,16 @@ def ler_data_json(path):
     return (data_pasta['mes'], data_pasta['ano'])
 
 
+def acrescentar_mes_json(path, mes, ano):
+    mes, ano = gerar_nova_data(mes, ano, 1)
+    with open(path, "w") as f:
+        data_dic = {
+            'mes': mes,
+            'ano': ano
+        }
+        json.dump(data_dic, f)
+
+
 def pegar_matrizes_banco(primeiro, ultimo, conn):
     with conn.cursor() as cursor:
         query_cnpjs = (
@@ -101,12 +111,4 @@ def pegar_matrizes_banco(primeiro, ultimo, conn):
     cnpjs = [r[0] for r in res]
     return cnpjs
 
-
-def acrescentar_mes_json(path, mes, ano):
-    with open(path, "w") as f:
-        data_dic = {
-            'mes': (mes % 12) + 1,
-            'ano': ano + (mes // 12)
-        }
-        json.dump(data_dic, f)
 
