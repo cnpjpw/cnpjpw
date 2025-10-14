@@ -8,23 +8,25 @@ def gerar_nova_data(mes, ano, passo):
     return (r + 1, ano + q)
 
 
-def pegar_primeiro_blocado(cnpjs, quant_adj=120):
-    distancias = [abs(int(cnpjs[i]) - int(cnpjs[i - 1])) for i in range(1, len(cnpjs))]
-    acc = 0
-    max_index = 0
-    max_acc = 0
-    for i in range(len(distancias)):
-        if distancias[i] > 3:
-            max_acc = acc if acc > max_acc else max_acc
-            max_index = i - 1
-            acc = 0
-            continue
-        acc += 1
-        if acc == quant_adj:
-            return cnpjs[(i + 1) - acc]
-    if max_acc == 0:
+def pegar_primeiro_blocado(cnpjs, quant_adjacencias_min=120, max_dist_adjacencias=3):
+    if len(cnpjs) <= quant_adjacencias_min:
         return cnpjs[-1]
-    return cnpjs[(max_index + 1) - max_acc]
+
+    distancias = [abs(int(cnpjs[i]) - int(cnpjs[i - 1])) for i in range(1, len(cnpjs))]
+    acc_adjacencias = 0
+    max_index_cnpjs = 0
+    max_acc_adjacencias = 0
+    for i in range(len(distancias)):
+        if acc_adjacencias > max_acc_adjacencias:
+            max_acc_adjacencias = acc_adjacencias
+            max_index_cnpjs = i
+        if distancias[i] > max_dist_adjacencias:
+            acc_adjacencias = 0
+            continue
+        acc_adjacencias += 1
+        if acc_adjacencias == quant_adjacencias_min:
+            return cnpjs[(i + 1) - acc_adjacencias]
+    return cnpjs[-1]
 
 
 def pegar_ultimo_cnpj_inserido(conn):
