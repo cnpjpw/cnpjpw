@@ -1,6 +1,6 @@
 import os
 from dotenv import load_dotenv
-from download import download_cnpj_zips
+from download import download_cnpj_zips, verificar_existencia_pasta
 from parsing import extrair_zips
 from parsing import parse_csv_tabela
 from load import *
@@ -13,6 +13,7 @@ import logging
 from utils import ler_data_json
 from utils import acrescentar_mes_json
 from utils import gerar_nova_data
+from datetime import datetime, timezone, timedelta
 
 
 def tratar_dados_abertos(nomes_csv, tipos_indices, path_dados):
@@ -66,11 +67,22 @@ def carregar_arquivos_bd(auxiliares, principais, path_dados, arq_tabela_dic, con
 
 
 def polling_carga_mensal(bd_nome, bd_usuario, path_raiz, path_script, logger):
-    logger.info('Carregando Variáveis e Configurações')
-    from config import NAO_NUMERADOS, NUMERADOS, AUXILIARES, PRINCIPAIS, TIPOS_INDICES, ARQ_TABELA_DIC
-
     path_json_data = path_script / "data_pasta.json"
     mes, ano = ler_data_json(path_json_data)
+
+    data_atual = datetime.now(tz=timezone(timedelta(hours=-3)))
+    delta_meses = (data_atual.year * 12 + data_atual.month) - (ano * 12 + mes)
+    if delta_meses < 0:
+        return
+
+    logger.info(f'Verificando Existência Pasta {ano}-{str(mes).zfill(2)}')
+    existencia_pasta = verificar_existencia_pasta(ano, mes)
+    if not existencia_pasta:
+        return
+
+    logger.info('Carregando Variáveis de Configuração')
+    from config import NAO_NUMERADOS, NUMERADOS, AUXILIARES, PRINCIPAIS, TIPOS_INDICES, ARQ_TABELA_DIC
+
     path_dados = path_raiz / f'{str(mes).zfill(2)}-{ano}'
 
     logger.info('Criando diretórios(se não existirem)')
