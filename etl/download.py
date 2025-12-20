@@ -58,6 +58,16 @@ def distribuir_arquivos_particoes(arquivos_tamanhos: dict, num_threads):
     return particoes
 
 
+def verificar_existencia_pasta(ano, mes):
+    LINK_BASE = 'https://arquivos.receitafederal.gov.br/dados/cnpj/dados_abertos_cnpj/'
+    URL_PASTA = LINK_BASE + str(ano) + '-' + str(mes).zfill(2) + '/'
+    ULTIMA_MODIFICACAO_TEMPLATE = "%a, %d %b %Y %H:%M:%S %Z"
+    res = requests.get(URL_PASTA)
+    if res.status_code == 404:
+        return False
+    return True
+
+
 def download_cnpj_zips(ano, mes, path_arquivos):
     def download_particao_thread(particao):
         for arquivo in particao:
