@@ -56,7 +56,7 @@ def carregar_arquivos_bd(auxiliares, principais, path_dados, arq_tabela_dic, con
         nome_tabela = ARQ_TABELA_DIC[nome]
         infos_auxiliares = tabelas_infos['auxiliares']
         tabela_info = tabelas_infos.get(nome_tabela, infos_auxiliares)
-        mover_staging_producao(
+        total_linhas = mover_staging_producao(
             f'{nome_tabela}_{staging_sufixo}2',
             nome_tabela,
             tabela_info['pk'],
@@ -64,6 +64,7 @@ def carregar_arquivos_bd(auxiliares, principais, path_dados, arq_tabela_dic, con
             conn,
             faz_update
         )
+        logger.info(f'{total_linhas} linhas inseridas/atualizadas na tabela "{nome_tabela}"')
 
 
 def polling_carga_mensal(bd_nome, bd_usuario, path_raiz, path_script, logger):
