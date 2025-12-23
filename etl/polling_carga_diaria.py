@@ -35,8 +35,8 @@ def polling_carga_diaria(bd_nome, bd_usuario, path_raiz, path_script, limite_max
         vagos = []
     logger.info('Baixando Novas Paginas')
     download_paginas(cnpjs, s, vagos)
-    logger.info('Fazendo Parsing das Paginas')
     nomes = os.listdir(path_raiz / 'tmp')
+    logger.info(f'Fazendo Parsing de {len(nomes)} Paginas')
     tratar_paginas(nomes, path_raiz)
 
     logger.info('Iniciando Rotinas de Carga em BD')
