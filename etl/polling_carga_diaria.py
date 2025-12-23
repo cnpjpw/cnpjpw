@@ -48,7 +48,7 @@ def polling_carga_diaria(bd_nome, bd_usuario, path_raiz, path_script, limite_max
 def download_paginas(cnpjs, s, vagos=[]):
     count = 0
     for cnpj in tqdm(cnpjs):
-        if count == 10:
+        if count == 200:
             break
         try:
             html = get_cnpj_info(cnpj, s)
