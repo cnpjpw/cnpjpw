@@ -280,6 +280,13 @@ def get_paginacao_filtros_difusos(
         situacao_cadastral
         )
     )
+
+    if not (socio_doc is None or (len(socio_doc) in {11, 14})):
+        return get_paginacao_template([], limite=250)
+
+    if socio_doc is not None and len(socio_doc) == 11:
+        socio_doc = '***' + socio_doc[3:9] + '**'
+
     if socio_nome or socio_doc:
         tem_socios_param = True
 
@@ -305,11 +312,6 @@ def get_paginacao_filtros_difusos(
         datetime.strptime(data_abertura_max, '%Y-%m-%d')  < datetime.strptime(data_abertura_min, '%Y-%m-%d')
         ):
             return get_paginacao_template([], limite=250)
-
-    if not (socio_doc is None or (len(socio_doc) in {11, 14})):
-        socio_doc = None
-    if socio_doc is not None and len(socio_doc) == 11:
-        socio_doc = '***' + socio_doc[3:9] + '**'
 
     cnpj_base = None
     cnpj_ordem = None
