@@ -35,10 +35,10 @@ def extrair_zips(path_entrada, path_saida, nao_numerados=[], numerados=[]):
                 arquivo_particionado.unlink()
 
 
-
 def limpar_valor(val):
     if isinstance(val, str):
         val = val.replace('\x00', '')
+        val = ' '.join(val.split())
     return None if val == '' else val
 
 
