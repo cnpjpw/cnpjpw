@@ -195,6 +195,7 @@ def get_busca_difusa_query(tem_socios_param, somente_socios):
             ( ((%(cnpj_base)s)::bpchar IS NULL) OR (s.cnpj_base >= %(cnpj_base)s) )
             AND ( ((%(socio_doc)s)::bpchar IS NULL) OR (s.cnpj_cpf = %(socio_doc)s) )
             AND ( ((%(socio_nome)s)::bpchar IS NULL) OR (s.nome LIKE (%(socio_nome)s || '%%')) )
+            GROUP BY cnpj_base
             ORDER BY cnpj_base
             """
             +
