@@ -31,7 +31,7 @@ def polling_carga_diaria(bd_nome, bd_usuario, path_raiz, path_script, limite_max
         ultimo_cnpj = cnpjs_gerados[-1]
         cnpjs_banco = pegar_matrizes_banco(primeiro_cnpj[:8], ultimo_cnpj[:8], conn)
     cnpjs = [cnpj for cnpj in cnpjs_gerados if cnpj not in cnpjs_banco]
-    if percentual < 1.5:
+    if percentual < 0.1:
         vagos = []
     logger.info('Baixando Novas Paginas')
     download_paginas(cnpjs, s, vagos)
