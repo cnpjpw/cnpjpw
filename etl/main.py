@@ -1,7 +1,7 @@
 import os
 from dotenv import load_dotenv
 from download import download_cnpj_zips, verificar_existencia_pasta
-from parsing import extrair_zips
+from parsing import gerar_csvs_utf8
 from parsing import parse_csv_tabela
 from load import *
 import pathlib
@@ -94,7 +94,7 @@ def polling_carga_mensal(bd_nome, bd_usuario, path_raiz, path_script, logger):
     download_cnpj_zips(ano, mes, path_dados / "zip")
 
     logger.info('Iniciando Extração dos Zips da Receita')
-    extrair_zips(path_dados / "zip", path_dados / "tmp", nao_numerados=NAO_NUMERADOS, numerados=NUMERADOS)
+    gerar_csvs_utf8(path_dados / "zip", path_dados / "tmp", nao_numerados=NAO_NUMERADOS, numerados=NUMERADOS)
 
     logger.info("Iniciando Tratamento Inicial dos CSV's da Receita")
     tratar_dados_abertos(NAO_NUMERADOS + NUMERADOS, TIPOS_INDICES, path_dados)
