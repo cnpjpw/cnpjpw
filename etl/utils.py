@@ -7,6 +7,7 @@ def gerar_nova_data(mes, ano, passo):
     q, r = divmod((mes - 1) + passo, 12)
     return (r + 1, ano + q)
 
+
 def pegar_primeiro_blocado(cnpjs, quant_adjacencias_min=120, max_dist_adjacentes=3):
     if len(cnpjs) <= quant_adjacencias_min:
         return cnpjs[-1]
