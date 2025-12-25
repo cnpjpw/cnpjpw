@@ -101,7 +101,18 @@ def polling_carga_mensal(bd_nome, bd_usuario, path_raiz, path_script, logger):
 
     logger.info('Iniciando Rotinas de Carga em BD')
     with psycopg.connect(dbname=bd_nome, user=bd_usuario) as conn:
-        carregar_arquivos_bd(AUXILIARES, PRINCIPAIS, path_dados, ARQ_TABELA_DIC, conn, True, logger)
+        try:
+            with conn.cursor() as cur:
+                cur.execute("SELECT pg_advisory_lock(%s);", (123456789,))
+            carregar_arquivos_bd(AUXILIARES, PRINCIPAIS, path_dados, ARQ_TABELA_DIC, conn, True, logger)
+        except Exception as e:
+            print(e)
+        finally:
+            try:
+                with conn.cursor() as cur:
+                    cur.execute("SELECT pg_advisory_unlock(%s);", (123456789,))
+            except Exception:
+                pass
 
     mes_antigo, ano_antigo = gerar_nova_data(mes, ano, -2)
     path_pasta_antiga = path_raiz / f'{str(mes_antigo).zfill(2)}-{ano_antigo}'

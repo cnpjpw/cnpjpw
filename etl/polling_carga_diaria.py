@@ -40,8 +40,19 @@ def polling_carga_diaria(bd_nome, bd_usuario, path_raiz, path_script, limite_max
     tratar_paginas(nomes, path_raiz)
 
     logger.info('Iniciando Rotinas de Carga em BD')
-    with psycopg.connect(dbname=bd_nome, user=bd_usuario) as conn:
-        carregar_arquivos_bd([], PRINCIPAIS, path_raiz, ARQ_TABELA_DIC, conn, False, logger, staging_sufixo='staging_diario')
+    with psycopg.connect(dbname=bd_nome, user=bd_usuario, autocommit=True) as conn:
+        try:
+            with conn.cursor() as cur:
+                cur.execute("SELECT pg_advisory_lock(%s);", (12345678,))
+            carregar_arquivos_bd([], PRINCIPAIS, path_raiz, ARQ_TABELA_DIC, conn, False, logger, staging_sufixo='staging_diario')
+        except Exception as e:
+            print(e)
+        finally:
+            try:
+                with conn.cursor() as cur:
+                    cur.execute("SELECT pg_advisory_unlock(%s);", (12345678,))
+            except Exception:
+                pass
     logger.info('Carga Diária Concluida')
 
 
