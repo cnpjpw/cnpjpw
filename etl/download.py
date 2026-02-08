@@ -4,23 +4,11 @@ from datetime import datetime, timedelta
 from tqdm import tqdm
 import json
 from concurrent.futures import ThreadPoolExecutor
-
-
-def parse_arquivos_pasta(html: str) -> list[str]:
-    tree = LexborHTMLParser(html)
-    arquivos = []
-
-    links = tree.css('a')
-    for link in links:
-        endereco = link.attributes['href']
-        if 'zip' in endereco:
-            arquivos.append(endereco)
-    return arquivos
+from config import NUMERADOS, NAO_NUMERADOS
 
 
 def get_infos_links(url_pasta, arquivos: list[str], data_template) -> dict:
     total = 0
-    ultima_modificacao_pasta = timedelta(days=30)
     tamanhos = { arquivo: 0 for arquivo in arquivos }
     for arquivo in arquivos:
         link = url_pasta + arquivo
@@ -28,13 +16,8 @@ def get_infos_links(url_pasta, arquivos: list[str], data_template) -> dict:
         tamanho = int(res.headers.get('content-length', 0))
         total += tamanho
         tamanhos[arquivo] = tamanho
-        ultima_modificacao_header = res.headers.get('last-modified')
-        ultima_mod_data = datetime.strptime(ultima_modificacao_header, data_template)
-        ultima_modificacao = datetime.utcnow() - ultima_mod_data
-        if ultima_modificacao < ultima_modificacao_pasta:
-            ultima_modificacao_pasta = ultima_modificacao
 
-    return { 'tamanhos': tamanhos, 'tamanho_total': total, 'ultima_modificacao': ultima_modificacao }
+    return { 'tamanhos': tamanhos, 'tamanho_total': total }
 
 
 def download_arquivo(arquivo_nome, link, pasta_dir):
@@ -59,7 +42,7 @@ def distribuir_arquivos_particoes(arquivos_tamanhos: dict, num_threads):
 
 
 def verificar_existencia_pasta(ano, mes):
-    LINK_BASE = 'https://arquivos.receitafederal.gov.br/dados/cnpj/dados_abertos_cnpj/'
+    LINK_BASE = 'https://arquivos.receitafederal.gov.br/public.php/dav/files/YggdBLfdninEJX9/'
     URL_PASTA = LINK_BASE + str(ano) + '-' + str(mes).zfill(2) + '/'
     ULTIMA_MODIFICACAO_TEMPLATE = "%a, %d %b %Y %H:%M:%S %Z"
     res = requests.get(URL_PASTA)
@@ -73,16 +56,17 @@ def download_cnpj_zips(ano, mes, path_arquivos):
         for arquivo in particao:
             link = URL_PASTA + arquivo
             download_arquivo(arquivo, link, path_arquivos)
-    LINK_BASE = 'https://arquivos.receitafederal.gov.br/dados/cnpj/dados_abertos_cnpj/'
+    LINK_BASE = 'https://arquivos.receitafederal.gov.br/public.php/dav/files/YggdBLfdninEJX9/'
     URL_PASTA = LINK_BASE + str(ano) + '-' + str(mes).zfill(2) + '/'
     ULTIMA_MODIFICACAO_TEMPLATE = "%a, %d %b %Y %H:%M:%S %Z"
     res = requests.get(URL_PASTA)
     if res.status_code == 404:
         raise Exception('Pasta ainda não foi criada')
-    arquivos = parse_arquivos_pasta(res.text)
+    arquivos = (
+                [f'{arq_nome}.zip' for arq_nome in NAO_NUMERADOS] +
+                [f'{arq_nome}{i}.zip' for arq_nome in NUMERADOS for i in range(10)]
+                )
     infos = get_infos_links(URL_PASTA, arquivos, ULTIMA_MODIFICACAO_TEMPLATE)
-    if len(arquivos) < 37:
-        raise Exception('Pasta com menos arquivos que o esperado')
     num_threads = round(infos['tamanho_total'] / max(infos['tamanhos'].values()))
     particoes = distribuir_arquivos_particoes(infos['tamanhos'], num_threads)
     with ThreadPoolExecutor(max_workers=num_threads) as executor:
