@@ -119,7 +119,7 @@ if __name__ == '__main__':
     BD_NOME = os.environ['BD_NOME']
     BD_USUARIO = os.environ['BD_USUARIO']
     PATH_RAIZ = pathlib.Path(os.environ['PATH_CNPJ_DADOS_DIARIOS'])
-    limite_maximo = 2000
+    limite_maximo = 2225
 
     polling_carga_diaria(BD_NOME, BD_USUARIO, PATH_RAIZ, PATH_SCRIPT, limite_maximo, logger)
 
