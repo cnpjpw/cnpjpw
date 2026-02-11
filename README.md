@@ -8,7 +8,7 @@ Atualmente já existe no mercado outras aplicações que realizam esse trabalho:
 - Soluções comerciais como o [cnpj.biz](http://cnpj.biz), [casadosdados](http://casadosdados.com.br) e [cnpja](http://cnpja.com) 
 - Produtos oficiais da própria SERPRO(serviço de processamento de dados federal) como o [b-cadastros](https://loja.serpro.gov.br/b-cadastros) e o [Consulta CNPJ](https://loja.serpro.gov.br/consultacnpj)
 
-O que o [cnpj.pw](http://cnpj.pw) tenta fazer é juntar as características mais interessantes dessas aplicações:
+O que o [cnpj.pw](https://cnpj.pw) tenta fazer é juntar as características mais interessantes dessas aplicações:
 - Open-source.
 - Filtros para busca detalhada(filtragem por data de abertura, CPF de sócios, cnaes, cidades, estados, capital social, razão social…)
 - Complementar a base da RFB com web scraping(todos os dados obtidos com a execução do scraper são armazenadas no [archive](https://archive.cnpj.pw))
