@@ -11,5 +11,5 @@ Atualmente já existe no mercado outras aplicações que realizam esse trabalho:
 O que o [cnpj.pw](http://cnpj.pw) tenta fazer é juntar as características mais interessantes dessas aplicações:
 - Open-source.
 - Filtros para busca detalhada(filtragem por data de abertura, CPF de sócios, cnaes, cidades, estados, capital social, razão social…)
-- Complementar a base da RFB com web scraping
+- Complementar a base da RFB com web scraping(todos os dados obtidos com a execução do scraper são armazenadas no [archive](https://archive.cnpj.pw))
 - Acessível programaticamente de forma simples(API pública)
