@@ -17,14 +17,7 @@ from time import sleep
 from utils import pegar_vagos_dia, pegar_matrizes_banco
 import zipfile
 from datetime import datetime, timezone, timedelta
-
-
-def arquivar_csvs(path_origem, path_destino):
-    data_atual = str(datetime.now(tz=timezone(timedelta(hours=-3))))
-    with zipfile.ZipFile(path_destino / (data_atual + ".zip"), "w", compression=zipfile.ZIP_DEFLATED) as z:
-        for arquivo in path_origem.rglob("*"):
-            if arquivo.is_file():
-                z.write(arquivo, arquivo.relative_to(path_origem))
+from archive import arquivar_csvs, recriar_acumuladores_archive
 
 
 def polling_carga_diaria(bd_nome, bd_usuario, path_raiz, path_script, limite_maximo, logger):
