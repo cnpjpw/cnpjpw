@@ -96,9 +96,3 @@ def arquivar_csvs(path_origem, path_destino):
         for arquivo in path_origem.rglob("*"):
             if arquivo.is_file():
                 z.write(arquivo, arquivo.relative_to(path_origem))
-
-
-if __name__ == '__main__':
-    path_archive = Path('/home/joao/archive.cnpj.pw')
-    #recriar_acumuladores_archive(path_archive)
-    arquivar_csvs(Path('/home/joao/teste'), path_archive)
