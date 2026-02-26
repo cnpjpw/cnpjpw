@@ -1,8 +1,4 @@
 import requests
-from selectolax.lexbor import LexborHTMLParser
-from datetime import datetime, timedelta
-from tqdm import tqdm
-import json
 from concurrent.futures import ThreadPoolExecutor
 from config import NUMERADOS, NAO_NUMERADOS
 
