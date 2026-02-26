@@ -1,6 +1,6 @@
 import requests
 from concurrent.futures import ThreadPoolExecutor
-from config import NUMERADOS, NAO_NUMERADOS
+from config import NOMES_ARQUIVOS
 
 
 def get_infos_links(url_pasta, arquivos: list[str]) -> dict:
@@ -56,10 +56,7 @@ def download_cnpj_zips(ano, mes, path_arquivos):
     res = requests.get(URL_PASTA)
     if res.status_code == 404:
         raise Exception('Pasta ainda não foi criada')
-    arquivos = (
-                [f'{arq_nome}.zip' for arq_nome in NAO_NUMERADOS] +
-                [f'{arq_nome}{i}.zip' for arq_nome in NUMERADOS for i in range(10)]
-                )
+    arquivos = [ f'{nome}.zip' for nome in NOMES_ARQUIVOS ]
     infos = get_infos_links(URL_PASTA, arquivos)
     num_threads = round(infos['tamanho_total'] / max(infos['tamanhos'].values()))
     particoes = distribuir_arquivos_particoes(infos['tamanhos'], num_threads)
