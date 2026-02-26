@@ -1,6 +1,6 @@
 import os
 from dotenv import load_dotenv
-from download import download_cnpj_zips, verificar_existencia_pasta
+from download import download_cnpj_zips
 from parsing import gerar_csvs_utf8
 from parsing import parse_csv_tabela
 from load import *
