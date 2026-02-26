@@ -3,7 +3,7 @@ from concurrent.futures import ThreadPoolExecutor
 from config import NUMERADOS, NAO_NUMERADOS
 
 
-def get_infos_links(url_pasta, arquivos: list[str], data_template) -> dict:
+def get_infos_links(url_pasta, arquivos: list[str]) -> dict:
     total = 0
     tamanhos = { arquivo: 0 for arquivo in arquivos }
     for arquivo in arquivos:
@@ -40,7 +40,6 @@ def distribuir_arquivos_particoes(arquivos_tamanhos: dict, num_threads):
 def verificar_existencia_pasta(ano, mes):
     LINK_BASE = 'https://arquivos.receitafederal.gov.br/public.php/dav/files/YggdBLfdninEJX9/'
     URL_PASTA = LINK_BASE + str(ano) + '-' + str(mes).zfill(2) + '/'
-    ULTIMA_MODIFICACAO_TEMPLATE = "%a, %d %b %Y %H:%M:%S %Z"
     res = requests.get(URL_PASTA)
     if res.status_code == 404:
         return False
@@ -54,7 +53,6 @@ def download_cnpj_zips(ano, mes, path_arquivos):
             download_arquivo(arquivo, link, path_arquivos)
     LINK_BASE = 'https://arquivos.receitafederal.gov.br/public.php/dav/files/YggdBLfdninEJX9/'
     URL_PASTA = LINK_BASE + str(ano) + '-' + str(mes).zfill(2) + '/'
-    ULTIMA_MODIFICACAO_TEMPLATE = "%a, %d %b %Y %H:%M:%S %Z"
     res = requests.get(URL_PASTA)
     if res.status_code == 404:
         raise Exception('Pasta ainda não foi criada')
@@ -62,7 +60,7 @@ def download_cnpj_zips(ano, mes, path_arquivos):
                 [f'{arq_nome}.zip' for arq_nome in NAO_NUMERADOS] +
                 [f'{arq_nome}{i}.zip' for arq_nome in NUMERADOS for i in range(10)]
                 )
-    infos = get_infos_links(URL_PASTA, arquivos, ULTIMA_MODIFICACAO_TEMPLATE)
+    infos = get_infos_links(URL_PASTA, arquivos)
     num_threads = round(infos['tamanho_total'] / max(infos['tamanhos'].values()))
     particoes = distribuir_arquivos_particoes(infos['tamanhos'], num_threads)
     with ThreadPoolExecutor(max_workers=num_threads) as executor:
