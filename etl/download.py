@@ -53,9 +53,6 @@ def download_cnpj_zips(ano, mes, path_arquivos):
             download_arquivo(arquivo, link, path_arquivos)
     LINK_BASE = 'https://arquivos.receitafederal.gov.br/public.php/dav/files/YggdBLfdninEJX9/'
     URL_PASTA = LINK_BASE + str(ano) + '-' + str(mes).zfill(2) + '/'
-    res = requests.get(URL_PASTA)
-    if res.status_code == 404:
-        raise Exception('Pasta ainda não foi criada')
     arquivos = [ f'{nome}.zip' for nome in NOMES_ARQUIVOS ]
     infos = get_infos_links(URL_PASTA, arquivos)
     num_threads = round(infos['tamanho_total'] / max(infos['tamanhos'].values()))
