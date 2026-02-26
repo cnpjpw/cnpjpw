@@ -144,3 +144,5 @@ tabelas_infos = {
 
     }
 }
+
+TEMPLATE_URL_PASTA = 'https://arquivos.receitafederal.gov.br/public.php/dav/files/YggdBLfdninEJX9/{ano:d}-{mes:02d}/'

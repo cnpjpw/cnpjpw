@@ -1,6 +1,5 @@
 import requests
 from concurrent.futures import ThreadPoolExecutor
-from config import NOMES_ARQUIVOS
 
 
 def get_infos_links(url_pasta, arquivos: list[str]) -> dict:
@@ -37,24 +36,13 @@ def distribuir_arquivos_particoes(arquivos_tamanhos: dict, num_threads):
     return particoes
 
 
-def verificar_existencia_pasta(ano, mes):
-    LINK_BASE = 'https://arquivos.receitafederal.gov.br/public.php/dav/files/YggdBLfdninEJX9/'
-    URL_PASTA = LINK_BASE + str(ano) + '-' + str(mes).zfill(2) + '/'
-    res = requests.get(URL_PASTA)
-    if res.status_code == 404:
-        return False
-    return True
-
-
-def download_cnpj_zips(ano, mes, path_arquivos):
+def download_cnpj_zips(url_pasta, nomes_arquivos, path_arquivos):
     def download_particao_thread(particao):
         for arquivo in particao:
-            link = URL_PASTA + arquivo
+            link = url_pasta + arquivo
             download_arquivo(arquivo, link, path_arquivos)
-    LINK_BASE = 'https://arquivos.receitafederal.gov.br/public.php/dav/files/YggdBLfdninEJX9/'
-    URL_PASTA = LINK_BASE + str(ano) + '-' + str(mes).zfill(2) + '/'
-    arquivos = [ f'{nome}.zip' for nome in NOMES_ARQUIVOS ]
-    infos = get_infos_links(URL_PASTA, arquivos)
+    arquivos = [ f'{nome}.zip' for nome in nomes_arquivos ]
+    infos = get_infos_links(url_pasta, arquivos)
     num_threads = round(infos['tamanho_total'] / max(infos['tamanhos'].values()))
     particoes = distribuir_arquivos_particoes(infos['tamanhos'], num_threads)
     with ThreadPoolExecutor(max_workers=num_threads) as executor:

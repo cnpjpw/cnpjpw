@@ -14,6 +14,7 @@ from utils import ler_data_json
 from utils import acrescentar_mes_json
 from utils import gerar_nova_data
 from datetime import datetime, timezone, timedelta
+import requests
 
 
 def tratar_dados_abertos(nomes_csv, tipos_indices, path_dados):
@@ -68,8 +69,19 @@ def carregar_arquivos_bd(auxiliares, principais, path_dados, arq_tabela_dic, con
 
 
 def polling_carga_mensal(bd_nome, bd_usuario, path_raiz, path_script, logger):
+    from config import (
+    NAO_NUMERADOS,
+    NUMERADOS,
+    AUXILIARES,
+    PRINCIPAIS,
+    NOMES_ARQUIVOS,
+    TEMPLATE_URL_PASTA,
+    TIPOS_INDICES,
+    ARQ_TABELA_DIC,
+    )
     path_json_data = path_script / "data_pasta.json"
     mes, ano = ler_data_json(path_json_data)
+    url_pasta = TEMPLATE_URL_PASTA.format(mes=mes, ano=ano)
 
     data_atual = datetime.now(tz=timezone(timedelta(hours=-3)))
     delta_meses = (data_atual.year * 12 + data_atual.month) - (ano * 12 + mes)
@@ -77,12 +89,10 @@ def polling_carga_mensal(bd_nome, bd_usuario, path_raiz, path_script, logger):
         return
 
     logger.info(f'Verificando Existência Pasta {ano}-{str(mes).zfill(2)}')
-    existencia_pasta = verificar_existencia_pasta(ano, mes)
-    if not existencia_pasta:
+    if (requests.get(url_pasta).status_code == 404):
         return
 
     logger.info('Carregando Variáveis de Configuração')
-    from config import NAO_NUMERADOS, NUMERADOS, AUXILIARES, PRINCIPAIS, TIPOS_INDICES, ARQ_TABELA_DIC
 
     path_dados = path_raiz / f'{str(mes).zfill(2)}-{ano}'
 
@@ -91,7 +101,7 @@ def polling_carga_mensal(bd_nome, bd_usuario, path_raiz, path_script, logger):
         (path_dados / subdir).mkdir(parents=True, exist_ok=True)
 
     logger.info('Iniciando Download dos Zips da Receita')
-    download_cnpj_zips(ano, mes, path_dados / "zip")
+    download_cnpj_zips(url_pasta, NOMES_ARQUIVOS, path_dados / "zip")
 
     logger.info('Iniciando Extração dos Zips da Receita')
     gerar_csvs_utf8(path_dados / "zip", path_dados / "tmp", nao_numerados=NAO_NUMERADOS, numerados=NUMERADOS)
