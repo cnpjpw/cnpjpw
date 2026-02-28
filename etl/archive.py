@@ -14,20 +14,16 @@ def extrair_arquivo_zip(path_zip, destino):
     return nome_interno
 
 
-def recriar_acumuladores_archive(path_archive):
-    data_inicial = datetime(2026, 2, 11, tzinfo=timezone(timedelta(hours=-3)))
-    path_horas = path_archive / 'horas_passadas'
-    nomes_zips = [z.parts[-1] for z in path_horas.iterdir()]
+def recriar_acumuladores_archive(archive_horas, archive_dias, archive_semanas, dir_tmp, data_inicial):
+    nomes_zips = [z.parts[-1] for z in archive_horas.iterdir()]
     for nome_zip in nomes_zips:
         data_zip = datetime.fromisoformat(nome_zip.split('.zip')[0])
         pasta_dia, pasta_semana = encontrar_pastas_archive(data_zip, data_inicial)
-        dir_tmp = path_archive / 'tmp'
-        extrair_arquivo_zip(path_horas / nome_zip, dir_tmp)
-        archive_dias = path_archive / 'dias_passados' 
-        archive_semanas = path_archive / 'semanas_passadas'
+        extrair_arquivo_zip(archive_horas / nome_zip, dir_tmp)
         path_dia_atual = archive_dias / pasta_dia
         path_semana_atual = archive_semanas / pasta_semana
-        for p in [path_dia_atual, path_semana_atual]:
+        paths = [path_dia_atual, path_semana_atual]
+        for p in paths:
             p.mkdir(parents=True, exist_ok=True)
             for csv_nome in PRINCIPAIS:
                 (p / (csv_nome + '.csv')).touch() 
@@ -76,23 +72,20 @@ def compactar_archives_passados(path_periodo, pasta_atual: str):
         shutil.rmtree(file)
 
 
-def arquivar_csvs(path_origem, path_destino):
-    data_inicial = datetime(2026, 2, 11, tzinfo=timezone(timedelta(hours=-3)))
+def arquivar_csvs(path_origem, path_horas, path_dias, path_semanas, data_inicial):
     data_atual = datetime.now(tz=timezone(timedelta(hours=-3)))
     pasta_dia, pasta_semana = encontrar_pastas_archive(data_atual, data_inicial)
-    path_dias_passados = path_destino / 'dias_passados'
-    path_dia = path_dias_passados / pasta_dia
-    path_semanas_passadas = path_destino / 'semanas_passadas'
-    path_semana = path_semanas_passadas / pasta_semana
+    path_dia = path_dias / pasta_dia
+    path_semana = path_semanas / pasta_semana
     path_dia.mkdir(parents=True, exist_ok=True)
     path_semana.mkdir(parents=True, exist_ok=True)
-    compactar_archives_passados(path_dias_passados, pasta_dia)
-    compactar_archives_passados(path_semanas_passadas, pasta_semana)
+    compactar_archives_passados(path_dias, pasta_dia)
+    compactar_archives_passados(path_semanas, pasta_semana)
     for arquivo in path_origem.rglob("*"):
         acumular_csv(arquivo.relative_to(path_origem), path_origem, path_dia)
         acumular_csv(arquivo.relative_to(path_origem), path_origem, path_semana)
 
-    with zipfile.ZipFile(path_destino / 'horas_passadas' /(str(data_atual) + ".zip"), "w", compression=zipfile.ZIP_DEFLATED) as z:
+    with zipfile.ZipFile(path_horas / (str(data_atual) + ".zip"), "w", compression=zipfile.ZIP_DEFLATED) as z:
         for arquivo in path_origem.rglob("*"):
             if arquivo.is_file():
                 z.write(arquivo, arquivo.relative_to(path_origem))

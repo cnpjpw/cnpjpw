@@ -46,7 +46,15 @@ def polling_carga_diaria(limite_maximo, logger):
     logger.info(f'Fazendo Parsing de {len(nomes)} Paginas')
     tratar_paginas(nomes, PATH_RAIZ)
     logger.info(f"Arquivando CSVs dos CNPJs obtidos")
-    arquivar_csvs(PATH_RAIZ / 'csv', PATH_RAIZ / 'archive')
+    path_archive = PATH_RAIZ / 'archive'
+    data_inicial_archive = datetime(2026, 2, 11, tzinfo=timezone(timedelta(hours=-3)))
+    arquivar_csvs(
+    PATH_RAIZ / 'csv',
+    path_archive / 'horas_passadas',
+    path_archive / 'dias_passados',
+    path_archive  / 'semanas_passadas',
+    data_inicial_archive
+    )
     logger.info('Iniciando Rotinas de Carga em BD')
     with psycopg.connect(dbname=BD_NOME, user=BD_USUARIO, autocommit=True) as conn:
         try:
