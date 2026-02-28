@@ -20,12 +20,16 @@ from datetime import datetime, timezone, timedelta
 from archive import arquivar_csvs, recriar_acumuladores_archive
 
 
-def polling_carga_diaria(bd_nome, bd_usuario, path_raiz, path_script, limite_maximo, logger):
+def polling_carga_diaria(limite_maximo, logger):
+    logger.info('Carregando Variáveis e Configurações')
     from config import PRINCIPAIS, ARQ_TABELA_DIC
+    load_dotenv()
+    BD_NOME = os.environ['BD_NOME']
+    BD_USUARIO = os.environ['BD_USUARIO']
+    PATH_RAIZ = pathlib.Path(os.environ['PATH_CNPJ_DADOS_DIARIOS'])
     s = requests.session()
     s.headers = HEADERS
-
-    with psycopg.connect(dbname=bd_nome, user=bd_usuario) as conn:
+    with psycopg.connect(dbname=BD_NOME, user=BD_USUARIO) as conn:
         logger.info('Obtendo CNPJ mais Recente')
         primeiro_cnpj = pegar_ultimo_cnpj_inserido(conn)
         logger.info('Obtendo CNPJs deixados em raspagens anteriores')
@@ -37,18 +41,18 @@ def polling_carga_diaria(bd_nome, bd_usuario, path_raiz, path_script, limite_max
     if percentual < 0.1:
         vagos = []
     logger.info('Baixando Novas Paginas')
-    download_paginas(cnpjs, s, vagos)
-    nomes = os.listdir(path_raiz / 'tmp')
+    download_paginas(cnpjs, s, PATH_RAIZ / 'tmp', vagos)
+    nomes = os.listdir(PATH_RAIZ / 'tmp')
     logger.info(f'Fazendo Parsing de {len(nomes)} Paginas')
-    tratar_paginas(nomes, path_raiz)
+    tratar_paginas(nomes, PATH_RAIZ)
     logger.info(f"Arquivando CSVs dos CNPJs obtidos")
-    arquivar_csvs(path_raiz / 'csv', path_raiz / 'archive')
+    arquivar_csvs(PATH_RAIZ / 'csv', PATH_RAIZ / 'archive')
     logger.info('Iniciando Rotinas de Carga em BD')
-    with psycopg.connect(dbname=bd_nome, user=bd_usuario, autocommit=True) as conn:
+    with psycopg.connect(dbname=BD_NOME, user=BD_USUARIO, autocommit=True) as conn:
         try:
             with conn.cursor() as cur:
                 cur.execute("SELECT pg_advisory_lock(%s);", (12345678,))
-            carregar_arquivos_bd([], PRINCIPAIS, path_raiz, ARQ_TABELA_DIC, conn, False, logger, staging_sufixo='staging_diario')
+            carregar_arquivos_bd([], PRINCIPAIS, PATH_RAIZ, ARQ_TABELA_DIC, conn, False, logger, staging_sufixo='staging_diario')
         except Exception as e:
             print(e)
         finally:
@@ -60,7 +64,7 @@ def polling_carga_diaria(bd_nome, bd_usuario, path_raiz, path_script, limite_max
     logger.info('Carga Diária Concluida')
 
 
-def download_paginas(cnpjs, s, vagos=[]):
+def download_paginas(cnpjs, s, path_destino, vagos=[]):
     count = 0
     for cnpj in tqdm(cnpjs):
         if count == 200:
@@ -72,7 +76,7 @@ def download_paginas(cnpjs, s, vagos=[]):
         if html is None:
             count += 1
             continue
-        with open(PATH_RAIZ / 'tmp' / f'{cnpj}.html', 'w') as f:
+        with open(path_destino / f'{cnpj}.html', 'w') as f:
             f.write(html)
         count = 0
         sleep(0.25)
@@ -84,7 +88,7 @@ def download_paginas(cnpjs, s, vagos=[]):
             continue
         if html is None:
             continue
-        with open(PATH_RAIZ / 'tmp' / f'{cnpj}.html', 'w') as f:
+        with open(path_destino / f'{cnpj}.html', 'w') as f:
             f.write(html)
         sleep(0.25)
 
@@ -118,12 +122,6 @@ if __name__ == '__main__':
         datefmt="%Y-%m-%d %H:%M:%S",
     )
     logger = logging.getLogger(__name__)
-    logger.info('Carregando Variáveis e Configurações')
-    load_dotenv()
-    BD_NOME = os.environ['BD_NOME']
-    BD_USUARIO = os.environ['BD_USUARIO']
-    PATH_RAIZ = pathlib.Path(os.environ['PATH_CNPJ_DADOS_DIARIOS'])
     limite_maximo = 2225
-
-    polling_carga_diaria(BD_NOME, BD_USUARIO, PATH_RAIZ, PATH_SCRIPT, limite_maximo, logger)
+    polling_carga_diaria(limite_maximo, logger)
 
