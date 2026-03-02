@@ -68,7 +68,7 @@ def carregar_arquivos_bd(auxiliares, principais, path_dados, arq_tabela_dic, con
         logger.info(f'{total_linhas} linhas inseridas/atualizadas na tabela "{nome_tabela}"')
 
 
-def polling_carga_mensal(bd_nome, bd_usuario, path_raiz, path_script, logger):
+def polling_carga_mensal(logger):
     from config import (
     NAO_NUMERADOS,
     NUMERADOS,
@@ -79,7 +79,15 @@ def polling_carga_mensal(bd_nome, bd_usuario, path_raiz, path_script, logger):
     TIPOS_INDICES,
     ARQ_TABELA_DIC,
     )
-    path_json_data = path_script / "data_pasta.json"
+
+
+    load_dotenv()
+    BD_NOME = os.environ['BD_NOME']
+    BD_USUARIO = os.environ['BD_USUARIO']
+    PATH_RAIZ = pathlib.Path(os.environ['PATH_CNPJ_DADOS_RAIZ'])
+    PATH_SCRIPT = pathlib.Path(__file__).parent
+    path_json_data = PATH_SCRIPT / "data_pasta.json"
+
     mes, ano = ler_data_json(path_json_data)
     url_pasta = TEMPLATE_URL_PASTA.format(mes=mes, ano=ano)
 
@@ -94,7 +102,7 @@ def polling_carga_mensal(bd_nome, bd_usuario, path_raiz, path_script, logger):
 
     logger.info('Carregando Variáveis de Configuração')
 
-    path_dados = path_raiz / f'{str(mes).zfill(2)}-{ano}'
+    path_dados = PATH_RAIZ / f'{str(mes).zfill(2)}-{ano}'
 
     logger.info('Criando diretórios(se não existirem)')
     for subdir in ['zip', 'tmp', 'csv']:
@@ -110,7 +118,7 @@ def polling_carga_mensal(bd_nome, bd_usuario, path_raiz, path_script, logger):
     tratar_dados_abertos(NAO_NUMERADOS + NUMERADOS, TIPOS_INDICES, path_dados)
 
     logger.info('Iniciando Rotinas de Carga em BD')
-    with psycopg.connect(dbname=bd_nome, user=bd_usuario) as conn:
+    with psycopg.connect(dbname=BD_NOME, user=BD_USUARIO) as conn:
         try:
             with conn.cursor() as cur:
                 cur.execute("SELECT pg_advisory_lock(%s);", (123456789,))
@@ -125,7 +133,7 @@ def polling_carga_mensal(bd_nome, bd_usuario, path_raiz, path_script, logger):
                 pass
 
     mes_antigo, ano_antigo = gerar_nova_data(mes, ano, -2)
-    path_pasta_antiga = path_raiz / f'{str(mes_antigo).zfill(2)}-{ano_antigo}'
+    path_pasta_antiga = PATH_RAIZ / f'{str(mes_antigo).zfill(2)}-{ano_antigo}'
     if os.path.exists(path_pasta_antiga):
         logger.info('Removendo diretório antigo(2 meses atrás)')
         shutil.rmtree(path_pasta_antiga)
@@ -136,10 +144,6 @@ def polling_carga_mensal(bd_nome, bd_usuario, path_raiz, path_script, logger):
 
 
 if __name__ == '__main__':
-    load_dotenv()
-    BD_NOME = os.environ['BD_NOME']
-    BD_USUARIO = os.environ['BD_USUARIO']
-    PATH_RAIZ = pathlib.Path(os.environ['PATH_CNPJ_DADOS_RAIZ'])
     PATH_SCRIPT = pathlib.Path(__file__).parent
     logging.basicConfig(
         filename=PATH_SCRIPT / 'rotina_mensal.log',
@@ -148,5 +152,5 @@ if __name__ == '__main__':
         datefmt="%Y-%m-%d %H:%M:%S",
     )
     logger = logging.getLogger(__name__)
-    polling_carga_mensal(BD_NOME, BD_USUARIO, PATH_RAIZ, PATH_SCRIPT, logger)
+    polling_carga_mensal(logger)
 
