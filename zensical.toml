@@ -1,0 +1,29 @@
+[project]
+site_name = "cnpjpw"
+repo_url = "https://github.com/cnpjpw/cnpjpw"
+edit_uri = "edit/main/docs/"
+docs_dir = "docs"
+site_dir = "site"
+nav = [
+  "index.md",
+]
+
+[project.theme]
+language = "pt"
+features = [
+  "navigation.instant",
+  "toc.integrate",
+]
+
+[project.theme.palette]
+primary = "green"
+accent = "green"
+
+[project.theme.icon]
+repo = "fontawesome/brands/git"
+
+[project.markdown_extensions.admonition]
+
+[project.markdown_extensions.pymdownx.details]
+
+[project.markdown_extensions.pymdownx.superfences]
