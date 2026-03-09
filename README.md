@@ -1,7 +1,7 @@
 # O que é o cnpj.pw?
 
 O [cnpj.pw](https://cnpj.pw) é um projeto que visa disponibilizar de forma estruturada, pública e open-source por meio de uma [API](https://api.cnpj.pw/docs)  acesso aos dados públicos do CNPJ. 
-Utilizamos a [base disponibilizada mensalmente pela receita](https://arquivos.receitafederal.gov.br/dados/cnpj/dados_abertos_cnpj/) como nossa fonte primária dos dados.
+Utilizamos a [base disponibilizada mensalmente pela receita](https://arquivos.receitafederal.gov.br/index.php/s/YggdBLfdninEJX9) como nossa fonte primária dos dados.
 
 Atualmente já existe no mercado outras aplicações que realizam esse trabalho: 
 - Projetos open source como o [minhareceita](https://github.com/cuducos/minha-receita) e o [CNPJ Data Pipeline](https://github.com/caiopizzol/cnpj-data-pipeline)
