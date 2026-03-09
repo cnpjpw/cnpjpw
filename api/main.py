@@ -248,7 +248,7 @@ def get_paginacao_filtros_difusos(
     - **data_abertura_min**: filtro por data de abertura. Passe a data de abertura mínima no formato DD-MM-AAAA.
     - **data_abertura_max**: filtro por data de abertura. Passe a data de abertura máxima no formato DD-MM-AAAA.
     - **capital_social_min**: filtro por capital social. Passe o capital social mínimo como float(com ponto separando a parte decimal, como 1000.50).
-    - **capital_social_min**: filtro por capital social. Passe o capital social máximo como float(com ponto separando a parte decimal, como 1000.50).
+    - **capital_social_max**: filtro por capital social. Passe o capital social máximo como float(com ponto separando a parte decimal, como 1000.50).
     - **socio_doc**: CNPJ se o sócio for PJ e CPF se for PF. Sem pontuação, somente digitos.
     - **socio_nome**: Consulta por nome do sócio(atualmente fazendo o match pelo começo da string)
     - **cursor**: se especificado, serão exibidos apenas resultados após o cnpj passado ao paramêtro 'cursor'.
