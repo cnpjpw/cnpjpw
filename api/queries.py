@@ -184,7 +184,8 @@ def get_busca_difusa_query(tem_socios_param, tem_simples_param, somente_socios):
         cnpj_dv
         FROM estabelecimentos
         WHERE
-            (%(data_abertura_min)s IS NULL OR data_inicio_atividade >= %(data_abertura_min)s::date)
+            (%(nome_fantasia)s IS NULL OR nome_fantasia LIKE %(nome_fantasia)s || '%%')
+            AND (%(data_abertura_min)s IS NULL OR data_inicio_atividade >= %(data_abertura_min)s::date)
             AND (%(data_abertura_max)s IS NULL OR data_inicio_atividade <= %(data_abertura_max)s::date)
             AND (%(uf)s IS NULL OR uf = %(uf)s)
             AND (%(municipio)s IS NULL OR municipio = %(municipio)s)

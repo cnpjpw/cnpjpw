@@ -225,6 +225,7 @@ def get_paginacao_socio(doc: str, cursor: Optional[str] = None, conn=Depends(get
          )
 def get_paginacao_filtros_difusos(
         razao_social: Optional[str] = None,
+        nome_fantasia: Optional[str] = None,
         cnae: Optional[int] = None,
         opcao_simples: Optional[int] = None,
         identificador: Optional[int] = None,
@@ -246,6 +247,7 @@ def get_paginacao_filtros_difusos(
     Consulta por filtros diversos:
 
     - **razao_social**: filtro por razão social(atualmente fazendo o match pelo começo da string).
+    - **nome_fantasia**: filtro por nome fantasia(atualmente fazendo o match pelo começo da string).
     - **cnae**: filtro por cnae principal - Sem pontuação, somente os digitos.
     - **opcao_simples**: filtro por opcao simples - passe '1' para selecionar optantes '0' para não-optantes.
     - **porte_empresa**: filtro por porte empresarial - Sem pontuação, somente os digitos.
@@ -315,8 +317,11 @@ def get_paginacao_filtros_difusos(
 
     BUSCA_DIFUSA_QUERY = get_busca_difusa_query(tem_socios_param, tem_simples_param, somente_socios)
 
+    #trocar o nome da funcao de normalizacao
     if razao_social:
         razao_social = normalizar_razao(razao_social)
+    if nome_fantasia:
+        nome_fantasia = normalizar_razao(nome_fantasia)
     if socio_nome:
         socio_nome = normalizar_razao(socio_nome)
     if data_abertura_min:
@@ -352,6 +357,7 @@ def get_paginacao_filtros_difusos(
         'porte_empresa': porte_empresa,
         'natureza_juridica': natureza_juridica,
         'razao_social': razao_social,
+        'nome_fantasia': nome_fantasia,
         'uf': uf,
         'municipio': municipio,
         'data_abertura_min': data_abertura_min,
