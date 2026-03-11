@@ -18,6 +18,7 @@ CREATE INDEX idx_est_cnae_sit_data ON estabelecimentos (cnae_fiscal_principal, s
 CREATE INDEX idx_est_full_query ON estabelecimentos (cnae_fiscal_principal, situacao_cadastral, data_inicio_atividade, cnpj_base, cnpj_ordem, cnpj_dv);
 CREATE INDEX estabelecimentos_uf_idx ON estabelecimentos (uf);
 CREATE INDEX uf_data_abertura_cnpj_estabelecimentos_idx ON estabelecimentos (uf, data_inicio_atividade, cnpj_base, cnpj_ordem, cnpj_dv);
+CREATE INDEX nome_fantasia_e_cnpj_idx ON estabelecimentos (nome_fantasia text_pattern_ops, cnpj_base, cnpj_ordem, cnpj_dv);
 
 VACUUM ANALYZE empresas;
 VACUUM ANALYZE estabelecimentos;
