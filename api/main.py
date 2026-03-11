@@ -246,22 +246,23 @@ def get_paginacao_filtros_difusos(
     """
     Consulta por filtros diversos:
 
-    - **razao_social**: filtro por razão social(atualmente fazendo o match pelo começo da string).
-    - **nome_fantasia**: filtro por nome fantasia(atualmente fazendo o match pelo começo da string).
-    - **cnae**: filtro por cnae principal - Sem pontuação, somente os digitos.
-    - **opcao_simples**: filtro por opcao simples - passe '1' para selecionar optantes '0' para não-optantes.
-    - **porte_empresa**: filtro por porte empresarial - Sem pontuação, somente os digitos.
-    - **natureza_jurídica**: filtro por natureza jurídica - Sem pontuação, somente os digitos.
-    - **municipio**: filtro por município - Somente o código númerico correspondente ao município(encontra-se em /municipios).
-    - **situacao cadastral**: filtro da situacao cadastral. Passe o código numérico correspondente a situacao
+    - **razao_social**: filtro por razão social(atualmente retornando correspondencia começo da string normalizando acentos, grifos e case).
+    - **nome_fantasia**: filtro por nome fantasia(atualmente retornando correspondencia pelo começo da string normalizando acentos, grifos e case).
+    - **cnae**: filtro por cnae principal - Sem pontuação, somente os digitos(todos códigos e descrições disponíveis em /cnaes).
+    - **opcao_simples**: filtro por opcao simples - passe opcao_simples=1 para selecionar optantes e opcao_simples=0 para não-optantes.
+    - **porte_empresa**: filtro por porte empresarial - Sem pontuação, somente os digitos(todos códigos e descrições disponíveis em /portes).
+    - **identificador**: filtro por indentificador matriz/filial - Passe somente o código(todos códigos e descrições disponíveis em /identificadores).
+    - **natureza_jurídica**: filtro por natureza jurídica - Sem pontuação, somente os digitos(todos códigos e descrições disponíveis em /naturezas).
+    - **municipio**: filtro por município - Somente o código númerico correspondente ao município(todos códigos e nomes disponíveis em /municipios).
+    - **situacao cadastral**: filtro da situacao cadastral. Passe o código numérico correspondente a situação(todos códigos e descrições disponíveis em /situacoes).
     - **uf**: filtro por unidade federativa. Passe a sigla da UF.
     - **data_abertura_min**: filtro por data de abertura. Passe a data de abertura mínima no formato DD-MM-AAAA.
     - **data_abertura_max**: filtro por data de abertura. Passe a data de abertura máxima no formato DD-MM-AAAA.
     - **capital_social_min**: filtro por capital social. Passe o capital social mínimo como float(com ponto separando a parte decimal, como 1000.50).
     - **capital_social_max**: filtro por capital social. Passe o capital social máximo como float(com ponto separando a parte decimal, como 1000.50).
-    - **socio_doc**: CNPJ se o sócio for PJ e CPF se for PF. Sem pontuação, somente digitos.
-    - **socio_nome**: Consulta por nome do sócio(atualmente fazendo o match pelo começo da string)
-    - **cursor**: se especificado, serão exibidos apenas resultados após o cnpj passado ao paramêtro 'cursor'.
+    - **socio_doc**: CNPJ se o sócio for PJ e CPF se for PF. Somente o valor sem pontuações('.' e '-'). Ex: socio_doc=12345678901 ou socio_doc=00000000000191.
+    - **socio_nome**: Consulta por nome do sócio(atualmente retornando correspondencia pelo começo da string normalizando acentos, grifos e case).
+    - **cursor**: se especificado, serão exibidos apenas resultados após o cnpj passado ao paramêtro 'cursor'(completo e sem pontuações. Ex: cursor=00000000000191).
 
     exibindo de 250 em 250 resultados atualmente.
     """
