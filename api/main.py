@@ -21,6 +21,7 @@ from queries import (
         COUNT_RAZAO_QUERY,
         PORTES_QUERY,
         SOCIOS_QUERY,
+        IDENTIFICADORES_QUERY,
         get_busca_difusa_query
         )
 import unicodedata
@@ -436,6 +437,23 @@ def get_portes(conn=Depends(get_conn)):
     """
     with conn.cursor() as cursor:
         cursor.execute(PORTES_QUERY)
+        resultados = cursor.fetchall()
+    resultados = [res[0] for res in resultados]
+    return {'resultados': resultados}
+
+
+@app.get("/identificadores/",
+         response_description="descrição e código de todos identificadores(MATRIZ/FILIAL)",
+         summary="Retorna todos identificadores(MATRIZ/FILIAL)",
+         response_model=Auxiliares,
+         status_code=200
+         )
+def get_identificadores(conn=Depends(get_conn)):
+    """
+    Retorna a descrição e o código de todos os identificadores(MATRIZ/FILIAL) presentes no banco
+    """
+    with conn.cursor() as cursor:
+        cursor.execute(IDENTIFICADORES_QUERY)
         resultados = cursor.fetchall()
     resultados = [res[0] for res in resultados]
     return {'resultados': resultados}

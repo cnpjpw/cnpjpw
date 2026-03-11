@@ -303,6 +303,18 @@ SELECT row_to_json(result) FROM (
 """
 )
 
+IDENTIFICADORES_QUERY = (
+"""
+SELECT row_to_json(result) FROM (
+    SELECT
+        descricao,
+        codigo
+    FROM identificador_matriz_filial
+    ORDER BY codigo
+) result;
+"""
+)
+
 COUNT_DATA_QUERY = "SELECT count(*) from estabelecimentos WHERE data_inicio_atividade = (%s)::date"
 COUNT_RAIZ_QUERY = "SELECT count(*) from estabelecimentos WHERE cnpj_base = (%s)::bpchar"
 COUNT_RAZAO_QUERY = "SELECT count(*) from empresas WHERE nome_empresarial LIKE ((%s)::bpchar || '%%')"
