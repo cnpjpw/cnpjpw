@@ -388,7 +388,7 @@ def get_cnaes(conn=Depends(get_conn)):
          response_model=Auxiliares,
          status_code=200
          )
-def get_cnaes(conn=Depends(get_conn)):
+def get_naturezas(conn=Depends(get_conn)):
     """
     Retorna a descrição e o código de todos as naturezas juridicas presentes no banco
     """
