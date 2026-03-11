@@ -14,10 +14,12 @@ from queries import (
         DATA_ABERTURA_QUERY,
         MUNICIPIOS_QUERY,
         CNAES_QUERY,
+        SITUACOES_QUERY,
         NATUREZAS_QUERY,
         COUNT_DATA_QUERY,
         COUNT_RAIZ_QUERY,
         COUNT_RAZAO_QUERY,
+        PORTES_QUERY,
         SOCIOS_QUERY,
         get_busca_difusa_query
         )
@@ -240,7 +242,7 @@ def get_paginacao_filtros_difusos(
     Consulta por filtros diversos:
 
     - **razao_social**: filtro por razão social(atualmente fazendo o match pelo começo da string).
-    - **cnae**: filtro por cnae - Sem pontuação, somente os digitos.
+    - **cnae**: filtro por cnae principal - Sem pontuação, somente os digitos.
     - **natureza_jurídica**: filtro por natureza jurídica - Sem pontuação, somente os digitos.
     - **municipio**: filtro por município - Somente o código númerico correspondente ao município(encontra-se em /municipios).
     - **situacao cadastral**: filtro da situacao cadastral. Passe o código numérico correspondente a situacao
@@ -411,6 +413,23 @@ def get_situacoes(conn=Depends(get_conn)):
     """
     with conn.cursor() as cursor:
         cursor.execute(SITUACOES_QUERY)
+        resultados = cursor.fetchall()
+    resultados = [res[0] for res in resultados]
+    return {'resultados': resultados}
+
+
+@app.get("/portes/",
+         response_description="descrição e código de todos portes empresariais",
+         summary="Retorna todos portes empresariais",
+         response_model=Auxiliares,
+         status_code=200
+         )
+def get_portes(conn=Depends(get_conn)):
+    """
+    Retorna a descrição e o código de todos os portes empresariais presentes no banco
+    """
+    with conn.cursor() as cursor:
+        cursor.execute(PORTES_QUERY)
         resultados = cursor.fetchall()
     resultados = [res[0] for res in resultados]
     return {'resultados': resultados}
