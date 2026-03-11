@@ -226,6 +226,7 @@ def get_paginacao_socio(doc: str, cursor: Optional[str] = None, conn=Depends(get
 def get_paginacao_filtros_difusos(
         razao_social: Optional[str] = None,
         cnae: Optional[int] = None,
+        identificador: Optional[int] = None,
         porte_empresa: Optional[int] = None,
         natureza_juridica: Optional[int] = None,
         situacao_cadastral: Optional[int] = None,
@@ -267,10 +268,14 @@ def get_paginacao_filtros_difusos(
         and capital_social_min > capital_social_max):
         return get_paginacao_template([], limite=250)
 
+    #Pegar do banco em vez de hardcoded as validacoes talvez?
     if cursor is not None and len(cursor) != 14:
         return get_paginacao_template([], limite=250)
 
-    if porte_empresa not in [1, 3, 5]:
+    if porte_empresa is not None and porte_empresa not in [1, 3, 5]:
+        return get_paginacao_template([], limite=250)
+
+    if identificador is not None and identificador not in [1, 2]:
         return get_paginacao_template([], limite=250)
 
     tem_socios_param = False
@@ -332,6 +337,7 @@ def get_paginacao_filtros_difusos(
 
     parametros = {
         'cnae': cnae,
+        'identificador': identificador,
         'porte_empresa': porte_empresa,
         'natureza_juridica': natureza_juridica,
         'razao_social': razao_social,

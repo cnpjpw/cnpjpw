@@ -178,6 +178,7 @@ def get_busca_difusa_query(tem_socios_param, somente_socios):
             AND (%(uf)s IS NULL OR uf = %(uf)s)
             AND (%(municipio)s IS NULL OR municipio = %(municipio)s)
             AND (%(cnae)s IS NULL OR cnae_fiscal_principal = %(cnae)s)
+            AND (%(identificador)s IS NULL OR identificador = %(identificador)s)
             AND (%(situacao_cadastral)s IS NULL OR situacao_cadastral = %(situacao_cadastral)s)
             AND (
                 (
