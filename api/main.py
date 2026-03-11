@@ -225,6 +225,7 @@ def get_paginacao_socio(doc: str, cursor: Optional[str] = None, conn=Depends(get
 def get_paginacao_filtros_difusos(
         razao_social: Optional[str] = None,
         cnae: Optional[int] = None,
+        porte_empresa: Optional[int] = None,
         natureza_juridica: Optional[int] = None,
         situacao_cadastral: Optional[int] = None,
         uf: Optional[str] = None,
@@ -243,6 +244,7 @@ def get_paginacao_filtros_difusos(
 
     - **razao_social**: filtro por razão social(atualmente fazendo o match pelo começo da string).
     - **cnae**: filtro por cnae principal - Sem pontuação, somente os digitos.
+    - **porte_empresa**: filtro por porte empresarial - Sem pontuação, somente os digitos.
     - **natureza_jurídica**: filtro por natureza jurídica - Sem pontuação, somente os digitos.
     - **municipio**: filtro por município - Somente o código númerico correspondente ao município(encontra-se em /municipios).
     - **situacao cadastral**: filtro da situacao cadastral. Passe o código numérico correspondente a situacao
@@ -265,6 +267,9 @@ def get_paginacao_filtros_difusos(
         return get_paginacao_template([], limite=250)
 
     if cursor is not None and len(cursor) != 14:
+        return get_paginacao_template([], limite=250)
+
+    if porte_empresa not in [1, 3, 5]:
         return get_paginacao_template([], limite=250)
 
     tem_socios_param = False
@@ -326,6 +331,7 @@ def get_paginacao_filtros_difusos(
 
     parametros = {
         'cnae': cnae,
+        'porte_empresa': porte_empresa,
         'natureza_juridica': natureza_juridica,
         'razao_social': razao_social,
         'uf': uf,
@@ -486,5 +492,4 @@ def get_count_razao(razao_social: str, conn=Depends(get_conn)):
         cursor.execute(COUNT_RAZAO_QUERY, (razao_social, ))
         total = cursor.fetchone()[0]
     return {'total': total}
-
 

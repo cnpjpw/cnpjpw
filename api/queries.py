@@ -162,6 +162,7 @@ def get_busca_difusa_query(tem_socios_param, somente_socios):
             AND (%(capital_social_min)s IS NULL OR e.capital_social >= %(capital_social_min)s)
             AND (%(capital_social_max)s IS NULL OR e.capital_social <= %(capital_social_max)s)
             AND (%(natureza_juridica)s IS NULL OR e.natureza_juridica = %(natureza_juridica)s)
+            AND (%(porte_empresa)s IS NULL OR e.porte_empresa = %(porte_empresa)s)
             AND (%(cnpj_base)s IS NULL OR (e.cnpj_base >= %(cnpj_base)s))
     ),
 
