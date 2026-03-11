@@ -399,6 +399,23 @@ def get_cnaes(conn=Depends(get_conn)):
     return {'resultados': resultados}
 
 
+@app.get("/situacoes/",
+         response_description="descrição e código de todas situações cadastrais",
+         summary="Retorna todas situações cadastrais",
+         response_model=Auxiliares,
+         status_code=200
+         )
+def get_situacoes(conn=Depends(get_conn)):
+    """
+    Retorna a descrição e o código de todos as situações cadastrais presentes no banco
+    """
+    with conn.cursor() as cursor:
+        cursor.execute(SITUACOES_QUERY)
+        resultados = cursor.fetchall()
+    resultados = [res[0] for res in resultados]
+    return {'resultados': resultados}
+
+
 @app.get("/count/data/{data}",
          response_description="Quantidade de estabelecimentos abertos em certa data",
          summary="Retorna quantidade de empresas abertas na data",
