@@ -226,6 +226,7 @@ def get_paginacao_socio(doc: str, cursor: Optional[str] = None, conn=Depends(get
 def get_paginacao_filtros_difusos(
         razao_social: Optional[str] = None,
         cnae: Optional[int] = None,
+        opcao_simples: Optional[int] = None,
         identificador: Optional[int] = None,
         porte_empresa: Optional[int] = None,
         natureza_juridica: Optional[int] = None,
@@ -246,6 +247,7 @@ def get_paginacao_filtros_difusos(
 
     - **razao_social**: filtro por razão social(atualmente fazendo o match pelo começo da string).
     - **cnae**: filtro por cnae principal - Sem pontuação, somente os digitos.
+    - **opcao_simples**: filtro por opcao simples - passe '1' para selecionar optantes '0' para não-optantes.
     - **porte_empresa**: filtro por porte empresarial - Sem pontuação, somente os digitos.
     - **natureza_jurídica**: filtro por natureza jurídica - Sem pontuação, somente os digitos.
     - **municipio**: filtro por município - Somente o código númerico correspondente ao município(encontra-se em /municipios).
@@ -278,6 +280,14 @@ def get_paginacao_filtros_difusos(
     if identificador is not None and identificador not in [1, 2]:
         return get_paginacao_template([], limite=250)
 
+    if opcao_simples is not None and opcao_simples not in [0, 1]:
+        return get_paginacao_template([], limite=250)
+
+    tem_simples_param = False
+    if opcao_simples is not None:
+        opcao_simples = bool(opcao_simples)
+        tem_simples_param = True
+
     tem_socios_param = False
     somente_socios = not any(
         (
@@ -303,7 +313,7 @@ def get_paginacao_filtros_difusos(
     if socio_nome or socio_doc:
         tem_socios_param = True
 
-    BUSCA_DIFUSA_QUERY = get_busca_difusa_query(tem_socios_param, somente_socios)
+    BUSCA_DIFUSA_QUERY = get_busca_difusa_query(tem_socios_param, tem_simples_param, somente_socios)
 
     if razao_social:
         razao_social = normalizar_razao(razao_social)
@@ -337,6 +347,7 @@ def get_paginacao_filtros_difusos(
 
     parametros = {
         'cnae': cnae,
+        'opcao_simples': opcao_simples,
         'identificador': identificador,
         'porte_empresa': porte_empresa,
         'natureza_juridica': natureza_juridica,

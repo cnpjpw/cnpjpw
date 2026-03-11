@@ -142,13 +142,18 @@ SELECT row_to_json(result) FROM (
 """
 )
 
-def get_busca_difusa_query(tem_socios_param, somente_socios):
+def get_busca_difusa_query(tem_socios_param, tem_simples_param, somente_socios):
+    #isso aqui ta uma bosta, tenho que pensar em uma forma melhor
+    #desnormalizar em troca de performance talvez?
     SOCIOS_LIMIT = ''
     SOCIOS_JOIN = ''
     if somente_socios:
         SOCIOS_LIMIT = 'LIMIT 250'
     if tem_socios_param:
         SOCIOS_JOIN = 'JOIN socios_filtrados s ON e.cnpj_base = s.cnpj_base'
+    SIMPLES_JOIN = ''
+    if tem_simples_param:
+        SIMPLES_JOIN = 'JOIN simples_filtrados sn ON e.cnpj_base = sn.cnpj_base'
     BUSCA_DIFUSA_QUERY = (
     """
     WITH
@@ -165,7 +170,13 @@ def get_busca_difusa_query(tem_socios_param, somente_socios):
             AND (%(porte_empresa)s IS NULL OR e.porte_empresa = %(porte_empresa)s)
             AND (%(cnpj_base)s IS NULL OR (e.cnpj_base >= %(cnpj_base)s))
     ),
-
+    simples_filtrados AS (
+        SELECT
+        cnpj_base
+        FROM dados_simples sn
+        WHERE
+            (%(opcao_simples)s IS NULL OR sn.opcao_simples = %(opcao_simples)s)
+    ),
     estabelecimentos_filtrados AS (
         SELECT
         cnpj_base,
@@ -217,7 +228,9 @@ def get_busca_difusa_query(tem_socios_param, somente_socios):
         JOIN estabelecimentos_filtrados est ON e.cnpj_base = est.cnpj_base
         """
         +
-        SOCIOS_JOIN
+        SOCIOS_JOIN + '\n'
+        +
+        SIMPLES_JOIN
         +
         """
         ORDER BY est.cnpj_base, est.cnpj_ordem, est.cnpj_dv
