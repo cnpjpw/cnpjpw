@@ -61,7 +61,7 @@ def pegar_primeiro_blocado(cnpjs, quant_adjacencias_min=120, max_dist_adjacentes
     return cnpjs[-1]
 
 
-def pegar_ultimo_cnpj_inserido(conn):
+def pegar_ultimo_cnpj_base_inserido(conn):
     with conn.cursor() as cursor:
         query_data = (
             "SELECT data_inicio_atividade FROM estabelecimentos " +
@@ -105,7 +105,7 @@ def pegar_primeiro_cnpj_dia(conn):
 def pegar_vagos_dia(conn):
     with conn.cursor() as cursor:
         primeiro = pegar_primeiro_cnpj_dia(conn)
-        ultimo = pegar_ultimo_cnpj_inserido(conn)
+        ultimo = pegar_ultimo_cnpj_base_inserido(conn)
         query_cnpjs = (
             "select cnpj_base || cnpj_ordem || cnpj_dv from estabelecimentos where cnpj_base > (%s)::bpchar AND cnpj_base < (%s)::bpchar ORDER BY cnpj_base"
         )
