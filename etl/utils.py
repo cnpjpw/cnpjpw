@@ -1,6 +1,43 @@
 import json
 import psycopg
-from cnpjpw_scrapers import gerar_novos_cnpjs
+
+
+def get_digito_verificador(
+        base: str,
+        peso_max: int = None,
+        peso_min: int = 2
+        ) -> int:
+    if not peso_max:
+        peso_max = len(base) + peso_min - 1
+    quant_pesos = peso_max - peso_min + 1
+    total = 0
+    for i in range(len(base)):
+        total += int(base[-(i + 1)]) * ((i % quant_pesos) + peso_min)
+    return -total % 11 % 10
+
+
+def get_cnpj_com_digitos_verificadores(cnpj_base):
+    for i in range(2):
+        cnpj_base += str(get_digito_verificador(cnpj_base, 9))
+    return cnpj_base
+
+
+def gerar_novos_cnpjs(cnpj_ref, shift):
+    CODIGO_MATRIZ = '0001'
+    raiz_cnpj_ref = cnpj_ref[0:-6]
+    inicio = 0
+    fim = shift
+    passo = 1
+    if shift < 0:
+        inicio = shift
+        fim = 1
+    cnpjs_gerados = []
+    for i in range(inicio, fim, passo):
+        raiz_cnpj = str(int(raiz_cnpj_ref) + i).zfill(8)
+        base_cnpj_ref = raiz_cnpj + CODIGO_MATRIZ
+        cnpj = get_cnpj_com_digitos_verificadores(base_cnpj_ref)
+        cnpjs_gerados.append(cnpj)
+    return cnpjs_gerados
 
 
 def gerar_nova_data(mes, ano, passo):
