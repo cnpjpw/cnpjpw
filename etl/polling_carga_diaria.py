@@ -9,12 +9,11 @@ from cnpjpw_scrapers import gerar_novos_cnpjs
 from cnpjpw_scrapers import get_cnpj_info
 from cnpjpw_scrapers import parse_scrape_data
 from tqdm import tqdm
-from load import pegar_ultimo_cnpj_inserido
 from main import carregar_arquivos_bd
 import csv
 import psycopg
 from time import sleep
-from utils import pegar_vagos_dia, pegar_matrizes_banco
+from utils import pegar_vagos_dia, pegar_matrizes_banco, pegar_ultimo_cnpj_inserido2
 import zipfile
 from datetime import datetime, timezone, timedelta
 from archive import arquivar_csvs, recriar_acumuladores_archive
@@ -31,7 +30,7 @@ def polling_carga_diaria(limite_maximo, logger):
     s.headers = HEADERS
     with psycopg.connect(dbname=BD_NOME, user=BD_USUARIO) as conn:
         logger.info('Obtendo CNPJ mais Recente')
-        primeiro_cnpj = pegar_ultimo_cnpj_inserido(conn)
+        primeiro_cnpj = pegar_ultimo_cnpj_inserido2(conn)
         logger.info('Obtendo CNPJs deixados em raspagens anteriores')
         vagos, percentual = pegar_vagos_dia(conn)
         cnpjs_gerados = gerar_novos_cnpjs(primeiro_cnpj, limite_maximo)
