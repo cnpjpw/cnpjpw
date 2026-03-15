@@ -16,7 +16,7 @@ O que o [cnpj.pw](https://cnpj.pw) tenta fazer é juntar as características mai
 
 ## Acesso a API
 
-Qualquer pessoa pode acessar a API sem rate limit e sem necessidade de login atualmente. Basta acessar https://api.cnpj.pw/docs e usar o(s) endpoint(s) que melhor se adeque(m) ao seu caso de uso. Se você tem algum caso de uso que acredita que a API poderia suprir melhor e que seria útil para mais pessoas, abra uma issue.
+Qualquer IP pode acessar essa instância da API com rate limit de 10req/IP/s(ao ultrapassar esse limite a API começará a retornar 503) e sem necessidade de login atualmente. Basta acessar https://api.cnpj.pw/docs e usar o(s) endpoint(s) que melhor se adeque(m) ao seu caso de uso. Se você tem algum caso de uso que acredita que a API poderia suprir melhor e que seria útil para mais pessoas, abra uma issue.
 
 ## Acesso ao archive
 
