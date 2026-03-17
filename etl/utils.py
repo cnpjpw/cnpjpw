@@ -145,3 +145,19 @@ def pegar_matrizes_banco(primeiro, ultimo, conn):
     cnpjs = [r[0] for r in res]
     return cnpjs
 
+
+def pegar_ultimo_cnpj_inserido2(conn):
+    with conn.cursor() as cursor:
+        query_data = (
+            "SELECT data_inicio_atividade FROM estabelecimentos ORDER BY data_inicio_atividade DESC LIMIT 1"
+        )
+
+        data = cursor.execute(query_data).fetchone()[0]
+        query_cnpj = (
+                "SELECT (cnpj_base || cnpj_ordem || cnpj_dv) AS cnpj " +
+                "FROM estabelecimentos where data_inicio_atividade = (%s)::date " +
+                "ORDER BY (cnpj_base, cnpj_ordem, cnpj_dv) DESC LIMIT 1"
+                )
+        cnpj = cursor.execute(query_cnpj, (data, )).fetchone()[0]
+    return cnpj
+
