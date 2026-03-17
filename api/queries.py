@@ -137,7 +137,7 @@ SELECT row_to_json(result) FROM (
         )
 
     )
-    ORDER BY est.cnpj_base, est.cnpj_ordem, est.cnpj_dv ASC LIMIT 25
+    ORDER BY est.cnpj_base, est.cnpj_ordem, est.cnpj_dv ASC LIMIT 250
 ) result;
 """
 )

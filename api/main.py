@@ -151,7 +151,7 @@ def get_paginacao_data(data: str, cursor: Optional[str] = None, conn=Depends(get
     - **data**: data de abertura desejada no formado DD-MM-AAAA
     - **cursor**: se especificado, serão exibidos apenas resultados após o cnpj passado ao paramêtro 'cursor'.
 
-    exibindo de 25 em 25 resultados atualmente.
+    exibindo de 250 em 250 resultados atualmente.
     """
     try:
         datetime.strptime(data, '%d-%m-%Y')
@@ -176,7 +176,7 @@ def get_paginacao_data(data: str, cursor: Optional[str] = None, conn=Depends(get
         cursor.execute(DATA_ABERTURA_QUERY, parametros)
         resultados = cursor.fetchall()
     resultados = [res[0] for res in resultados]
-    return get_paginacao_template(resultados)
+    return get_paginacao_template(resultados, limite=250)
 
 
 @app.get("/socio/{doc}",
