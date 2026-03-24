@@ -3,7 +3,7 @@ from datetime import datetime, timedelta, timezone
 import os
 from pathlib import Path
 import zipfile
-from config import PRINCIPAIS
+from config import PRINCIPAIS, ARQ_TABELA_DIC
 
 
 def extrair_arquivo_zip(path_zip, destino):
@@ -11,7 +11,6 @@ def extrair_arquivo_zip(path_zip, destino):
         arqs_internos = archive.namelist()
         for nome_interno in arqs_internos:
             archive.extract(nome_interno, path=destino)
-    return nome_interno
 
 
 def recriar_acumuladores_archive(archive_horas, archive_dias, archive_semanas, dir_tmp, data_inicial):
@@ -34,6 +33,30 @@ def recriar_acumuladores_archive(archive_horas, archive_dias, archive_semanas, d
             acumular_csv(file.parts[-1], dir_tmp, path_dia_atual)
             acumular_csv(file.parts[-1], dir_tmp, path_semana_atual)
             file.unlink()
+
+def renomear_zips_archive(archive_horas):
+    nomes_zips = [z.parts[-1] for z in archive_horas.iterdir()]
+    for nome_zip in nomes_zips:
+        data_zip = nome_zip.split('.zip')[0]
+        (archive_horas / data_zip).mkdir(exist_ok=True)
+        pasta_tmp = (archive_horas / data_zip)
+        extrair_arquivo_zip(archive_horas / nome_zip, pasta_tmp)
+        nomes_antigos = [arquivo.parts[-1] for arquivo in pasta_tmp.iterdir()]
+        for nome_antigo in nomes_antigos:
+            arquivo = pasta_tmp / nome_antigo
+            nome_tabela = ARQ_TABELA_DIC[nome_antigo.split('.')[0]]
+            arquivo.rename(pasta_tmp / f'{nome_tabela}.csv')
+        (archive_horas / nome_zip).unlink()
+    compactar_pastas(archive_horas)
+
+
+def compactar_pastas(path_periodo):
+    for file in path_periodo.iterdir():
+        with zipfile.ZipFile(path_periodo / (file.parts[-1] + ".zip"), "w", compression=zipfile.ZIP_DEFLATED) as z:
+            for arquivo in file.rglob("*"):
+                if arquivo.is_file():
+                    z.write(arquivo, arquivo.relative_to(file))
+        shutil.rmtree(file)
 
 
 def acumular_csv(nome, path_entrada, path_saida):
