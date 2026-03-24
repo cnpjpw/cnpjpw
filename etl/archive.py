@@ -24,12 +24,8 @@ def recriar_acumuladores_archive(archive_horas, archive_dias, archive_semanas, d
         paths = [path_dia_atual, path_semana_atual]
         for p in paths:
             p.mkdir(parents=True, exist_ok=True)
-            for csv_nome in PRINCIPAIS:
-                (p / (csv_nome + '.csv')).touch() 
         for file in dir_tmp.iterdir():
             nome = file.parts[-1]
-            if nome not in [n + '.csv' for n in PRINCIPAIS]:
-                continue
             acumular_csv(file.parts[-1], dir_tmp, path_dia_atual)
             acumular_csv(file.parts[-1], dir_tmp, path_semana_atual)
             file.unlink()
