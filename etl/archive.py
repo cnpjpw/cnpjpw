@@ -101,7 +101,6 @@ def arquivar_csvs(path_origem, dic_origem_destino, path_horas, path_dias, path_s
     for arquivo in path_origem.rglob("*"):
         nome = arquivo.parts[-1].split('.')[0]
         nome_destino = dic_origem_destino[nome]
-        print(nome_destino)
         acumular_csv(arquivo, path_dia / f'{nome_destino}.csv')
         acumular_csv(arquivo, path_semana / f'{nome_destino}.csv')
 
@@ -109,7 +108,6 @@ def arquivar_csvs(path_origem, dic_origem_destino, path_horas, path_dias, path_s
         for arquivo in path_origem.rglob("*"):
             nome = arquivo.parts[-1].split('.')[0]
             nome_destino = dic_origem_destino[nome]
-            print(nome_destino)
             if arquivo.is_file():
                 z.write(arquivo, f'{nome_destino}.csv')
 
