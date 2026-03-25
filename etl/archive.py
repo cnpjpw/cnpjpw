@@ -26,8 +26,8 @@ def recriar_acumuladores_archive(archive_horas, archive_dias, archive_semanas, d
             p.mkdir(parents=True, exist_ok=True)
         for file in dir_tmp.iterdir():
             nome = file.parts[-1]
-            acumular_csv(file.parts[-1], dir_tmp, path_dia_atual)
-            acumular_csv(file.parts[-1], dir_tmp, path_semana_atual)
+            acumular_csv(file, path_dia_atual / nome)
+            acumular_csv(file, path_semana_atual / nome)
             file.unlink()
 
 def renomear_zips_archive(archive_horas):
@@ -55,11 +55,9 @@ def compactar_pastas(path_periodo):
         shutil.rmtree(file)
 
 
-def acumular_csv(nome, path_entrada, path_saida):
-    destino = path_saida / nome
-    with open(destino, 'ab') as wfd:
-        arquivo_particionado = path_entrada / nome
-        with open(arquivo_particionado, 'rb') as fd:
+def acumular_csv(path_entrada, path_saida):
+    with open(path_saida, 'ab') as wfd, \
+         open(path_entrada, 'rb') as fd:
             shutil.copyfileobj(fd, wfd)
 
 
@@ -91,7 +89,7 @@ def compactar_archives_passados(path_periodo, pasta_atual: str):
         shutil.rmtree(file)
 
 
-def arquivar_csvs(path_origem, path_horas, path_dias, path_semanas, data_inicial):
+def arquivar_csvs(path_origem, dic_origem_destino, path_horas, path_dias, path_semanas, data_inicial):
     data_atual = datetime.now(tz=timezone(timedelta(hours=-3)))
     pasta_dia, pasta_semana = encontrar_pastas_archive(data_atual, data_inicial)
     path_dia = path_dias / pasta_dia
@@ -101,10 +99,17 @@ def arquivar_csvs(path_origem, path_horas, path_dias, path_semanas, data_inicial
     compactar_archives_passados(path_dias, pasta_dia)
     compactar_archives_passados(path_semanas, pasta_semana)
     for arquivo in path_origem.rglob("*"):
-        acumular_csv(arquivo.relative_to(path_origem), path_origem, path_dia)
-        acumular_csv(arquivo.relative_to(path_origem), path_origem, path_semana)
+        nome = arquivo.parts[-1].split('.')[0]
+        nome_destino = dic_origem_destino[nome]
+        print(nome_destino)
+        acumular_csv(arquivo, path_dia / f'{nome_destino}.csv')
+        acumular_csv(arquivo, path_semana / f'{nome_destino}.csv')
 
     with zipfile.ZipFile(path_horas / (str(data_atual) + ".zip"), "w", compression=zipfile.ZIP_DEFLATED) as z:
         for arquivo in path_origem.rglob("*"):
+            nome = arquivo.parts[-1].split('.')[0]
+            nome_destino = dic_origem_destino[nome]
+            print(nome_destino)
             if arquivo.is_file():
-                z.write(arquivo, arquivo.relative_to(path_origem))
+                z.write(arquivo, f'{nome_destino}.csv')
+

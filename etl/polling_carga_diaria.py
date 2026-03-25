@@ -49,6 +49,7 @@ def polling_carga_diaria(limite_maximo, logger):
     data_inicial_archive = datetime(2026, 2, 11, tzinfo=timezone(timedelta(hours=-3)))
     arquivar_csvs(
     PATH_RAIZ / 'csv',
+    ARQ_TABELA_DIC,
     path_archive / 'horas_passadas',
     path_archive / 'dias_passados',
     path_archive  / 'semanas_passadas',
