@@ -28,7 +28,7 @@ Eu ainda não tenho um guia para contribuições(nem para instalação local, ne
 
 ## Contato
 
-Você pode entrar em contato abrindo uma issue, ou mandando um email para contato@cnpj.pw
+Você pode entrar em contato abrindo uma issue ou mandando um email para contato@cnpj.pw
 
  [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/cnpjpw)
 
