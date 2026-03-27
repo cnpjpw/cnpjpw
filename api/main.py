@@ -423,7 +423,7 @@ def get_cnaes(conn=Depends(get_conn)):
 
 @app.get("/faixas_etarias/",
          response_description="descrição e código de todas faixas etarias",
-         summary="Retorna todos cnaes",
+         summary="Retorna todas faixas etarias",
          response_model=Auxiliares,
          status_code=200
          )
