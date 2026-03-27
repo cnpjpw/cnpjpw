@@ -22,6 +22,7 @@ from queries import (
         PORTES_QUERY,
         SOCIOS_QUERY,
         IDENTIFICADORES_QUERY,
+        FAIXAS_ETARIAS_QUERY,
         get_busca_difusa_query
         )
 import unicodedata
@@ -415,6 +416,23 @@ def get_cnaes(conn=Depends(get_conn)):
     return {'resultados': resultados}
 
 
+@app.get("/faixas_etarias/",
+         response_description="descrição e código de todas faixas etarias",
+         summary="Retorna todos cnaes",
+         response_model=Auxiliares,
+         status_code=200
+         )
+def get_cnaes(conn=Depends(get_conn)):
+    """
+    Retorna a descrição e o código de todas as faixas etarias presentes no banco
+    """
+    with conn.cursor() as cursor:
+        cursor.execute(FAIXAS_ETARIAS_QUERY)
+        resultados = cursor.fetchall()
+    resultados = [res[0] for res in resultados]
+    return {'resultados': resultados}
+
+
 @app.get("/naturezas/",
          response_description="descrição e código de todas naturezas jurídicas",
          summary="Retorna todas naturezas jurídicas",
@@ -466,15 +484,15 @@ def get_portes(conn=Depends(get_conn)):
     return {'resultados': resultados}
 
 
-@app.get("/identificadores/",
-         response_description="descrição e código de todos identificadores(MATRIZ/FILIAL)",
-         summary="Retorna todos identificadores(MATRIZ/FILIAL)",
+@app.get("/identificador_matriz_filial/",
+         response_description="descrição e código do identificador MATRIZ/FILIAL",
+         summary="Retorna identificador MATRIZ/FILIAL",
          response_model=Auxiliares,
          status_code=200
          )
 def get_identificadores(conn=Depends(get_conn)):
     """
-    Retorna a descrição e o código de todos os identificadores(MATRIZ/FILIAL) presentes no banco
+    Retorna a descrição e código identificador MATRIZ/FILIAL presente no banco
     """
     with conn.cursor() as cursor:
         cursor.execute(IDENTIFICADORES_QUERY)
