@@ -26,6 +26,8 @@ from queries import (
         IDENTIFICADORES_SOCIOS_QUERY,
         QUALIFICACOES_SOCIOS_QUERY,
         QUALIFICACOES_REPRESENTANTES_QUERY,
+        PAISES_QUERY,
+        MOTIVOS_SITUACOES_QUERY,
         get_busca_difusa_query
         )
 import unicodedata
@@ -533,6 +535,40 @@ def get_qualificacoes_representantes(conn=Depends(get_conn)):
     """
     with conn.cursor() as cursor:
         cursor.execute(QUALIFICACOES_REPRESENTANTES_QUERY)
+        resultados = cursor.fetchall()
+    resultados = [res[0] for res in resultados]
+    return {'resultados': resultados}
+
+
+@app.get("/paises/",
+         response_description="descrição e código dos paises",
+         summary="Retorna o código e descrição dos paises",
+         response_model=Auxiliares,
+         status_code=200
+         )
+def get_paises(conn=Depends(get_conn)):
+    """
+    Retorna a descrição e código dos paises presentes no banco
+    """
+    with conn.cursor() as cursor:
+        cursor.execute(PAISES_QUERY)
+        resultados = cursor.fetchall()
+    resultados = [res[0] for res in resultados]
+    return {'resultados': resultados}
+
+
+@app.get("/motivos_situacoes/",
+         response_description="descrição e código dos motivos das situações cadastrais",
+         summary="Retorna o código e descrição dos motivos das situações cadastrais",
+         response_model=Auxiliares,
+         status_code=200
+         )
+def get_motivos_situacoes(conn=Depends(get_conn)):
+    """
+    Retorna a descrição e código dos motivos das situações cadastrais presentes no banco
+    """
+    with conn.cursor() as cursor:
+        cursor.execute(MOTIVOS_SITUACOES_QUERY)
         resultados = cursor.fetchall()
     resultados = [res[0] for res in resultados]
     return {'resultados': resultados}
