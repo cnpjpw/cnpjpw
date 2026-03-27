@@ -24,6 +24,8 @@ from queries import (
         IDENTIFICADORES_QUERY,
         FAIXAS_ETARIAS_QUERY,
         IDENTIFICADORES_SOCIOS_QUERY,
+        QUALIFICACOES_SOCIOS_QUERY,
+        QUALIFICACOES_REPRESENTANTES_QUERY,
         get_busca_difusa_query
         )
 import unicodedata
@@ -502,6 +504,40 @@ def get_identificadores(conn=Depends(get_conn)):
     return {'resultados': resultados}
 
 
+@app.get("/qualificacoes_socios/",
+         response_description="descrição e código das qualificacoes de sócio",
+         summary="Retorna o código e descrição das qualificacoes de sócio",
+         response_model=Auxiliares,
+         status_code=200
+         )
+def get_qualificacoes_socios(conn=Depends(get_conn)):
+    """
+    Retorna a descrição e código das qualificacoes de socio presente no banco
+    """
+    with conn.cursor() as cursor:
+        cursor.execute(QUALIFICACOES_SOCIOS_QUERY)
+        resultados = cursor.fetchall()
+    resultados = [res[0] for res in resultados]
+    return {'resultados': resultados}
+
+
+@app.get("/qualificacoes_representantes/",
+         response_description="descrição e código das qualificacoes de representante",
+         summary="Retorna o código e descrição das qualificacoes de representante",
+         response_model=Auxiliares,
+         status_code=200
+         )
+def get_qualificacoes_representantes(conn=Depends(get_conn)):
+    """
+    Retorna a descrição e código das qualificacoes de representante presente no banco
+    """
+    with conn.cursor() as cursor:
+        cursor.execute(QUALIFICACOES_REPRESENTANTES_QUERY)
+        resultados = cursor.fetchall()
+    resultados = [res[0] for res in resultados]
+    return {'resultados': resultados}
+
+
 @app.get("/tipos_socios/",
          response_description="descrição e código dos tipos de sócio",
          summary="Retorna o código e descrição dos tipos de sócio",
@@ -517,6 +553,8 @@ def get_tipos_socios(conn=Depends(get_conn)):
         resultados = cursor.fetchall()
     resultados = [res[0] for res in resultados]
     return {'resultados': resultados}
+
+
 
 
 @app.get("/count/data/{data}",
