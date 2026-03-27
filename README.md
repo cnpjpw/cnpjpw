@@ -26,4 +26,9 @@ O archive do cnpjpw é onde fica salvo todas as runs do scraper usado para tenta
 
 Eu ainda não tenho um guia para contribuições(nem para instalação local, nem para MUITA coisa...). O que tento fazer atualmente é colocar nas issues o que eu planejo fazer com base no que eu acho importante para o projeto, então talvez seja uma boa ideia dar uma olhada lá;
 
+## Contato
+
+Você pode entrar em contato abrindo uma issue, ou mandando um email para contato@cnpj.pw
+
  [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/cnpjpw)
+
