@@ -20,7 +20,7 @@ Qualquer IP pode acessar essa instância da API com rate limit de 10req/IP/s(ao 
 
 ## Acesso ao archive
 
-O archive do cnpjpw é onde fica salvo todas as runs do scraper usado para tentar remediar um pouco o gap entre as atualizações oficiais da RFB. O código do scraper não é público e nem será por alguns motivos que eu descrevo um pouco melhor [aqui](https://github.com/cnpjpw/cnpjpw/issues/2). Ainda assim, o resultados das coletas ficam todos salvos em https://archive.cnpj.pw antes mesmo de ir para o banco de dados, no mesmo formato disponibilizado pela receita(com algumas informações incompletas que só irão ser preenchidas na API com a atualização mensal da receita). É importante observar também que não há garantia de continuidade da atualização não mensal, então não conte com isso como garantido.
+O archive do cnpjpw é onde fica salvo todas as runs do scraper usado para tentar remediar um pouco o gap entre as atualizações oficiais da RFB. O código do scraper não é público e nem será por alguns motivos que eu descrevo um pouco melhor [aqui](https://github.com/cnpjpw/cnpjpw/issues/2). Ainda assim, o resultados das coletas ficam todos salvos em https://archive.cnpj.pw antes mesmo de ir para o banco de dados, no mesmo formato disponibilizado pela receita(com algumas informações incompletas que só irão ser preenchidas na API com a atualização mensal da receita). É importante observar também que não há garantia de continuidade da atualização não mensal, então não conte com isso como garantido. Aqui um [exemplo de client](https://github.com/cnpjpw/client_archive) usando as atualizações do archive para montar um sqlite local.
 
 ## Contribuições
 
