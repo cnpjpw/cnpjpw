@@ -26,7 +26,7 @@ class Socio(BaseModel):
     identificador_entidade_descricao: str | None = None
 
 
-class Estabelecimento(BaseModel):
+class CNPJ(BaseModel):
     cnpj_base: str
     nome_empresarial: str | None = None
     natureza_juridica: int | None = None
@@ -79,6 +79,37 @@ class Estabelecimento(BaseModel):
     situacao_cadastral_descricao: str | None = None
     socios: List[Socio] | None
 
+class Estabelecimento(BaseModel):
+    cnpj_base: str
+    cnpj_ordem: str
+    cnpj_dv: str
+    identificador: int | None = None
+    nome_fantasia: str | None = None
+    situacao_cadastral: int | None = None
+    data_situacao_cadastral: str | None = None
+    motivo_situacao_cadastral: int | None = None
+    nome_cidade_exterior: str | None = None
+    pais: str | None = None
+    data_inicio_atividade: str | None = None
+    cnae_fiscal_principal: int | None = None
+    cnaes_fiscais_secundarios: List[int] | None = None
+    tipo_logradouro: str | None = None
+    logradouro: str | None = None
+    numero: str | None = None
+    complemento: str | None = None
+    bairro: str | None = None
+    cep: str | None = None
+    uf: str | None = None
+    municipio: int | None = None
+    ddd1: str | None = None
+    telefone_1: str | None = None
+    ddd2: str | None = None
+    telefone_2: str | None = None
+    ddd_fax: str | None = None
+    fax: str | None = None
+    correio_eletronico: str | None = None
+    situacao_especial: str | None = None
+    data_situacao_especial: str | None = None
 
 class ItemAuxiliar(BaseModel):
     descricao: str

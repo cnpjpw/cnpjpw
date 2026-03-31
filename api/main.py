@@ -9,6 +9,7 @@ from fastapi.middleware.gzip import GZipMiddleware
 from dotenv import load_dotenv
 from queries import (
         CNPJ_QUERY,
+        ESTABELECIMENTO_QUERY,
         RAZAO_QUERY,
         RAIZ_QUERY,
         DATA_ABERTURA_QUERY,
@@ -33,6 +34,7 @@ from queries import (
 import unicodedata
 from datetime import datetime
 from modelos import (
+    CNPJ,
     Estabelecimento,
     PaginacaoEstabelecimentos,
     PaginacaoEmpresas,
@@ -74,9 +76,9 @@ def get_conn():
 
 
 @app.get("/cnpj/{cnpj}",
-         response_description="Página contendo informações do estabelecimento correspondente ao CNPJ passado",
-         summary="Retorna estabelecimento com CNPJ indicado",
-         response_model=Estabelecimento,
+         response_description="Página contendo informações todas informações do CNPJ passado",
+         summary="Retorna informações todas informações do CNPJ",
+         response_model=CNPJ,
          status_code=200
          )
 def get_cnpj(cnpj: str, response: Response, conn=Depends(get_conn)):
@@ -88,6 +90,25 @@ def get_cnpj(cnpj: str, response: Response, conn=Depends(get_conn)):
         res_json = cursor.fetchone()
     if not res_json:
         raise HTTPException(status_code=404, detail="CNPJ não encontrado")
+
+    return res_json[0]
+
+
+@app.get("/estabelecimento/{cnpj}",
+         response_description="Página contendo informações do estabelecimento correspondente ao CNPJ passado",
+         summary="Retorna estabelecimento com CNPJ indicado",
+         response_model=Estabelecimento,
+         status_code=200
+         )
+def get_cnpj(cnpj: str, response: Response, conn=Depends(get_conn)):
+    cnpj_base = cnpj[:8]
+    cnpj_ordem = cnpj[8:12]
+    cnpj_dv = cnpj[12:]
+    with conn.cursor() as cursor:
+        cursor.execute(ESTABELECIMENTO_QUERY, (cnpj_base, cnpj_ordem, cnpj_dv))
+        res_json = cursor.fetchone()
+    if not res_json:
+        raise HTTPException(status_code=404, detail="Estabelecimento não encontrado")
 
     return res_json[0]
 

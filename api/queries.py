@@ -73,6 +73,18 @@ FROM (
 """
 )
 
+ESTABELECIMENTO_QUERY = (
+"""
+SELECT row_to_json(result)
+FROM (
+    SELECT * FROM estabelecimentos est
+    WHERE est.cnpj_base=(%s)::bpchar
+    AND est.cnpj_ordem=(%s)::bpchar
+    AND est.cnpj_dv=(%s)::bpchar
+) result;
+"""
+)
+
 RAZAO_QUERY = (
 """
 SELECT row_to_json(result) FROM (
