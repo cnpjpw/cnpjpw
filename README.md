@@ -40,7 +40,7 @@ Um usuário me contatou e fez(e ainda faz) algumas doações para o projeto(muit
 
  Uma outra forma que você pode ajudar a manter o projeto é usando o [link de afiliado](https://www.netcup.com/de/?ref=267636) da netcup caso você já tenha interesse de obter uma VPS com eles. Usando o link teoricamente eu consigo 10% do que você gastar lá [pelo que eu entendi](https://www.netcup.com/en/helpcenter/documentation/general/affiliate-program).
 
- Só com as doações feitas por esse usuário até o momoento seria possível manter a infra por pelo menos mais 8 meses(considerando que os preços se mantenham) sem eu precisar tirar 1 centavo do meu bolso(novamente, muito obrigado!). Hoje ainda pago com meu dinheiro e deixo as doações guardadas como um tipo de garantia, além de tudo do projeto em débito automático.
+ Só com as doações feitas por esse usuário até o momoento seria possível manter a infra por pelo menos mais 8 meses(considerando que os preços se mantenham) sem eu precisar tirar 1 centavo do meu bolso(novamente, muito obrigado!). Hoje ainda pago com meu dinheiro e deixo as doações guardadas como uma garantia.
 
  Mas, gostaria de ressaltar que não tem como eu fornecer [nenhum tipo de garantia](https://github.com/cnpjpw/cnpjpw/issues/6) quanto as atualizações dos dados, somente quanto ao estado do projeto da forma como está atualmente; e também que não há nenhum tipo benefício para doadores.
 
