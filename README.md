@@ -30,17 +30,14 @@ Eu ainda não tenho um guia para contribuições(nem para instalação local, ne
 
 Você pode entrar em contato abrindo uma issue ou mandando um email para contato@cnpj.pw
 
-## Infra Usada e Suporte Financeiro
+## Infra
 
-Atualmente essa instância do cnpjpw roda em uma root server da netcup com [8gb de RAM, 4 núcleos e 512GB de disco](https://www.netcup.com/de/server/root-server/rs-1000-g12-ip-12m). Como eu aluguei em uma promoção antes do RAMpocalypse saiu por um preço bem legal, 8,24€/mês, mas [sofrendo os impactos dos aumentos de preço nas memórias no geral e tendo alguns problemas com fornecedores](https://forum.netcup.de/thread/21892-rampocalypse-we-need-to-talk-about-pricing/?postID=262878#post262878) eles tiveram que aumentar um pouco o preço até para usuários antigos, indo para 9,74€. Sinceramente, no momento há 0 necessidade de melhorar hardware. O sistema é bem leve para falar a verdade, a RAM quase não é usada, o disco a gente atualmente usa 165GB com vários índices no banco, com um aumento de empresas bem contido e singelo... Os 4 núcleos conseguem suportar até 10-13 IPS's rodando no topo do rate limit(o que não aconteceu, por enquanto) além da netcup fornecer uma garantia de uptime de 99.9%.
+Atualmente essa instância do cnpjpw roda em uma root server da netcup com [8gb de RAM, 4 núcleos e 512GB de disco](https://www.netcup.com/de/server/root-server/rs-1000-g12-ip-12m).
 
-Um usuário me contatou e fez(e ainda faz) algumas doações para o projeto(muito obrigado, Fabrício :D). Para tentar ter mais transparência quanto a isso eu abri um ko-fi. 
+## Suporte Financeiro
+
+É possível doar via ko-fi
 
  [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/cnpjpw)
 
- Uma outra forma que você pode ajudar a manter o projeto é usando o [link de afiliado](https://www.netcup.com/de/?ref=267636) da netcup caso você já tenha interesse de obter uma VPS com eles. Usando o link teoricamente eu consigo 10% do que você gastar lá [pelo que eu entendi](https://www.netcup.com/en/helpcenter/documentation/general/affiliate-program).
-
- Só com as doações feitas por esse usuário até o momoento seria possível manter a infra por pelo menos mais 8 meses(considerando que os preços se mantenham) sem eu precisar tirar 1 centavo do meu bolso(novamente, muito obrigado!). Hoje ainda pago com meu dinheiro e deixo as doações guardadas como uma garantia.
-
- Mas, gostaria de ressaltar que não tem como eu fornecer [nenhum tipo de garantia](https://github.com/cnpjpw/cnpjpw/issues/6) quanto as atualizações dos dados, somente quanto ao estado do projeto da forma como está atualmente; e também que não há nenhum tipo benefício para doadores.
-
+ Mas, gostaria de ressaltar que não tem como eu fornecer [nenhum tipo de garantia](https://github.com/cnpjpw/cnpjpw/issues/6) quanto as atualizações dos dados, somente quanto ao estado do projeto da forma como está atualmente; E também que não há nenhum tipo benefício para doadores.
