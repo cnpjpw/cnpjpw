@@ -26,18 +26,18 @@ O archive do cnpjpw é onde fica salvo todas as runs do scraper usado para tenta
 
 Eu ainda não tenho um guia para contribuições(nem para instalação local, nem para MUITA coisa...). O que tento fazer atualmente é colocar nas issues o que eu planejo fazer com base no que eu acho importante para o projeto, então talvez seja uma boa ideia dar uma olhada lá;
 
-## Contato
-
-Você pode entrar em contato abrindo uma issue ou mandando um email para contato@cnpj.pw
-
 ## Infra
 
 Atualmente essa instância do cnpjpw roda em uma root server da netcup com [8gb de RAM, 4 núcleos e 512GB de disco](https://www.netcup.com/de/server/root-server/rs-1000-g12-ip-12m).
 
 ## Suporte Financeiro
 
-É possível doar via ko-fi
-
  [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/cnpjpw)
 
- Mas, gostaria de ressaltar que não tem como eu fornecer [nenhum tipo de garantia](https://github.com/cnpjpw/cnpjpw/issues/6) quanto as atualizações dos dados, somente quanto ao estado do projeto da forma como está atualmente; E também que não há nenhum tipo benefício para doadores.
+## Garantia de Serviço
+
+Não há [nenhum tipo de garantia](https://github.com/cnpjpw/cnpjpw/issues/6) quanto as atualizações dos dados, somente quanto ao estado do projeto da forma como está atualmente.
+
+## Contato
+
+Você pode entrar em contato abrindo uma issue ou mandando um email para contato@cnpj.pw
