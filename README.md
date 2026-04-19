@@ -30,14 +30,6 @@ Eu ainda não tenho um guia para contribuições(nem para instalação local, ne
 
 Atualmente essa instância do cnpjpw roda em uma root server da netcup com [8gb de RAM, 4 núcleos e 512GB de disco](https://www.netcup.com/de/server/root-server/rs-1000-g12-ip-12m).
 
-## Suporte Financeiro
-
- [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/cnpjpw)
-
-## Garantia de Serviço
-
-Não há [nenhum tipo de garantia](https://github.com/cnpjpw/cnpjpw/issues/6) quanto as atualizações dos dados, somente quanto ao estado do projeto da forma como está atualmente.
-
 ## Contato
 
-Você pode entrar em contato abrindo uma issue ou mandando um email para contato@cnpj.pw
+Você pode entrar em contato abrindo uma issue
