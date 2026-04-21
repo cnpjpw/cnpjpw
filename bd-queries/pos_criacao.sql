@@ -7,7 +7,6 @@ CREATE INDEX razao_social_idx ON empresas (nome_empresarial);
 CREATE INDEX capital_social_idx ON empresas (capital_social);
 CREATE INDEX razao_social_segmentos_texto_idx ON empresas (nome_empresarial text_pattern_ops, cnpj_base);
 CREATE INDEX natureza_juridica_idx ON empresas (natureza_juridica);
-CREATE INDEX capital_cnpj_empresas_idx ON empresas (capital_social, cnpj_base);
 CREATE INDEX estabelecimentos_municipio_idx ON estabelecimentos (municipio);
 CREATE INDEX data_abertura_idx ON estabelecimentos (data_inicio_atividade);
 CREATE INDEX cnpj_e_data_inscricao_idx ON estabelecimentos (data_inicio_atividade, cnpj_base, cnpj_ordem, cnpj_dv);
