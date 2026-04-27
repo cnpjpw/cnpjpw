@@ -5,7 +5,6 @@ from psycopg import ClientCursor
 import os
 from math import ceil
 from time import time
-from fastapi.middleware.gzip import GZipMiddleware
 from dotenv import load_dotenv
 from queries import (
         CNPJ_QUERY,
@@ -45,7 +44,6 @@ from modelos import (
 
 load_dotenv()
 app = FastAPI()
-app.add_middleware(GZipMiddleware, minimum_size=1000, compresslevel=5)
 bd_nome = os.getenv('BD_NOME')
 bd_usuario = os.getenv('BD_USUARIO')
 
